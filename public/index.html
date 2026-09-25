@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bharat Mitra Infotech V10 - Official Portal & Android APK</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #0F172A;
+      --primary-light: #1E293B;
+      --accent: #2563EB;
+      --accent-hover: #1D4ED8;
+      --saffron: #F97316;
+      --saffron-dark: #EA580C;
+      --green: #10B981;
+      --bg: #F8FAFC;
+      --card-bg: #FFFFFF;
+      --border: #E2E8F0;
+      --text: #0F172A;
+      --text-muted: #64748B;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', -apple-system, sans-serif;
+      background: linear-gradient(180deg, #F1F5F9 0%, #FFFFFF 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 32px 16px 64px;
+    }
+    .wrapper {
+      width: 100%;
+      max-width: 760px;
+    }
+    .header-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 28px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .brand-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #FF9933 0%, #FFFFFF 50%, #138808 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+      border: 1px solid rgba(0,0,0,0.08);
+      font-size: 26px;
+    }
+    .brand-text h1 {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--primary);
+      letter-spacing: -0.02em;
+    }
+    .brand-text p {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 9999px;
+      background: #ECFDF5;
+      color: #065F46;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid #A7F3D0;
+    }
+    .status-ping {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 2px rgba(16,185,129,0.3);
+    }
+    .hero-card {
+      background: var(--card-bg);
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      padding: 32px;
+      box-shadow: 0 10px 30px -10px rgba(15,23,42,0.08);
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--saffron), #3B82F6, var(--green));
+    }
+    .hero-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+    .hero-subtitle {
+      color: var(--text-muted);
+      font-size: 15px;
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+    .apk-box {
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .apk-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .apk-file-details {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .apk-icon {
+      font-size: 32px;
+    }
+    .apk-name {
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--primary);
+    }
+    .apk-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .apk-tag {
+      background: #EEF2FF;
+      color: #3730A3;
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid #C7D2FE;
+    }
+    .btn-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 600px) {
+      .btn-group {
+        grid-template-columns: 1fr;
+      }
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 20px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 15px;
+      text-decoration: none;
+      transition: all 0.15s ease-in-out;
+      cursor: pointer;
+      text-align: center;
+    }
+    .btn-download {
+      background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+      color: white;
+      box-shadow: 0 4px 14px rgba(37,99,235,0.3);
+      border: none;
+    }
+    .btn-download:hover {
+      background: linear-gradient(135deg, #1D4ED8 0%, #1E40AF 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(37,99,235,0.4);
+    }
+    .btn-pay {
+      background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
+      color: white;
+      box-shadow: 0 4px 14px rgba(249,115,22,0.3);
+      border: none;
+    }
+    .btn-pay:hover {
+      background: linear-gradient(135deg, #EA580C 0%, #C2410C 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(249,115,22,0.4);
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 540px) {
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .feature-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+    .feature-icon-wrapper {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .icon-bank { background: #EFF6FF; }
+    .icon-gov { background: #FEF3C7; }
+    .icon-bill { background: #F0FDF4; }
+    .icon-radar { background: #FAF5FF; }
+    .feature-info h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+    .feature-info p {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+    .config-card {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      font-size: 13px;
+    }
+    .config-title {
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .config-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      color: var(--text-muted);
+    }
+    .config-list li {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .check {
+      color: var(--green);
+      font-weight: 800;
+    }
+    footer {
+      text-align: center;
+      margin-top: 36px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <header class="header-bar">
+      <div class="brand">
+        <div class="brand-icon">🇮🇳</div>
+        <div class="brand-text">
+          <h1>Bharat Mitra Infotech V10</h1>
+          <p>Digital Citizen & Mitra Services Portal</p>
+        </div>
+      </div>
+      <div class="badge-status">
+        <span class="status-ping"></span>
+        <span>APK Ready</span>
+      </div>
+    </header>
+
+    <main>
+      <div class="hero-card">
+        <h2 class="hero-title">Official V10 Android Application</h2>
+        <p class="hero-subtitle">
+          Comprehensive rural and semi-urban digital service kiosk application featuring AePS banking, Aadhaar identity authentication, BBPS utility bill clearing, and citizen registry integration.
+        </p>
+
+        <div class="apk-box">
+          <div class="apk-meta">
+            <div class="apk-file-details">
+              <span class="apk-icon">📱</span>
+              <div>
+                <div class="apk-name">bharat-mitra-v10.apk</div>
+                <div class="apk-sub">29.4 MB • Android 8.0+ (API Level 26+) • Release Debug Signed</div>
+              </div>
+            </div>
+            <span class="apk-tag">V10.0 Build</span>
+          </div>
+
+          <div class="btn-group">
+            <a href="bharat-mitra-v10.apk" download="bharat-mitra-v10.apk" class="btn btn-download">
+              <span>📥</span> Download Android APK
+            </a>
+            <a href="https://razorpay.me/@bharatmitrainfotech" target="_blank" rel="noopener noreferrer" class="btn btn-pay">
+              <span>💳</span> Official Razorpay Gateway
+            </a>
+          </div>
+        </div>
+
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon-wrapper icon-bank">🏦</div>
+            <div class="feature-info">
+              <h4>AePS & Micro-ATM</h4>
+              <p>Biometric cash withdrawal, balance inquiry, mini statements, and direct bank transfers.</p>
+            </div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-wrapper icon-gov">🏛️</div>
+            <div class="feature-info">
+              <h4>Government Schemes (A to Z)</h4>
+              <p>PM-Kisan, Ayushman Bharat, E-Shram, ration cards, and social welfare scheme enrolments.</p>
+            </div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-wrapper icon-bill">⚡</div>
+            <div class="feature-info">
+              <h4>Bharat BillPay (BBPS)</h4>
+              <p>Instant bill payments for Electricity, Water, Gas, FASTag recharges, and broadband utilities.</p>
+            </div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-wrapper icon-radar">📍</div>
+            <div class="feature-info">
+              <h4>Geo-Radar & Mitra Dispatch</h4>
+              <p>Real-time field officer locator, Gari bookings, Observer audit verification, and village wall feed.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="config-card">
+          <div class="config-title">
+            <span>⚙️</span> System & Environment Status
+          </div>
+          <ul class="config-list">
+            <li><span class="check">✓</span> Payment Gateway: Razorpay integrated (https://razorpay.me/@bharatmitrainfotech)</li>
+            <li><span class="check">✓</span> Firebase Services: Google Services config active (bharat-mitra-v10)</li>
+            <li><span class="check">✓</span> Application Package: com.example.bharatmitra (Production Verified)</li>
+            <li><span class="check">✓</span> Distribution Server: Direct APK download served via portal</li>
+          </ul>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <p>© 2026 Bharat Mitra Infotech. All Rights Reserved.</p>
+    </footer>
+  </div>
+</body>
+</html>
