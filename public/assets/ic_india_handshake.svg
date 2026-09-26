@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#F8FAFC"/>
+    </linearGradient>
+    <linearGradient id="saffronGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF9933"/>
+      <stop offset="100%" stop-color="#E65100"/>
+    </linearGradient>
+    <linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#138808"/>
+      <stop offset="100%" stop-color="#0A5C05"/>
+    </linearGradient>
+    <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563EB"/>
+      <stop offset="100%" stop-color="#1D4ED8"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#0F172A" flood-opacity="0.10"/>
+    </filter>
+  </defs>
+
+  <!-- Clean pure white background with rounded corners (Adaptive standard) -->
+  <rect x="16" y="16" width="480" height="480" rx="104" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="5" filter="url(#shadow)"/>
+
+  <!-- India Map Outline Silhouette -->
+  <g transform="translate(68, 48) scale(0.74)" opacity="0.95">
+    <path d="M 256,20 C 270,40 290,55 310,70 C 330,85 360,95 380,120 C 395,140 420,165 410,195 C 400,225 360,240 375,270 C 390,300 440,320 445,350 C 450,380 410,400 395,430 C 380,460 340,490 310,515 C 285,535 265,565 256,585 C 247,565 227,535 202,515 C 172,490 132,460 117,430 C 102,400 62,380 67,350 C 72,320 122,300 137,270 C 152,240 112,225 102,195 C 92,165 117,140 132,120 C 152,95 182,85 202,70 C 222,55 242,40 256,20 Z" 
+          fill="none" stroke="url(#blueGrad)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" opacity="0.22"/>
+  </g>
+
+  <!-- India Map Handshake Partnership Emblem (No Text Inside Icon) -->
+  <g transform="translate(92, 110) scale(0.64)">
+    <!-- Left Hand & Arm (Tricolor Saffron) -->
+    <path d="M 40,340 L 160,220 C 175,205 200,205 215,220 L 260,265 L 290,235 C 300,225 315,225 325,235 L 345,255 L 285,315 C 275,325 260,325 250,315 L 225,290 L 175,340 C 160,355 135,355 120,340 Z" fill="url(#saffronGrad)"/>
+    
+    <!-- Right Hand & Arm (Tricolor Emerald Green) -->
+    <path d="M 480,340 L 360,220 C 345,205 320,205 305,220 L 260,265 L 230,235 C 220,225 205,225 195,235 L 175,255 L 235,315 C 245,325 260,325 270,315 L 295,290 L 345,340 C 360,355 385,355 400,340 Z" fill="url(#greenGrad)"/>
+
+    <!-- Interlocking Handshake Fingers -->
+    <path d="M 235,260 C 245,250 260,250 270,260 L 305,295 C 315,305 315,320 305,330 C 295,340 280,340 270,330 L 235,295 C 225,285 225,270 235,260 Z" fill="#FFFFFF" stroke="#0F172A" stroke-width="4"/>
+    <path d="M 265,290 C 275,280 290,280 300,290 L 335,325 C 345,335 345,350 335,360 C 325,370 310,370 300,360 L 265,325 C 255,315 255,300 265,290 Z" fill="#FFFFFF" stroke="#0F172A" stroke-width="4"/>
+    
+    <!-- Ashok Chakra Accent in Center -->
+    <circle cx="260" cy="175" r="34" fill="none" stroke="#1E40AF" stroke-width="5"/>
+    <circle cx="260" cy="175" r="6" fill="#1E40AF"/>
+    <line x1="260" y1="141" x2="260" y2="209" stroke="#1E40AF" stroke-width="3"/>
+    <line x1="226" y1="175" x2="294" y2="175" stroke="#1E40AF" stroke-width="3"/>
+    <line x1="236" y1="151" x2="284" y2="199" stroke="#1E40AF" stroke-width="3"/>
+    <line x1="236" y1="199" x2="284" y2="151" stroke="#1E40AF" stroke-width="3"/>
+  </g>
+</svg>

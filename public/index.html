@@ -2,397 +2,2307 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bharat Mitra Infotech V10 - Official Portal & Android APK</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Bharat Mitra V10 - Unified App Suite (User, Driver, Admin)</title>
+  <link rel="icon" type="image/png" href="assets/app_icon.png">
+  <link rel="apple-touch-icon" href="assets/app_icon.png">
+  <link rel="manifest" href="/manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
+    /* SPLASH SCREEN (FACEBOOK STYLE) */
+    #splashScreen {
+      position: fixed;
+      inset: 0;
+      background: #FFFFFF;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 60px 24px 40px;
+      transition: opacity 0.4s ease-out, visibility 0.4s ease-out;
+    }
+    #splashScreen.hide {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .splash-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      margin-top: auto;
+      margin-bottom: auto;
+    }
+    .splash-icon {
+      width: 96px;
+      height: 96px;
+      border-radius: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      border: 1px solid #E2E8F0;
+      animation: pulseLogo 2s infinite ease-in-out;
+    }
+    @keyframes pulseLogo {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.04); }
+    }
+    .splash-text-brand {
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      color: #0F172A;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+    .splash-sub {
+      font-size: 13px;
+      font-weight: 700;
+      color: #2563EB;
+      letter-spacing: 0.02em;
+    }
+    .splash-footer {
+      font-size: 12px;
+      color: #94A3B8;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
     :root {
       --primary: #0F172A;
       --primary-light: #1E293B;
       --accent: #2563EB;
       --accent-hover: #1D4ED8;
+      --accent-light: #EFF6FF;
       --saffron: #F97316;
       --saffron-dark: #EA580C;
+      --saffron-light: #FFF7ED;
       --green: #10B981;
+      --green-dark: #059669;
+      --green-light: #ECFDF5;
+      --red: #EF4444;
+      --red-light: #FEF2F2;
+      --amber: #F59E0B;
+      --amber-light: #FFFBEB;
       --bg: #F8FAFC;
       --card-bg: #FFFFFF;
       --border: #E2E8F0;
       --text: #0F172A;
       --text-muted: #64748B;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
     }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', -apple-system, sans-serif;
-      background: linear-gradient(180deg, #F1F5F9 0%, #FFFFFF 100%);
+      background-color: #0F172A;
       color: var(--text);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 32px 16px 64px;
     }
-    .wrapper {
+
+    /* TOP GLOBAL ROLE SWITCHER BAR */
+    .role-switcher-bar {
       width: 100%;
-      max-width: 760px;
-    }
-    .header-bar {
+      background: #1E293B;
+      border-bottom: 1px solid #334155;
+      padding: 10px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding-bottom: 24px;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 28px;
+      position: sticky;
+      top: 0;
+      z-index: 2000;
+      gap: 12px;
+      flex-wrap: wrap;
     }
-    .brand {
+    .role-brand {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 10px;
+      color: white;
     }
-    .brand-icon {
-      width: 52px;
-      height: 52px;
-      border-radius: 14px;
+    .role-brand-badge {
+      background: linear-gradient(135deg, #FF9933 0%, #FFFFFF 50%, #138808 100%);
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+    .role-brand-name {
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+    }
+    .role-buttons {
+      display: flex;
+      background: #0F172A;
+      padding: 4px;
+      border-radius: 12px;
+      gap: 4px;
+      border: 1px solid #334155;
+    }
+    .role-btn {
+      padding: 6px 14px;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      color: #94A3B8;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+    .role-btn.active {
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 2px 8px rgba(37,99,235,0.4);
+    }
+    .role-btn.admin.active {
+      background: #7C3AED;
+      box-shadow: 0 2px 8px rgba(124,58,237,0.4);
+    }
+    .role-btn.driver.active {
+      background: var(--saffron);
+      box-shadow: 0 2px 8px rgba(249,115,22,0.4);
+    }
+
+    /* MAIN CONTAINER / APP WRAPPER */
+    .app-container {
+      width: 100%;
+      max-width: 600px;
+      min-height: calc(100vh - 54px);
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      box-shadow: 0 0 50px rgba(0,0,0,0.4);
+      padding-bottom: 85px; /* for bottom navigation */
+    }
+    .app-container.admin-mode {
+      max-width: 960px;
+      padding-bottom: 24px;
+    }
+
+    /* TOP HEADER */
+    .header-bar {
+      background: white;
+      border-bottom: 1px solid var(--border);
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 54px;
+      z-index: 1000;
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .header-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
       background: linear-gradient(135deg, #FF9933 0%, #FFFFFF 50%, #138808 100%);
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.1);
-      border: 1px solid rgba(0,0,0,0.08);
-      font-size: 26px;
-    }
-    .brand-text h1 {
       font-size: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .header-titles h1 {
+      font-size: 16px;
       font-weight: 800;
       color: var(--primary);
-      letter-spacing: -0.02em;
+      line-height: 1.2;
     }
-    .brand-text p {
-      font-size: 13px;
+    .header-titles p {
+      font-size: 11px;
       color: var(--text-muted);
-      font-weight: 500;
+      font-weight: 600;
     }
-    .badge-status {
+    .btn-rpay-quick {
       display: inline-flex;
       align-items: center;
       gap: 6px;
+      background: var(--saffron-light);
+      border: 1px solid #FED7AA;
+      color: var(--saffron-dark);
       padding: 6px 12px;
       border-radius: 9999px;
-      background: #ECFDF5;
-      color: #065F46;
-      font-size: 12px;
-      font-weight: 600;
-      border: 1px solid #A7F3D0;
+      font-size: 11px;
+      font-weight: 700;
+      text-decoration: none;
     }
-    .status-ping {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--green);
-      box-shadow: 0 0 0 2px rgba(16,185,129,0.3);
+
+    /* CONTENT SECTIONS */
+    .dashboard-view {
+      display: none;
+      padding: 16px;
+      flex-direction: column;
+      gap: 18px;
     }
-    .hero-card {
-      background: var(--card-bg);
-      border-radius: 20px;
+    .dashboard-view.active {
+      display: flex;
+    }
+
+    /* CARD STYLING */
+    .card {
+      background: white;
+      border-radius: var(--radius-lg);
       border: 1px solid var(--border);
-      padding: 32px;
-      box-shadow: 0 10px 30px -10px rgba(15,23,42,0.08);
-      margin-bottom: 24px;
-      position: relative;
-      overflow: hidden;
-    }
-    .hero-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, var(--saffron), #3B82F6, var(--green));
-    }
-    .hero-title {
-      font-size: 24px;
-      font-weight: 800;
-      color: var(--primary);
-      margin-bottom: 8px;
-      letter-spacing: -0.02em;
-    }
-    .hero-subtitle {
-      color: var(--text-muted);
-      font-size: 15px;
-      margin-bottom: 24px;
-      line-height: 1.5;
-    }
-    .apk-box {
-      background: #F8FAFC;
-      border: 1px solid #E2E8F0;
-      border-radius: 16px;
       padding: 20px;
+      box-shadow: 0 4px 15px rgba(15,23,42,0.03);
+    }
+
+    /* USER APP: 2 BIG CARDS */
+    .big-cards-box {
       display: flex;
       flex-direction: column;
-      gap: 16px;
-      margin-bottom: 24px;
+      gap: 14px;
     }
-    .apk-meta {
+    .big-hero-card {
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.2s;
+      border: 2px solid transparent;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .big-hero-card:hover {
+      transform: translateY(-2px);
+    }
+    .card-gari-hero {
+      background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+      border-color: #93C5FD;
+    }
+    .card-sebak-hero {
+      background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%);
+      border-color: #FDBA74;
+    }
+    .hero-card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      flex-wrap: wrap;
-      gap: 12px;
     }
-    .apk-file-details {
+    .hero-icon-box {
+      width: 50px;
+      height: 50px;
+      border-radius: 14px;
+      background: white;
       display: flex;
       align-items: center;
-      gap: 12px;
+      justify-content: center;
+      font-size: 26px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     }
-    .apk-icon {
-      font-size: 32px;
+    .hero-badge {
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      text-transform: uppercase;
     }
-    .apk-name {
-      font-weight: 700;
-      font-size: 16px;
+    .badge-blue { background: #BFDBFE; color: #1E40AF; }
+    .badge-orange { background: #FED7AA; color: #9A3412; }
+    .hero-title {
+      font-size: 20px;
+      font-weight: 800;
       color: var(--primary);
     }
-    .apk-sub {
+    .hero-desc {
       font-size: 13px;
+      color: #475569;
+      line-height: 1.4;
+    }
+    .hero-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .chip {
+      background: rgba(255,255,255,0.9);
+      border: 1px solid rgba(0,0,0,0.06);
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--primary-light);
+    }
+    .hero-btn {
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .card-gari-hero .hero-btn { background: var(--accent); }
+    .card-sebak-hero .hero-btn { background: var(--saffron); }
+
+    /* VEHICLE CARDS */
+    .vehicle-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin: 14px 0;
+    }
+    .veh-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      cursor: pointer;
+      background: white;
+    }
+    .veh-item.selected {
+      border-color: var(--accent);
+      background: var(--accent-light);
+    }
+    .veh-item-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .veh-item-icon {
+      font-size: 24px;
+    }
+    .veh-item-name {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--primary);
+    }
+    .veh-item-sub {
+      font-size: 11px;
       color: var(--text-muted);
     }
-    .apk-tag {
-      background: #EEF2FF;
-      color: #3730A3;
-      padding: 4px 10px;
-      border-radius: 8px;
-      font-size: 12px;
-      font-weight: 700;
-      border: 1px solid #C7D2FE;
+    .veh-item-price {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--primary);
+      text-align: right;
     }
-    .btn-group {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-    @media (max-width: 600px) {
-      .btn-group {
-        grid-template-columns: 1fr;
-      }
-    }
+
+    /* BUTTONS */
     .btn {
+      padding: 12px 18px;
+      border-radius: 12px;
+      border: none;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      padding: 14px 20px;
-      border-radius: 12px;
-      font-weight: 600;
-      font-size: 15px;
+      gap: 8px;
+      transition: all 0.15s;
       text-decoration: none;
-      transition: all 0.15s ease-in-out;
-      cursor: pointer;
-      text-align: center;
     }
-    .btn-download {
-      background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
-      color: white;
-      box-shadow: 0 4px 14px rgba(37,99,235,0.3);
-      border: none;
-    }
-    .btn-download:hover {
-      background: linear-gradient(135deg, #1D4ED8 0%, #1E40AF 100%);
-      transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(37,99,235,0.4);
-    }
-    .btn-pay {
-      background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
-      color: white;
-      box-shadow: 0 4px 14px rgba(249,115,22,0.3);
-      border: none;
-    }
-    .btn-pay:hover {
-      background: linear-gradient(135deg, #EA580C 0%, #C2410C 100%);
-      transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(249,115,22,0.4);
-    }
-    .features-grid {
+    .btn-block { width: 100%; }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-saffron { background: var(--saffron); color: white; }
+    .btn-saffron:hover { background: var(--saffron-dark); }
+    .btn-green { background: var(--green); color: white; }
+    .btn-green:hover { background: var(--green-dark); }
+    .btn-red { background: var(--red); color: white; }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+
+    /* SEBAK GRID */
+    .sebak-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-      margin-bottom: 24px;
+      gap: 12px;
+      margin-top: 12px;
     }
-    @media (max-width: 540px) {
-      .features-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-    .feature-card {
-      background: var(--card-bg);
+    .sebak-tile {
+      background: #FFFFFF;
       border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 18px;
-      display: flex;
-      gap: 14px;
-      align-items: flex-start;
-    }
-    .feature-icon-wrapper {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      flex-shrink: 0;
-    }
-    .icon-bank { background: #EFF6FF; }
-    .icon-gov { background: #FEF3C7; }
-    .icon-bill { background: #F0FDF4; }
-    .icon-radar { background: #FAF5FF; }
-    .feature-info h4 {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--primary);
-      margin-bottom: 4px;
-    }
-    .feature-info p {
-      font-size: 12px;
-      color: var(--text-muted);
-      line-height: 1.4;
-    }
-    .config-card {
-      background: #F8FAFC;
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 20px;
-      font-size: 13px;
-    }
-    .config-title {
-      font-weight: 700;
-      color: var(--primary);
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .config-list {
-      list-style: none;
+      border-radius: var(--radius-md);
+      padding: 14px;
       display: flex;
       flex-direction: column;
       gap: 6px;
-      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s;
     }
-    .config-list li {
+    .sebak-tile:hover {
+      border-color: var(--saffron);
+      transform: translateY(-2px);
+    }
+    .sebak-icon {
+      font-size: 24px;
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: var(--saffron-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 4px;
+    }
+    .sebak-name {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--primary);
+    }
+    .sebak-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.3;
+      flex-grow: 1;
+    }
+    .sebak-price {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--saffron-dark);
+      background: var(--saffron-light);
+      padding: 2px 8px;
+      border-radius: 6px;
+      align-self: flex-start;
+    }
+
+    /* DRIVER APP STYLES */
+    .status-banner {
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .banner-pending {
+      background: var(--amber-light);
+      border: 1px solid #FDE68A;
+      color: #92400E;
+    }
+    .banner-approved {
+      background: var(--green-light);
+      border: 1px solid #A7F3D0;
+      color: #065F46;
+    }
+    .banner-rejected {
+      background: var(--red-light);
+      border: 1px solid #FECACA;
+      color: #991B1B;
+    }
+
+    /* STATS ROW */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    @media (max-width: 500px) {
+      .stats-row { grid-template-columns: 1fr; }
+    }
+    .stat-card {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      text-align: center;
+    }
+    .stat-num {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--primary);
+      margin-top: 2px;
+    }
+    .stat-text {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* DOCUMENT UPLOAD TILES */
+    .doc-upload-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin: 14px 0;
+    }
+    .doc-box {
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
+      cursor: pointer;
+      background: #F8FAFC;
+      position: relative;
+    }
+    .doc-box.uploaded {
+      border-color: var(--green);
+      background: var(--green-light);
+    }
+    .doc-box.rejected {
+      border-color: var(--red);
+      background: var(--red-light);
+    }
+    .doc-box-title {
+      font-size: 12px;
+      font-weight: 700;
+      margin-top: 6px;
+      color: var(--primary);
+    }
+    .doc-box-status {
+      font-size: 10px;
+      font-weight: 800;
+      margin-top: 2px;
+    }
+
+    /* ADMIN DASHBOARD TABLES & TABS */
+    .admin-nav {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+    .admin-tab {
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: none;
+      background: #F1F5F9;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .admin-tab.active {
+      background: #7C3AED;
+      color: white;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      width: 100%;
+    }
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .data-table th {
+      background: #F8FAFC;
+      padding: 10px 12px;
+      text-align: left;
+      font-weight: 700;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+    }
+    .data-table td {
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--primary);
+    }
+
+    /* BOTTOM NAV (4 ITEMS ONLY FOR MOBILE APP VIEWS) */
+    .bottom-bar {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 600px;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      padding: 8px 6px 12px;
+      z-index: 1500;
+    }
+    .nav-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      border: none;
+      background: transparent;
+      color: #94A3B8;
+      cursor: pointer;
+      padding: 4px;
+    }
+    .nav-btn.active {
+      color: var(--accent);
+    }
+    .nav-btn .icon {
+      font-size: 20px;
+    }
+    .nav-btn .label {
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    /* MODAL */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 3000;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal-sheet {
+      background: white;
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 500px;
+      padding: 24px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+    }
+    .modal-close {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      background: #F1F5F9;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    /* TOAST */
+    #toast {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #0F172A;
+      color: white;
+      padding: 12px 22px;
+      border-radius: 9999px;
+      font-size: 13px;
+      font-weight: 700;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      transition: transform 0.25s ease-out;
+      z-index: 4000;
       display: flex;
       align-items: center;
       gap: 8px;
     }
-    .check {
-      color: var(--green);
-      font-weight: 800;
-    }
-    footer {
-      text-align: center;
-      margin-top: 36px;
-      font-size: 13px;
-      color: var(--text-muted);
+    #toast.show {
+      transform: translateX(-50%) translateY(0);
     }
   </style>
 </head>
 <body>
-  <div class="wrapper">
+
+  <!-- SPLASH SCREEN (FACEBOOK STYLE: India Map Handshake + BHARAT MITRA text) -->
+  <div id="splashScreen" onclick="dismissSplash()">
+    <div></div>
+    <div class="splash-center">
+      <img src="assets/app_icon.png" alt="Bharat Mitra App Icon" class="splash-icon">
+      <div class="splash-text-brand">BHARAT MITRA</div>
+      <div class="splash-sub">Mobility & Home Services</div>
+    </div>
+    <div class="splash-footer">
+      from BHARAT MITRA INFOTECH
+    </div>
+  </div>
+
+  <!-- TOP GLOBAL ROLE SWITCHER -->
+  <div class="role-switcher-bar">
+    <div class="role-brand">
+      <img src="assets/app_icon.png" alt="Icon" style="width: 26px; height: 26px; border-radius: 6px; background: white; object-fit: contain;">
+      <div class="role-brand-name">Bharat Mitra V10 Suite</div>
+    </div>
+    <div class="role-buttons">
+      <button class="role-btn active" id="btnRoleUser" onclick="switchRole('user')">
+        <span>👤</span> Customer App
+      </button>
+      <button class="role-btn driver" id="btnRoleDriver" onclick="switchRole('driver')">
+        <span>🚕</span> Driver / Sebak App
+      </button>
+      <button class="role-btn admin" id="btnRoleAdmin" onclick="switchRole('admin')">
+        <span>🛡️</span> Admin Panel
+      </button>
+    </div>
+  </div>
+
+  <!-- APPLICATION CONTAINER -->
+  <div class="app-container" id="mainAppContainer">
+
+    <!-- TOP HEADER -->
     <header class="header-bar">
-      <div class="brand">
-        <div class="brand-icon">🇮🇳</div>
-        <div class="brand-text">
-          <h1>Bharat Mitra Infotech V10</h1>
-          <p>Digital Citizen & Mitra Services Portal</p>
+      <div class="header-left">
+        <img src="assets/app_icon.png" alt="Bharat Mitra Icon" class="header-logo" style="width: 40px; height: 40px; border-radius: 12px; object-fit: contain; background: white; padding: 2px; border: 1px solid #E2E8F0;">
+        <div class="header-titles">
+          <h1 id="headerAppTitle">Bharat Mitra Customer</h1>
+          <p id="headerAppSub">2 Modules: Gari Booking & A to Z Sebak</p>
         </div>
       </div>
-      <div class="badge-status">
-        <span class="status-ping"></span>
-        <span>APK Ready</span>
-      </div>
+      <!-- Razorpay link -->
+      <a href="https://razorpay.me/@bharatmitrainfotech" target="_blank" rel="noopener noreferrer" class="btn-rpay-quick">
+        <span>💳</span> Razorpay
+      </a>
     </header>
 
-    <main>
-      <div class="hero-card">
-        <h2 class="hero-title">Official V10 Android Application</h2>
-        <p class="hero-subtitle">
-          Comprehensive rural and semi-urban digital service kiosk application featuring AePS banking, Aadhaar identity authentication, BBPS utility bill clearing, and citizen registry integration.
-        </p>
+    <!-- ======================================================== -->
+    <!-- DASHBOARD A: CUSTOMER / USER APP                        -->
+    <!-- ======================================================== -->
+    <div id="roleUserDashboard" style="display: flex; flex-direction: column;">
+      
+      <!-- SUB-VIEW A1: GARI BOOKING & HOME SCREEN WITH 2 BIG CARDS -->
+      <section id="userViewGari" class="dashboard-view active">
+        <!-- 2 BIG CARDS -->
+        <div class="big-cards-box">
+          <div class="big-hero-card card-gari-hero" onclick="scrollToGariForm()">
+            <div class="hero-card-header">
+              <div class="hero-icon-box">🚗</div>
+              <span class="hero-badge badge-blue">Module 1</span>
+            </div>
+            <div>
+              <h2 class="hero-title">Gari Book Karun</h2>
+              <p class="hero-desc">Instant car, cab & auto booking. Pickup/drop map, live fare calculation, 0% platform surcharge.</p>
+            </div>
+            <div class="hero-chips">
+              <span class="chip">🛺 Auto (₹120)</span>
+              <span class="chip">🚘 Sedan (₹280)</span>
+              <span class="chip">🚙 SUV XL (₹450)</span>
+            </div>
+            <div class="hero-btn">
+              <span>Book Car / Cab Now</span>
+              <span>➔</span>
+            </div>
+          </div>
 
-        <div class="apk-box">
-          <div class="apk-meta">
-            <div class="apk-file-details">
-              <span class="apk-icon">📱</span>
-              <div>
-                <div class="apk-name">bharat-mitra-v10.apk</div>
-                <div class="apk-sub">29.4 MB • Android 8.0+ (API Level 26+) • Release Debug Signed</div>
+          <div class="big-hero-card card-sebak-hero" onclick="switchUserTab('sebak')">
+            <div class="hero-card-header">
+              <div class="hero-icon-box">🛠️</div>
+              <span class="hero-badge badge-orange">Module 2</span>
+            </div>
+            <div>
+              <h2 class="hero-title">A to Z Sebak</h2>
+              <p class="hero-desc">Verified expert local home technicians. Electrician, plumber, carpenter, painter, AC repair & more.</p>
+            </div>
+            <div class="hero-chips">
+              <span class="chip">⚡ Electrician</span>
+              <span class="chip">🔧 Plumber</span>
+              <span class="chip">🪚 Carpenter</span>
+              <span class="chip">❄️ AC Repair</span>
+            </div>
+            <div class="hero-btn">
+              <span>Hire Sebak Services</span>
+              <span>➔</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- CAR BOOKING FLOW FORM -->
+        <div id="gariBookingSection" class="card" style="margin-top: 8px;">
+          <h3 style="font-size: 17px; font-weight: 800; margin-bottom: 4px;">🚕 Car Booking Flow</h3>
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">Select pickup & drop points to view transparent fare</p>
+
+          <div style="background: #F8FAFC; border: 1px solid var(--border); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="color: var(--accent);">🟢</span>
+              <input type="text" id="userPickup" value="Panchayat Bhavan, Main Circle" style="border: none; background: transparent; width: 100%; font-size: 13px; font-weight: 700; outline: none;">
+            </div>
+            <div style="height: 1px; background: var(--border); margin-left: 24px;"></div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="color: var(--saffron);">🔴</span>
+              <input type="text" id="userDrop" value="Tehsil Railway Junction Station" placeholder="Enter Drop Location" style="border: none; background: transparent; width: 100%; font-size: 13px; font-weight: 700; outline: none;">
+            </div>
+          </div>
+
+          <!-- VEHICLE LIST -->
+          <div class="vehicle-list">
+            <div class="veh-item selected" onclick="selectUserVehicle('Auto Rickshaw', 120, this)">
+              <div class="veh-item-left">
+                <span class="veh-item-icon">🛺</span>
+                <div>
+                  <div class="veh-item-name">Mitra Auto</div>
+                  <div class="veh-item-sub">3-Seater • 2 mins away</div>
+                </div>
               </div>
+              <div class="veh-item-price">₹120</div>
             </div>
-            <span class="apk-tag">V10.0 Build</span>
+
+            <div class="veh-item" onclick="selectUserVehicle('Prime Sedan', 280, this)">
+              <div class="veh-item-left">
+                <span class="veh-item-icon">🚘</span>
+                <div>
+                  <div class="veh-item-name">Prime Sedan</div>
+                  <div class="veh-item-sub">4-Seater AC • 4 mins away</div>
+                </div>
+              </div>
+              <div class="veh-item-price">₹280</div>
+            </div>
+
+            <div class="veh-item" onclick="selectUserVehicle('Mitra SUV XL', 450, this)">
+              <div class="veh-item-left">
+                <span class="veh-item-icon">🚙</span>
+                <div>
+                  <div class="veh-item-name">Mitra SUV XL</div>
+                  <div class="veh-item-sub">6-Seater Spacious • 6 mins away</div>
+                </div>
+              </div>
+              <div class="veh-item-price">₹450</div>
+            </div>
           </div>
 
-          <div class="btn-group">
-            <a href="bharat-mitra-v10.apk" download="bharat-mitra-v10.apk" class="btn btn-download">
-              <span>📥</span> Download Android APK
-            </a>
-            <a href="https://razorpay.me/@bharatmitrainfotech" target="_blank" rel="noopener noreferrer" class="btn btn-pay">
-              <span>💳</span> Official Razorpay Gateway
-            </a>
+          <button class="btn btn-primary btn-block" onclick="userBookCar()">
+            <span>✓</span> Confirm & Book Ride (<span id="userFareDisplay">₹120</span>)
+          </button>
+        </div>
+      </section>
+
+      <!-- SUB-VIEW A2: A TO Z SEBAK MODULE -->
+      <section id="userViewSebak" class="dashboard-view">
+        <div class="card" style="border-top: 4px solid var(--saffron);">
+          <h3 style="font-size: 17px; font-weight: 800; color: var(--saffron-dark);">🛠️ A to Z Sebak Services</h3>
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Verified doorstep technicians for all home repair & maintenance</p>
+
+          <div class="sebak-grid">
+            <div class="sebak-tile" onclick="openSebakModal('Electrician', 199, '⚡')">
+              <div class="sebak-icon">⚡</div>
+              <div class="sebak-name">Electrician</div>
+              <div class="sebak-desc">Wiring, switchboard, ceiling fan & inverter repairs.</div>
+              <div class="sebak-price">From ₹199</div>
+            </div>
+
+            <div class="sebak-tile" onclick="openSebakModal('Plumber', 199, '🔧')">
+              <div class="sebak-icon">🔧</div>
+              <div class="sebak-name">Plumber</div>
+              <div class="sebak-desc">Pipe leaks, tap fixing, motor pump & tank cleaning.</div>
+              <div class="sebak-price">From ₹199</div>
+            </div>
+
+            <div class="sebak-tile" onclick="openSebakModal('Carpenter', 249, '🪚')">
+              <div class="sebak-icon">🪚</div>
+              <div class="sebak-name">Carpenter</div>
+              <div class="sebak-desc">Door lock repair, furniture woodwork & fittings.</div>
+              <div class="sebak-price">From ₹249</div>
+            </div>
+
+            <div class="sebak-tile" onclick="openSebakModal('Painter', 499, '🎨')">
+              <div class="sebak-icon">🎨</div>
+              <div class="sebak-name">Painter</div>
+              <div class="sebak-desc">Room wall painting, whitewashing & waterproofing.</div>
+              <div class="sebak-price">From ₹499</div>
+            </div>
+
+            <div class="sebak-tile" onclick="openSebakModal('AC Repair & Service', 399, '❄️')">
+              <div class="sebak-icon">❄️</div>
+              <div class="sebak-name">AC Repair</div>
+              <div class="sebak-desc">Jet pump deep wash, gas refill & cooling check.</div>
+              <div class="sebak-price">From ₹399</div>
+            </div>
+
+            <div class="sebak-tile" onclick="openSebakModal('Deep Cleaning', 599, '🧹')">
+              <div class="sebak-icon">🧹</div>
+              <div class="sebak-name">Deep Cleaning</div>
+              <div class="sebak-desc">Kitchen, bathroom & full house sanitization.</div>
+              <div class="sebak-price">From ₹599</div>
+            </div>
           </div>
         </div>
+      </section>
 
-        <div class="features-grid">
-          <div class="feature-card">
-            <div class="feature-icon-wrapper icon-bank">🏦</div>
-            <div class="feature-info">
-              <h4>AePS & Micro-ATM</h4>
-              <p>Biometric cash withdrawal, balance inquiry, mini statements, and direct bank transfers.</p>
-            </div>
+      <!-- SUB-VIEW A3: MY BOOKINGS LIST -->
+      <section id="userViewBookings" class="dashboard-view">
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h3 style="font-size: 17px; font-weight: 800;">📋 My Bookings List</h3>
+            <span style="font-size: 11px; background: #F1F5F9; padding: 4px 8px; border-radius: 6px; font-weight: 700;">Live Status</span>
           </div>
 
-          <div class="feature-card">
-            <div class="feature-icon-wrapper icon-gov">🏛️</div>
-            <div class="feature-info">
-              <h4>Government Schemes (A to Z)</h4>
-              <p>PM-Kisan, Ayushman Bharat, E-Shram, ration cards, and social welfare scheme enrolments.</p>
-            </div>
-          </div>
-
-          <div class="feature-card">
-            <div class="feature-icon-wrapper icon-bill">⚡</div>
-            <div class="feature-info">
-              <h4>Bharat BillPay (BBPS)</h4>
-              <p>Instant bill payments for Electricity, Water, Gas, FASTag recharges, and broadband utilities.</p>
-            </div>
-          </div>
-
-          <div class="feature-card">
-            <div class="feature-icon-wrapper icon-radar">📍</div>
-            <div class="feature-info">
-              <h4>Geo-Radar & Mitra Dispatch</h4>
-              <p>Real-time field officer locator, Gari bookings, Observer audit verification, and village wall feed.</p>
-            </div>
+          <div id="userBookingsList" style="display: flex; flex-direction: column; gap: 10px;">
+            <!-- Rendered by JS -->
           </div>
         </div>
+      </section>
 
-        <div class="config-card">
-          <div class="config-title">
-            <span>⚙️</span> System & Environment Status
+      <!-- SUB-VIEW A4: USER PROFILE & PAYMENT HISTORY -->
+      <section id="userViewProfile" class="dashboard-view">
+        <div class="card" style="text-align: center;">
+          <div style="width: 64px; height: 64px; border-radius: 50%; background: var(--accent); color: white; display: inline-flex; align-items: center; justify-content: center; font-size: 26px; margin-bottom: 10px;">
+            👤
           </div>
-          <ul class="config-list">
-            <li><span class="check">✓</span> Payment Gateway: Razorpay integrated (https://razorpay.me/@bharatmitrainfotech)</li>
-            <li><span class="check">✓</span> Firebase Services: Google Services config active (bharat-mitra-v10)</li>
-            <li><span class="check">✓</span> Application Package: com.example.bharatmitra (Production Verified)</li>
-            <li><span class="check">✓</span> Distribution Server: Direct APK download served via portal</li>
-          </ul>
+          <h3 id="profileNameDisplay" style="font-size: 18px; font-weight: 800;">Rajesh Sharma</h3>
+          <p id="profilePhoneDisplay" style="font-size: 13px; color: var(--text-muted);">+91 98765 43210 • Citizen Member</p>
+          <button class="btn btn-outline" style="padding: 6px 14px; font-size: 12px; margin-top: 10px;" onclick="openEditProfileModal()">
+            ✏️ Edit Profile
+          </button>
+        </div>
+
+        <div class="card">
+          <h4 style="font-size: 15px; font-weight: 800; margin-bottom: 12px;">💳 Payment History (Razorpay)</h4>
+          <div id="paymentHistoryList" style="display: flex; flex-direction: column; gap: 8px; font-size: 13px;">
+            <!-- Rendered by JS -->
+          </div>
+          <a href="https://razorpay.me/@bharatmitrainfotech" target="_blank" rel="noopener noreferrer" class="btn btn-saffron btn-block" style="margin-top: 14px;">
+            <span>💳</span> Open Razorpay Payment Link
+          </a>
+        </div>
+
+        <div class="card">
+          <button class="btn btn-outline btn-block" onclick="openLoginModal()">
+            <span>🔑</span> Switch Account / User Login (OTP)
+          </button>
+        </div>
+      </section>
+
+      <!-- BOTTOM NAVIGATION (4 ITEMS ONLY FOR USER APP) -->
+      <nav class="bottom-bar">
+        <button class="nav-btn active" id="userNavGari" onclick="switchUserTab('gari')">
+          <span class="icon">🚕</span>
+          <span class="label">Gari Booking</span>
+        </button>
+        <button class="nav-btn" id="userNavSebak" onclick="switchUserTab('sebak')">
+          <span class="icon">🛠️</span>
+          <span class="label">Sebak</span>
+        </button>
+        <button class="nav-btn" id="userNavBookings" onclick="switchUserTab('bookings')">
+          <span class="icon">📋</span>
+          <span class="label">My Bookings</span>
+        </button>
+        <button class="nav-btn" id="userNavProfile" onclick="switchUserTab('profile')">
+          <span class="icon">👤</span>
+          <span class="label">Profile</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- DASHBOARD B: SERVICE PROVIDER / DRIVER APP              -->
+    <!-- ======================================================== -->
+    <div id="roleDriverDashboard" style="display: none; flex-direction: column;" class="dashboard-view">
+      
+      <!-- DRIVER VERIFICATION STATUS BANNER -->
+      <div id="driverVerificationBanner" class="status-banner banner-pending">
+        <div>
+          <div style="font-weight: 800; font-size: 14px;" id="docStatusTitle">⏳ Documents Under Admin Review</div>
+          <div style="font-size: 12px; margin-top: 2px;" id="docStatusDesc">Admin is reviewing your driving license, RC, and Aadhaar card.</div>
+        </div>
+        <button class="btn btn-outline" style="padding: 6px 12px; font-size: 11px; background: white;" onclick="switchDriverSubTab('docs')">
+          View Docs
+        </button>
+      </div>
+
+      <!-- AVAILABILITY & DUTY TOGGLE -->
+      <div class="card" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div>
+          <h3 style="font-size: 16px; font-weight: 800;">Duty Availability</h3>
+          <p style="font-size: 12px; color: var(--text-muted);">Toggle to receive live passenger & home service requests</p>
+        </div>
+        <button id="btnDriverDuty" class="btn btn-green" onclick="toggleDriverDuty()">
+          <span id="dutyDot">🟢</span> <span id="dutyText">Online & Accepting</span>
+        </button>
+      </div>
+
+      <!-- STATS & 0% COMMISSION SUBSCRIPTION OVERVIEW -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-text">Today's Earnings</div>
+          <div class="stat-num" style="color: var(--green);">₹1,840</div>
+          <div style="font-size: 10px; color: var(--green-dark); font-weight: 700;">100% Direct to You</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-text">Commission Rate</div>
+          <div class="stat-num" style="color: var(--accent);">0%</div>
+          <div style="font-size: 10px; color: var(--accent); font-weight: 700;">Zero platform cut</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-text">Subscription Plan</div>
+          <div class="stat-num" id="driverPlanBadge">Quarterly</div>
+          <div style="font-size: 10px; color: var(--green); font-weight: 700;" id="driverPlanDaysLeft">24 Days Left</div>
         </div>
       </div>
-    </main>
 
-    <footer>
-      <p>© 2026 Bharat Mitra Infotech. All Rights Reserved.</p>
-    </footer>
+      <!-- DRIVER SUB-NAVIGATION -->
+      <div style="display: flex; gap: 6px; background: #EEF2F6; padding: 4px; border-radius: 10px; margin-top: 4px;">
+        <button class="btn btn-outline active" style="flex: 1; padding: 8px; font-size: 12px;" id="subTabBtnRequests" onclick="switchDriverSubTab('requests')">
+          🚕 Live Requests
+        </button>
+        <button class="btn btn-outline" style="flex: 1; padding: 8px; font-size: 12px;" id="subTabBtnDocs" onclick="switchDriverSubTab('docs')">
+          📑 Docs & Vehicle
+        </button>
+        <button class="btn btn-outline" style="flex: 1; padding: 8px; font-size: 12px;" id="subTabBtnSub" onclick="switchDriverSubTab('sub')">
+          💎 Subscription
+        </button>
+      </div>
+
+      <!-- DRIVER SUB-SECTION 1: LIVE INCOMING REQUESTS -->
+      <div id="driverSubRequests" style="display: flex; flex-direction: column; gap: 12px;">
+        <h4 style="font-size: 15px; font-weight: 800; color: var(--primary);">📡 Incoming Ride & Sebak Leads</h4>
+        <div id="driverIncomingContainer" style="display: flex; flex-direction: column; gap: 10px;">
+          <!-- Dynamically filled -->
+        </div>
+      </div>
+
+      <!-- DRIVER SUB-SECTION 2: VEHICLE & DOCUMENT UPLOAD SYSTEM -->
+      <div id="driverSubDocs" style="display: none; flex-direction: column; gap: 14px;">
+        <div class="card">
+          <h4 style="font-size: 15px; font-weight: 800; margin-bottom: 6px;">🚗 Vehicle Details (Car / Auto / Bike)</h4>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px;">
+            <div>
+              <label style="font-size: 11px; font-weight: 700; color: var(--text-muted);">Vehicle Model</label>
+              <input type="text" id="driverCarModel" value="Maruti Suzuki Dzire (Prime)" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--border); font-size: 12px;">
+            </div>
+            <div>
+              <label style="font-size: 11px; font-weight: 700; color: var(--text-muted);">Vehicle Number</label>
+              <input type="text" id="driverCarNumber" value="RJ-05-CA-4921" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--border); font-size: 12px;">
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h4 style="font-size: 15px; font-weight: 800; margin-bottom: 4px;">📑 Document Upload System</h4>
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Upload official documents for Admin approval</p>
+
+          <div class="doc-upload-grid">
+            <div class="doc-box uploaded" id="docBoxAadhaar" onclick="triggerDocUpload('Aadhaar Card')">
+              <span style="font-size: 24px;">🆔</span>
+              <div class="doc-box-title">Aadhaar Card</div>
+              <div class="doc-box-status" style="color: var(--green-dark);">✓ Uploaded</div>
+            </div>
+            <div class="doc-box uploaded" id="docBoxLicense" onclick="triggerDocUpload('Driving License')">
+              <span style="font-size: 24px;">🪪</span>
+              <div class="doc-box-title">Driving License</div>
+              <div class="doc-box-status" style="color: var(--green-dark);">✓ Uploaded</div>
+            </div>
+            <div class="doc-box uploaded" id="docBoxRC" onclick="triggerDocUpload('Vehicle RC')">
+              <span style="font-size: 24px;">📄</span>
+              <div class="doc-box-title">Vehicle RC</div>
+              <div class="doc-box-status" style="color: var(--green-dark);">✓ Uploaded</div>
+            </div>
+            <div class="doc-box uploaded" id="docBoxInsurance" onclick="triggerDocUpload('Insurance & PUC')">
+              <span style="font-size: 24px;">🛡️</span>
+              <div class="doc-box-title">Insurance & PUC</div>
+              <div class="doc-box-status" style="color: var(--green-dark);">✓ Uploaded</div>
+            </div>
+          </div>
+
+          <button class="btn btn-primary btn-block" onclick="submitDriverDocsForAdmin()">
+            <span>📤</span> Submit Documents for Admin Verification
+          </button>
+        </div>
+      </div>
+
+      <!-- DRIVER SUB-SECTION 3: SUBSCRIPTION PLANS & EXPIRY -->
+      <div id="driverSubPlan" style="display: none; flex-direction: column; gap: 14px;">
+        <div class="card" style="background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%); color: white;">
+          <div style="font-size: 12px; color: #94A3B8; text-transform: uppercase; font-weight: 700;">Current Plan</div>
+          <h3 style="font-size: 20px; font-weight: 800; margin: 4px 0;" id="cardDriverPlanName">Plan 2: Quarterly (3 Months)</h3>
+          <p style="font-size: 12px; color: #34D399; font-weight: 700;">✓ Active • 0% Commission on all rides</p>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <!-- Plan 1 -->
+          <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <strong style="font-size: 14px;">Plan 1: Monthly</strong>
+              <div style="font-size: 11px; color: var(--text-muted);">Unlimited Rides for 30 Days</div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 16px; font-weight: 800; color: var(--primary);">₹499</div>
+              <a href="https://razorpay.me/@bharatmitrainfotech" target="_blank" class="btn btn-outline" style="padding: 4px 10px; font-size: 11px; margin-top: 4px;">Pay Razorpay</a>
+            </div>
+          </div>
+
+          <!-- Plan 2 -->
+          <div class="card" style="display: flex; justify-content: space-between; align-items: center; border: 2px solid var(--accent); background: #FAFCFF;">
+            <div>
+              <strong style="font-size: 14px;">Plan 2: Quarterly (Save ₹198)</strong>
+              <div style="font-size: 11px; color: var(--text-muted);">Unlimited Rides for 90 Days</div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 16px; font-weight: 800; color: var(--accent);">₹1,299</div>
+              <a href="https://razorpay.me/@bharatmitrainfotech" target="_blank" class="btn btn-primary" style="padding: 4px 10px; font-size: 11px; margin-top: 4px;">Pay Razorpay</a>
+            </div>
+          </div>
+
+          <!-- Plan 3 -->
+          <div class="card" style="display: flex; justify-content: space-between; align-items: center; border: 2px solid var(--saffron); background: #FFFAF5;">
+            <div>
+              <strong style="font-size: 14px;">Plan 3: Annual (Mega Value)</strong>
+              <div style="font-size: 11px; color: var(--text-muted);">Unlimited Rides for 365 Days</div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 16px; font-weight: 800; color: var(--saffron-dark);">₹3,999</div>
+              <a href="https://razorpay.me/@bharatmitrainfotech" target="_blank" class="btn btn-saffron" style="padding: 4px 10px; font-size: 11px; margin-top: 4px;">Pay Razorpay</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- DASHBOARD C: ADMIN DASHBOARD (SUPER IMPORTANT)          -->
+    <!-- ======================================================== -->
+    <div id="roleAdminDashboard" style="display: none; flex-direction: column;" class="dashboard-view">
+      
+      <!-- ANALYTICS CARDS (Total Rides, Active Drivers, Earnings) -->
+      <div class="stats-row">
+        <div class="stat-card" style="background: #EFF6FF; border-color: #BFDBFE;">
+          <div class="stat-text" style="color: #1E40AF;">Total Bookings</div>
+          <div class="stat-num" id="adminTotalRides" style="color: #1D4ED8;">1,429</div>
+          <div style="font-size: 10px; color: #2563EB;">Car Rides + Sebak</div>
+        </div>
+        <div class="stat-card" style="background: #ECFDF5; border-color: #A7F3D0;">
+          <div class="stat-text" style="color: #065F46;">Active Drivers & Sebaks</div>
+          <div class="stat-num" id="adminActiveDrivers" style="color: #059669;">86</div>
+          <div style="font-size: 10px; color: #10B981;">Online & Verified</div>
+        </div>
+        <div class="stat-card" style="background: #FAF5FF; border-color: #E9D5FF;">
+          <div class="stat-text" style="color: #6B21A8;">Subscription Revenue</div>
+          <div class="stat-num" style="color: #7C3AED;">₹1,12,400</div>
+          <div style="font-size: 10px; color: #9333EA;">Via Razorpay</div>
+        </div>
+      </div>
+
+      <!-- ADMIN NAVIGATION TABS -->
+      <div class="admin-nav">
+        <button class="admin-tab active" onclick="switchAdminSubTab('docs', this)">
+          📑 Document Approvals (<span id="adminPendingCount">1</span>)
+        </button>
+        <button class="admin-tab" onclick="switchAdminSubTab('drivers', this)">
+          🚕 Drivers & Providers (4)
+        </button>
+        <button class="admin-tab" onclick="switchAdminSubTab('users', this)">
+          👥 All Users (5)
+        </button>
+        <button class="admin-tab" onclick="switchAdminSubTab('bookings', this)">
+          📦 All Bookings (8)
+        </button>
+        <button class="admin-tab" onclick="switchAdminSubTab('subs', this)">
+          💎 Subscriptions & Razorpay
+        </button>
+        <button class="admin-tab" onclick="switchAdminSubTab('broadcast', this)">
+          📢 Push Notification
+        </button>
+      </div>
+
+      <!-- ADMIN SUB 1: DOCUMENT VERIFICATION PANEL (Approve / Reject) -->
+      <div id="adminTabDocs" class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <div>
+            <h4 style="font-size: 16px; font-weight: 800;">📑 Driver Document Verification Queue</h4>
+            <p style="font-size: 12px; color: var(--text-muted);">Review submitted KYC documents and Approve or Reject</p>
+          </div>
+        </div>
+
+        <div id="adminDocQueueList" style="display: flex; flex-direction: column; gap: 12px;">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+      <!-- ADMIN SUB 2: DRIVERS & PROVIDERS LIST -->
+      <div id="adminTabDrivers" class="card" style="display: none;">
+        <h4 style="font-size: 16px; font-weight: 800; margin-bottom: 12px;">🚕 All Registered Drivers & Sebaks</h4>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Provider Name</th>
+                <th>Type</th>
+                <th>Vehicle / Skill</th>
+                <th>KYC Status</th>
+                <th>Subscription</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="adminDriversTableBody">
+              <!-- Rendered by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ADMIN SUB 3: ALL USERS LIST -->
+      <div id="adminTabUsers" class="card" style="display: none;">
+        <h4 style="font-size: 16px; font-weight: 800; margin-bottom: 12px;">👥 Registered Customers</h4>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>User Name</th>
+                <th>Phone Number</th>
+                <th>City / Ward</th>
+                <th>Total Bookings</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="adminUsersTableBody">
+              <!-- Rendered by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ADMIN SUB 4: ALL BOOKINGS LIST -->
+      <div id="adminTabBookings" class="card" style="display: none;">
+        <h4 style="font-size: 16px; font-weight: 800; margin-bottom: 12px;">📦 All Car & Sebak Bookings</h4>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Booking ID</th>
+                <th>Module</th>
+                <th>Customer</th>
+                <th>Provider</th>
+                <th>Amount</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="adminBookingsTableBody">
+              <!-- Rendered by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ADMIN SUB 5: SUBSCRIPTIONS & RAZORPAY VERIFICATION -->
+      <div id="adminTabSubs" class="card" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <div>
+            <h4 style="font-size: 16px; font-weight: 800;">💎 Driver Subscriptions & Razorpay Log</h4>
+            <p style="font-size: 12px; color: var(--text-muted);">https://razorpay.me/@bharatmitrainfotech payment reconciliations</p>
+          </div>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Driver Name</th>
+                <th>Plan Name</th>
+                <th>Amount</th>
+                <th>Razorpay Ref</th>
+                <th>Expiry Date</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="adminSubsTableBody">
+              <!-- Rendered by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ADMIN SUB 6: PUSH NOTIFICATIONS -->
+      <div id="adminTabBroadcast" class="card" style="display: none;">
+        <h4 style="font-size: 16px; font-weight: 800; margin-bottom: 4px;">📢 Broadcast Push Notification</h4>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">Send live alerts to Customers or Drivers</p>
+
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <div>
+            <label style="font-size: 12px; font-weight: 700; color: var(--primary);">Target Audience</label>
+            <select id="pushTargetSelect" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 13px; margin-top: 4px;">
+              <option value="all">All Users & Drivers</option>
+              <option value="drivers">Drivers Only (0% Commission updates)</option>
+              <option value="users">Customers Only (Booking promotions)</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 12px; font-weight: 700; color: var(--primary);">Notification Title</label>
+            <input type="text" id="pushTitleInput" value="⚡ Monsoon Care: Sebak Electrical Checkup Available" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 13px; margin-top: 4px;">
+          </div>
+          <div>
+            <label style="font-size: 12px; font-weight: 700; color: var(--primary);">Message Body</label>
+            <textarea id="pushBodyInput" rows="3" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 13px; margin-top: 4px;">Get certified electrician & plumber service at your home today. Gari rides also active 24/7 with zero surge!</textarea>
+          </div>
+          <button class="btn btn-primary" onclick="adminSendBroadcast()">
+            <span>🚀</span> Send Push Notification Broadcast
+          </button>
+        </div>
+      </div>
+
+    </div>
+
   </div>
+
+  <!-- ======================================================== -->
+  <!-- MODALS                                                   -->
+  <!-- ======================================================== -->
+
+  <!-- MODAL: SEBAK BOOKING -->
+  <div id="sebakBookingModal" class="modal-overlay">
+    <div class="modal-sheet">
+      <button class="modal-close" onclick="closeModal('sebakBookingModal')">×</button>
+      <h3 id="modalSebakHeading" style="font-size: 18px; font-weight: 800; color: var(--primary); margin-bottom: 4px;">
+        Book Sebak Service
+      </h3>
+      <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">
+        A verified local specialist will arrive at your door.
+      </p>
+
+      <div style="background: var(--saffron-light); border: 1px solid #FED7AA; border-radius: 10px; padding: 12px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 13px; color: var(--saffron-dark); font-weight: 700;">Base Inspection Charge</span>
+        <span id="modalSebakPrice" style="font-size: 16px; font-weight: 800; color: var(--saffron-dark);">₹199</span>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px;">
+        <div>
+          <label style="font-size: 11px; font-weight: 700; color: var(--text-muted);">Service Address</label>
+          <input type="text" id="sebakInputAddress" value="Plot 18, Ward 4, Gandhi Nagar" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 13px;">
+        </div>
+        <div>
+          <label style="font-size: 11px; font-weight: 700; color: var(--text-muted);">Scheduled Date & Slot</label>
+          <select id="sebakInputSlot" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 13px;">
+            <option>Today - Afternoon (12:00 PM - 03:00 PM)</option>
+            <option>Today - Evening (03:00 PM - 07:00 PM)</option>
+            <option>Tomorrow - Morning (09:00 AM - 12:00 PM)</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn btn-saffron btn-block" onclick="userConfirmSebak()">
+        <span>✓</span> Confirm Sebak Booking
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL: EDIT USER PROFILE -->
+  <div id="editProfileModal" class="modal-overlay">
+    <div class="modal-sheet">
+      <button class="modal-close" onclick="closeModal('editProfileModal')">×</button>
+      <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 12px;">✏️ Edit Customer Profile</h3>
+      <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px;">
+        <div>
+          <label style="font-size: 11px; font-weight: 700;">Full Name</label>
+          <input type="text" id="editUserName" value="Rajesh Sharma" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 13px;">
+        </div>
+        <div>
+          <label style="font-size: 11px; font-weight: 700;">Phone Number</label>
+          <input type="text" id="editUserPhone" value="+91 98765 43210" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 13px;">
+        </div>
+        <div>
+          <label style="font-size: 11px; font-weight: 700;">City / Tehsil</label>
+          <input type="text" id="editUserCity" value="Bharatpur, Ward 4" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 13px;">
+        </div>
+      </div>
+      <button class="btn btn-primary btn-block" onclick="saveUserProfile()">
+        Save Profile
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL: USER OTP LOGIN -->
+  <div id="loginModal" class="modal-overlay">
+    <div class="modal-sheet">
+      <button class="modal-close" onclick="closeModal('loginModal')">×</button>
+      <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 4px;">🔑 Customer Login with OTP</h3>
+      <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">Enter mobile number to receive instant 4-digit verification code</p>
+      
+      <div id="otpStep1">
+        <label style="font-size: 11px; font-weight: 700;">Mobile Number</label>
+        <input type="tel" id="loginPhoneInput" value="+91 98765 43210" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 14px; margin: 4px 0 14px;">
+        <button class="btn btn-primary btn-block" onclick="sendLoginOtp()">
+          Send OTP Code
+        </button>
+      </div>
+
+      <div id="otpStep2" style="display: none;">
+        <div style="background: var(--green-light); border: 1px solid #A7F3D0; padding: 10px; border-radius: 8px; font-size: 12px; color: #065F46; margin-bottom: 12px;">
+          ✓ OTP sent to your number. (Demo OTP is <strong>4921</strong>)
+        </div>
+        <label style="font-size: 11px; font-weight: 700;">Enter 4-Digit OTP</label>
+        <input type="text" id="loginOtpInput" value="4921" maxlength="4" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 18px; text-align: center; letter-spacing: 6px; margin: 4px 0 14px;">
+        <button class="btn btn-green btn-block" onclick="verifyLoginOtp()">
+          Verify & Sign In
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: REJECT DOCUMENT REASON (ADMIN) -->
+  <div id="rejectDocModal" class="modal-overlay">
+    <div class="modal-sheet">
+      <button class="modal-close" onclick="closeModal('rejectDocModal')">×</button>
+      <h3 style="font-size: 18px; font-weight: 800; color: var(--red); margin-bottom: 6px;">
+        ⚠️ Reject Driver Verification
+      </h3>
+      <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">
+        Specify reason for document rejection. The driver will be asked to re-upload.
+      </p>
+
+      <div style="margin-bottom: 14px;">
+        <label style="font-size: 11px; font-weight: 700;">Rejection Reason</label>
+        <select id="rejectReasonSelect" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 13px; margin-top: 4px;">
+          <option>Blurry or unreadable Driving License image</option>
+          <option>Expired Vehicle RC or Insurance document</option>
+          <option>Aadhaar name does not match driving license</option>
+          <option>Clear front portrait photo required</option>
+        </select>
+      </div>
+
+      <button class="btn btn-red btn-block" onclick="adminConfirmReject()">
+        Confirm Rejection & Notify Driver
+      </button>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast">
+    <span id="toastIcon">✓</span>
+    <span id="toastText">Action successful</span>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- JAVASCRIPT LOGIC & STATE PERSISTENCE                     -->
+  <!-- ======================================================== -->
+  <script>
+    // --- SHARED DATA STORE ---
+    const DB_KEY = "bharat_mitra_v10_db";
+
+    let state = {
+      currentRole: "user", // "user" | "driver" | "admin"
+      currentUserTab: "gari", // "gari" | "sebak" | "bookings" | "profile"
+      selectedCar: { name: "Auto Rickshaw", fare: 120 },
+      activeSebak: { name: "Electrician", price: 199 },
+      driverKYC: {
+        driverId: "DRV-104",
+        name: "Mukesh Kumar",
+        phone: "+91 94140 88219",
+        vehicle: "Maruti Dzire (Prime)",
+        carNumber: "RJ-05-CA-4921",
+        status: "PENDING", // "PENDING" | "APPROVED" | "REJECTED"
+        rejectionReason: "",
+        dutyOnline: false,
+        subscriptionPlan: "Plan 2: Quarterly",
+        expiryDate: "2026-10-20"
+      },
+      bookings: [
+        {
+          id: "BK-9401",
+          type: "gari",
+          module: "Car Booking",
+          title: "Prime Sedan Cab Ride",
+          user: "Rajesh Sharma",
+          provider: "Mukesh Kumar",
+          from: "Panchayat Bhavan Circle",
+          to: "Tehsil Railway Junction",
+          fare: 280,
+          status: "Confirmed",
+          date: "Today, 11:30 AM",
+          otp: "4820"
+        },
+        {
+          id: "BK-9390",
+          type: "sebak",
+          module: "A to Z Sebak",
+          title: "Electrician Switchboard Service",
+          user: "Rajesh Sharma",
+          provider: "Dinesh Sharma (Sebak)",
+          address: "Ward 4, Gandhi Nagar",
+          slot: "Tomorrow Morning",
+          fare: 199,
+          status: "Confirmed",
+          date: "Scheduled",
+          otp: "7193"
+        }
+      ],
+      paymentHistory: [
+        { id: "TXN-8821", amount: 280, title: "Ride Fare - Prime Sedan", date: "Today", method: "Razorpay / Cash" },
+        { id: "TXN-7419", amount: 199, title: "Sebak Inspection Fee", date: "Yesterday", method: "Razorpay Link" }
+      ],
+      pendingDocDriver: null
+    };
+
+    // Load persisted state if exists
+    function loadState() {
+      const saved = localStorage.getItem(DB_KEY);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          state.driverKYC = parsed.driverKYC || state.driverKYC;
+          state.bookings = parsed.bookings || state.bookings;
+          state.paymentHistory = parsed.paymentHistory || state.paymentHistory;
+        } catch (e) {
+          console.error("State parse error", e);
+        }
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(DB_KEY, JSON.stringify({
+        driverKYC: state.driverKYC,
+        bookings: state.bookings,
+        paymentHistory: state.paymentHistory
+      }));
+    }
+
+    // --- INITIALIZATION ---
+    window.addEventListener("DOMContentLoaded", () => {
+      loadState();
+      renderUserBookings();
+      renderPaymentHistory();
+      renderDriverDashboard();
+      renderAdminDashboard();
+    });
+
+    // --- TOP ROLE SWITCHER ---
+    function switchRole(role) {
+      state.currentRole = role;
+      document.querySelectorAll(".role-btn").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll(".dashboard-view").forEach(v => v.classList.remove("active"));
+      
+      const container = document.getElementById("mainAppContainer");
+      const userDash = document.getElementById("roleUserDashboard");
+      const driverDash = document.getElementById("roleDriverDashboard");
+      const adminDash = document.getElementById("roleAdminDashboard");
+      const headerTitle = document.getElementById("headerAppTitle");
+      const headerSub = document.getElementById("headerAppSub");
+
+      if (role === 'user') {
+        document.getElementById("btnRoleUser").classList.add("active");
+        container.classList.remove("admin-mode");
+        userDash.style.display = "flex";
+        driverDash.style.display = "none";
+        adminDash.style.display = "none";
+        headerTitle.textContent = "Bharat Mitra Customer";
+        headerSub.textContent = "2 Modules: Gari Booking & A to Z Sebak";
+        switchUserTab(state.currentUserTab);
+      } else if (role === 'driver') {
+        document.getElementById("btnRoleDriver").classList.add("active");
+        container.classList.remove("admin-mode");
+        userDash.style.display = "none";
+        driverDash.style.display = "flex";
+        adminDash.style.display = "none";
+        headerTitle.textContent = "Driver & Sebak Partner Portal";
+        headerSub.textContent = "0% Commission • Keep 100% Fare";
+        renderDriverDashboard();
+      } else if (role === 'admin') {
+        document.getElementById("btnRoleAdmin").classList.add("active");
+        container.classList.add("admin-mode");
+        userDash.style.display = "none";
+        driverDash.style.display = "none";
+        adminDash.style.display = "flex";
+        headerTitle.textContent = "Bharat Mitra Admin Control";
+        headerSub.textContent = "KYC Approvals, Bookings & Subscriptions";
+        renderAdminDashboard();
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // --- USER APP TABS (4 TABS) ---
+    function switchUserTab(tab, isBackNavigation = false) {
+      state.currentUserTab = tab;
+      document.querySelectorAll("#roleUserDashboard .dashboard-view").forEach(v => v.classList.remove("active"));
+      document.querySelectorAll(".bottom-bar .nav-btn").forEach(b => b.classList.remove("active"));
+
+      if (tab === 'gari') {
+        document.getElementById("userViewGari").classList.add("active");
+        document.getElementById("userNavGari").classList.add("active");
+      } else if (tab === 'sebak') {
+        document.getElementById("userViewSebak").classList.add("active");
+        document.getElementById("userNavSebak").classList.add("active");
+      } else if (tab === 'bookings') {
+        document.getElementById("userViewBookings").classList.add("active");
+        document.getElementById("userNavBookings").classList.add("active");
+        renderUserBookings();
+      } else if (tab === 'profile') {
+        document.getElementById("userViewProfile").classList.add("active");
+        document.getElementById("userNavProfile").classList.add("active");
+        renderPaymentHistory();
+      }
+
+      if (!isBackNavigation && tab !== 'gari') {
+        pushScreenHistory(tab);
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function scrollToGariForm() {
+      document.getElementById("gariBookingSection").scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // --- CAR BOOKING (USER) ---
+    function selectUserVehicle(name, fare, el) {
+      document.querySelectorAll(".veh-item").forEach(v => v.classList.remove("selected"));
+      el.classList.add("selected");
+      state.selectedCar = { name, fare };
+      document.getElementById("userFareDisplay").textContent = "₹" + fare;
+    }
+
+    function userBookCar() {
+      const pickup = document.getElementById("userPickup").value.trim();
+      const drop = document.getElementById("userDrop").value.trim();
+      if (!pickup || !drop) {
+        showToast("⚠️ Enter both pickup and destination");
+        return;
+      }
+
+      const newBooking = {
+        id: "BK-" + Math.floor(1000 + Math.random() * 9000),
+        type: "gari",
+        module: "Car Booking",
+        title: state.selectedCar.name + " Booking",
+        user: "Rajesh Sharma",
+        provider: state.driverKYC.status === 'APPROVED' ? state.driverKYC.name : "Mitra Cab Partner",
+        from: pickup,
+        to: drop,
+        fare: state.selectedCar.fare,
+        status: "Confirmed",
+        date: "Today, Just now",
+        otp: Math.floor(1000 + Math.random() * 9000)
+      };
+
+      state.bookings.unshift(newBooking);
+      state.paymentHistory.unshift({
+        id: "TXN-" + Math.floor(1000 + Math.random() * 9000),
+        amount: state.selectedCar.fare,
+        title: "Ride - " + state.selectedCar.name,
+        date: "Today",
+        method: "Razorpay / Cash"
+      });
+      saveState();
+
+      showToast(`🎉 Car Booked! OTP: ${newBooking.otp}. Driver arriving in 3 mins.`);
+      setTimeout(() => {
+        switchUserTab('bookings');
+      }, 1200);
+    }
+
+    // --- SEBAK BOOKING (USER) ---
+    function openSebakModal(name, price, icon) {
+      state.activeSebak = { name, price };
+      document.getElementById("modalSebakHeading").textContent = `${icon} Book ${name}`;
+      document.getElementById("modalSebakPrice").textContent = `₹${price}`;
+      document.getElementById("sebakBookingModal").classList.add("active");
+    }
+
+    function userConfirmSebak() {
+      const addr = document.getElementById("sebakInputAddress").value.trim();
+      const slot = document.getElementById("sebakInputSlot").value;
+      if (!addr) {
+        showToast("⚠️ Please enter service address");
+        return;
+      }
+
+      const newBooking = {
+        id: "BK-" + Math.floor(1000 + Math.random() * 9000),
+        type: "sebak",
+        module: "A to Z Sebak",
+        title: state.activeSebak.name + " Service",
+        user: "Rajesh Sharma",
+        provider: "Verified Mitra Sebak",
+        address: addr,
+        slot: slot,
+        fare: state.activeSebak.price,
+        status: "Confirmed",
+        date: slot.split('-')[0].trim(),
+        otp: Math.floor(1000 + Math.random() * 9000)
+      };
+
+      state.bookings.unshift(newBooking);
+      state.paymentHistory.unshift({
+        id: "TXN-" + Math.floor(1000 + Math.random() * 9000),
+        amount: state.activeSebak.price,
+        title: "Sebak Inspection - " + state.activeSebak.name,
+        date: "Today",
+        method: "Razorpay / Cash"
+      });
+      saveState();
+
+      closeModal('sebakBookingModal');
+      showToast(`✓ Sebak Scheduled! Technician assigned. OTP: ${newBooking.otp}`);
+      setTimeout(() => {
+        switchUserTab('bookings');
+      }, 1000);
+    }
+
+    // --- RENDER USER BOOKINGS & PAYMENT HISTORY ---
+    function renderUserBookings() {
+      const list = document.getElementById("userBookingsList");
+      list.innerHTML = "";
+      if (state.bookings.length === 0) {
+        list.innerHTML = `<div style="text-align:center; padding:20px; color:#64748B;">No bookings found.</div>`;
+        return;
+      }
+
+      state.bookings.forEach(b => {
+        const item = document.createElement("div");
+        item.style.background = "#F8FAFC";
+        item.style.border = "1px solid var(--border)";
+        item.style.borderRadius = "12px";
+        item.style.padding = "14px";
+        item.style.display = "flex";
+        item.style.flexDirection = "column";
+        item.style.gap = "8px";
+
+        const badgeBg = b.type === 'gari' ? '#DBEAFE' : '#FFEDD5';
+        const badgeColor = b.type === 'gari' ? '#1E40AF' : '#9A3412';
+
+        item.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="background:${badgeBg}; color:${badgeColor}; font-size:11px; font-weight:700; padding:2px 8px; border-radius:4px;">
+              ${b.module}
+            </span>
+            <span style="font-size:11px; font-weight:700; color:#065F46; background:#ECFDF5; padding:2px 8px; border-radius:4px;">
+              ✓ ${b.status}
+            </span>
+          </div>
+          <div style="font-size:14px; font-weight:800; color:var(--primary);">${b.title}</div>
+          <div style="font-size:12px; color:var(--text-muted);">
+            ${b.from ? `From: ${b.from} ➔ To: ${b.to}` : `Address: ${b.address} (${b.slot})`}
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:8px; margin-top:4px;">
+            <span style="font-size:12px;">OTP: <strong style="color:var(--accent);">${b.otp}</strong></span>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <strong style="font-size:15px; color:var(--primary);">₹${b.fare}</strong>
+              <a href="https://razorpay.me/@bharatmitrainfotech" target="_blank" style="font-size:11px; font-weight:700; color:var(--saffron-dark); text-decoration:none; background:#FFF7ED; padding:3px 8px; border-radius:6px; border:1px solid #FED7AA;">Pay Online</a>
+            </div>
+          </div>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    function renderPaymentHistory() {
+      const list = document.getElementById("paymentHistoryList");
+      list.innerHTML = "";
+      state.paymentHistory.forEach(p => {
+        const row = document.createElement("div");
+        row.style.display = "flex";
+        row.style.justifyContent = "space-between";
+        row.style.alignItems = "center";
+        row.style.padding = "10px";
+        row.style.background = "#F8FAFC";
+        row.style.borderRadius = "8px";
+        row.style.border = "1px solid var(--border)";
+        row.innerHTML = `
+          <div>
+            <div style="font-weight:700;">${p.title}</div>
+            <div style="font-size:11px; color:var(--text-muted);">${p.id} • ${p.date} • ${p.method}</div>
+          </div>
+          <div style="font-weight:800; font-size:14px; color:#10B981;">₹${p.amount}</div>
+        `;
+        list.appendChild(row);
+      });
+    }
+
+    // --- DRIVER APP DASHBOARD LOGIC ---
+    function renderDriverDashboard() {
+      const banner = document.getElementById("driverVerificationBanner");
+      const docTitle = document.getElementById("docStatusTitle");
+      const docDesc = document.getElementById("docStatusDesc");
+      const dutyBtn = document.getElementById("btnDriverDuty");
+
+      if (state.driverKYC.status === 'APPROVED') {
+        banner.className = "status-banner banner-approved";
+        docTitle.textContent = "✅ Documents Verified & Approved by Admin";
+        docDesc.textContent = "Your KYC is active. You can go online and accept unlimited rides with 0% Commission.";
+      } else if (state.driverKYC.status === 'REJECTED') {
+        banner.className = "status-banner banner-rejected";
+        docTitle.textContent = "❌ Verification Rejected by Admin";
+        docDesc.textContent = "Reason: " + (state.driverKYC.rejectionReason || "Please re-upload clear photos of license and RC.");
+      } else {
+        banner.className = "status-banner banner-pending";
+        docTitle.textContent = "⏳ Documents Under Admin Review";
+        docDesc.textContent = "Admin is reviewing your driving license, RC, and Aadhaar. Please allow up to 15 minutes.";
+      }
+
+      // Render incoming requests
+      renderDriverIncoming();
+    }
+
+    function switchDriverSubTab(sub) {
+      document.getElementById("driverSubRequests").style.display = sub === 'requests' ? 'flex' : 'none';
+      document.getElementById("driverSubDocs").style.display = sub === 'docs' ? 'flex' : 'none';
+      document.getElementById("driverSubPlan").style.display = sub === 'sub' ? 'flex' : 'none';
+    }
+
+    function toggleDriverDuty() {
+      // RULE: Driver MUST be APPROVED to go online
+      if (state.driverKYC.status !== 'APPROVED') {
+        showToast("⚠️ Cannot go Online: Documents not yet approved by Admin!");
+        return;
+      }
+
+      state.driverKYC.dutyOnline = !state.driverKYC.dutyOnline;
+      const dutyBtn = document.getElementById("btnDriverDuty");
+      const dot = document.getElementById("dutyDot");
+      const text = document.getElementById("dutyText");
+
+      if (state.driverKYC.dutyOnline) {
+        dutyBtn.className = "btn btn-green";
+        dot.textContent = "🟢";
+        text.textContent = "Online & Accepting";
+        showToast("✓ Duty ON: You are now accepting rides!");
+      } else {
+        dutyBtn.className = "btn btn-outline";
+        dot.textContent = "⚪";
+        text.textContent = "Offline (Duty Off)";
+        showToast("Duty OFF: You will not receive ride requests.");
+      }
+      saveState();
+      renderDriverIncoming();
+    }
+
+    function renderDriverIncoming() {
+      const container = document.getElementById("driverIncomingContainer");
+      container.innerHTML = "";
+
+      if (state.driverKYC.status !== 'APPROVED') {
+        container.innerHTML = `
+          <div class="card" style="text-align:center; padding:30px; color:#94A3B8;">
+            <div style="font-size:32px; margin-bottom:8px;">🔒</div>
+            <strong style="color:var(--primary); font-size:15px;">Ride Acceptance Locked</strong>
+            <p style="font-size:12px; margin-top:4px;">Switch to Admin Dashboard above to review and Approve documents first.</p>
+          </div>
+        `;
+        return;
+      }
+
+      if (!state.driverKYC.dutyOnline) {
+        container.innerHTML = `
+          <div class="card" style="text-align:center; padding:30px; color:#94A3B8;">
+            <div style="font-size:32px; margin-bottom:8px;">⏸️</div>
+            <strong style="color:var(--primary); font-size:15px;">You are currently Offline</strong>
+            <p style="font-size:12px; margin-top:4px;">Turn on duty switch above to start receiving ride requests.</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Sample incoming ride
+      container.innerHTML = `
+        <div class="card" style="border-left:4px solid var(--green);">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+              <span style="font-size:11px; font-weight:800; background:#ECFDF5; color:#065F46; padding:2px 8px; border-radius:4px;">
+                🚗 NEW RIDE REQUEST
+              </span>
+              <div style="font-size:15px; font-weight:800; color:var(--primary); margin-top:4px;">Pooja Verma (Passenger)</div>
+              <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">Route: Panchayat Ward 3 ➔ Railway Hospital (5.2 km)</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:18px; font-weight:800; color:var(--green);">₹220</div>
+              <div style="font-size:10px; color:var(--green-dark); font-weight:700;">0% Commission (Keep 100%)</div>
+            </div>
+          </div>
+          <div style="display:flex; gap:8px; margin-top:14px;">
+            <button class="btn btn-outline" style="flex:1; padding:8px;" onclick="showToast('Lead skipped')">Decline</button>
+            <button class="btn btn-green" style="flex:2; padding:8px;" onclick="driverAcceptLead('Pooja Verma', 220)">
+              ✓ Accept Ride (₹220)
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function driverAcceptLead(passenger, fare) {
+      showToast(`🎉 Ride Accepted! ₹${fare} fare goes 100% to you. Passenger contacted.`);
+      const container = document.getElementById("driverIncomingContainer");
+      container.innerHTML = `
+        <div class="card" style="text-align:center; padding:20px; background:#ECFDF5; border-color:#A7F3D0;">
+          <div style="font-size:32px;">🚖</div>
+          <h4 style="color:#065F46; font-weight:800;">Active Trip with ${passenger}</h4>
+          <p style="font-size:12px; color:#047857; margin:6px 0;">Navigate to pickup point. Collect ₹${fare} directly in cash or UPI.</p>
+          <button class="btn btn-primary" style="padding:6px 14px; font-size:12px;" onclick="renderDriverIncoming()">Complete Trip</button>
+        </div>
+      `;
+    }
+
+    function triggerDocUpload(docName) {
+      showToast(`✓ ${docName} photo updated successfully`);
+    }
+
+    function submitDriverDocsForAdmin() {
+      state.driverKYC.status = "PENDING";
+      state.driverKYC.rejectionReason = "";
+      saveState();
+      renderDriverDashboard();
+      renderAdminDashboard();
+      showToast("📤 Documents submitted for Admin Verification! Check Admin Panel.");
+    }
+
+    // --- ADMIN DASHBOARD LOGIC ---
+    function renderAdminDashboard() {
+      // 1. Pending Doc Approvals Queue
+      const queue = document.getElementById("adminDocQueueList");
+      const pendingCount = document.getElementById("adminPendingCount");
+      queue.innerHTML = "";
+
+      if (state.driverKYC.status === 'PENDING') {
+        pendingCount.textContent = "1";
+        queue.innerHTML = `
+          <div style="background:#FFFBEB; border:1px solid #FDE68A; border-radius:12px; padding:16px;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px;">
+              <div>
+                <strong style="font-size:15px; color:#92400E;">${state.driverKYC.name} (${state.driverKYC.phone})</strong>
+                <div style="font-size:12px; color:#78350F; margin-top:2px;">
+                  Vehicle: <strong>${state.driverKYC.vehicle}</strong> • Plate: <strong>${state.driverKYC.carNumber}</strong>
+                </div>
+              </div>
+              <span style="background:#FEF3C7; color:#B45309; padding:4px 8px; border-radius:6px; font-size:11px; font-weight:700;">
+                ⏳ PENDING APPROVAL
+              </span>
+            </div>
+
+            <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; margin:12px 0;">
+              <div style="background:white; padding:8px; border-radius:6px; text-align:center; font-size:11px; border:1px solid #FDE68A;">
+                🆔 Aadhaar: Verified
+              </div>
+              <div style="background:white; padding:8px; border-radius:6px; text-align:center; font-size:11px; border:1px solid #FDE68A;">
+                🪪 License: Valid 2029
+              </div>
+              <div style="background:white; padding:8px; border-radius:6px; text-align:center; font-size:11px; border:1px solid #FDE68A;">
+                📄 RC: Active
+              </div>
+              <div style="background:white; padding:8px; border-radius:6px; text-align:center; font-size:11px; border:1px solid #FDE68A;">
+                🛡️ PUC: Valid
+              </div>
+            </div>
+
+            <div style="display:flex; gap:10px;">
+              <button class="btn btn-green" style="flex:1; padding:8px;" onclick="adminApproveDriver()">
+                ✓ Approve Documents
+              </button>
+              <button class="btn btn-red" style="flex:1; padding:8px;" onclick="openRejectModal()">
+                ✕ Reject with Reason
+              </button>
+            </div>
+          </div>
+        `;
+      } else {
+        pendingCount.textContent = "0";
+        queue.innerHTML = `
+          <div style="text-align:center; padding:24px; color:#64748B;">
+            <div style="font-size:28px; margin-bottom:6px;">🎉</div>
+            <strong>All driver documents verified!</strong>
+            <p style="font-size:12px; margin-top:2px;">No pending verification requests at this moment.</p>
+          </div>
+        `;
+      }
+
+      // 2. All Drivers table
+      const driversTbody = document.getElementById("adminDriversTableBody");
+      driversTbody.innerHTML = `
+        <tr>
+          <td><strong>${state.driverKYC.name}</strong><br><small style="color:#64748B;">${state.driverKYC.phone}</small></td>
+          <td>🚕 Cab Driver</td>
+          <td>${state.driverKYC.vehicle} (${state.driverKYC.carNumber})</td>
+          <td>
+            <span style="font-weight:700; font-size:11px; padding:3px 8px; border-radius:6px; background:${state.driverKYC.status === 'APPROVED' ? '#ECFDF5' : (state.driverKYC.status === 'REJECTED' ? '#FEF2F2' : '#FFFBEB')}; color:${state.driverKYC.status === 'APPROVED' ? '#065F46' : (state.driverKYC.status === 'REJECTED' ? '#991B1B' : '#92400E')};">
+              ${state.driverKYC.status}
+            </span>
+          </td>
+          <td>${state.driverKYC.subscriptionPlan}</td>
+          <td>
+            <button class="btn btn-outline" style="padding:4px 8px; font-size:11px;" onclick="adminApproveDriver()">Approve</button>
+          </td>
+        </tr>
+        <tr>
+          <td><strong>Dinesh Sharma</strong><br><small style="color:#64748B;">+91 98290 11442</small></td>
+          <td>🛠️ Sebak</td>
+          <td>Senior Electrician (510 jobs)</td>
+          <td><span style="font-weight:700; font-size:11px; padding:3px 8px; border-radius:6px; background:#ECFDF5; color:#065F46;">APPROVED</span></td>
+          <td>Annual Pass</td>
+          <td><span style="font-size:11px; color:#10B981;">✓ Verified</span></td>
+        </tr>
+        <tr>
+          <td><strong>Sunil Yadav</strong><br><small style="color:#64748B;">+91 97840 55192</small></td>
+          <td>🛠️ Sebak</td>
+          <td>Master Plumber (420 jobs)</td>
+          <td><span style="font-weight:700; font-size:11px; padding:3px 8px; border-radius:6px; background:#ECFDF5; color:#065F46;">APPROVED</span></td>
+          <td>Quarterly Pass</td>
+          <td><span style="font-size:11px; color:#10B981;">✓ Verified</span></td>
+        </tr>
+      `;
+
+      // 3. All Users Table
+      const usersTbody = document.getElementById("adminUsersTableBody");
+      usersTbody.innerHTML = `
+        <tr>
+          <td><strong>Rajesh Sharma</strong></td>
+          <td>+91 98765 43210</td>
+          <td>Bharatpur, Ward 4</td>
+          <td>4 Rides, 2 Sebak</td>
+          <td><span style="color:#059669; font-weight:700;">Active</span></td>
+        </tr>
+        <tr>
+          <td><strong>Pooja Verma</strong></td>
+          <td>+91 94140 12345</td>
+          <td>Panchayat Ward 3</td>
+          <td>8 Rides</td>
+          <td><span style="color:#059669; font-weight:700;">Active</span></td>
+        </tr>
+        <tr>
+          <td><strong>Anil Mathur</strong></td>
+          <td>+91 98291 99887</td>
+          <td>Kisan Mandi Area</td>
+          <td>3 Sebak</td>
+          <td><span style="color:#059669; font-weight:700;">Active</span></td>
+        </tr>
+      `;
+
+      // 4. All Bookings Table
+      const bookingsTbody = document.getElementById("adminBookingsTableBody");
+      bookingsTbody.innerHTML = "";
+      state.bookings.forEach(b => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><strong>${b.id}</strong></td>
+          <td>${b.module}</td>
+          <td>${b.user}</td>
+          <td>${b.provider}</td>
+          <td><strong>₹${b.fare}</strong></td>
+          <td><span style="background:#ECFDF5; color:#065F46; padding:2px 8px; border-radius:4px; font-weight:700; font-size:11px;">${b.status}</span></td>
+        `;
+        bookingsTbody.appendChild(tr);
+      });
+
+      // 5. Subscriptions Table
+      const subsTbody = document.getElementById("adminSubsTableBody");
+      subsTbody.innerHTML = `
+        <tr>
+          <td><strong>Mukesh Kumar</strong></td>
+          <td>Plan 2: Quarterly (3 Months)</td>
+          <td>₹1,299</td>
+          <td><a href="https://razorpay.me/@bharatmitrainfotech" target="_blank" style="color:var(--accent);">RPAY-8823901</a></td>
+          <td>2026-10-20</td>
+          <td><span style="color:#059669; font-weight:700;">Verified Active</span></td>
+        </tr>
+        <tr>
+          <td><strong>Dinesh Sharma (Sebak)</strong></td>
+          <td>Plan 3: Annual (1 Year)</td>
+          <td>₹3,999</td>
+          <td><a href="https://razorpay.me/@bharatmitrainfotech" target="_blank" style="color:var(--accent);">RPAY-7719204</a></td>
+          <td>2027-08-15</td>
+          <td><span style="color:#059669; font-weight:700;">Verified Active</span></td>
+        </tr>
+      `;
+    }
+
+    function switchAdminSubTab(tab, el) {
+      document.querySelectorAll(".admin-tab").forEach(t => t.classList.remove("active"));
+      el.classList.add("active");
+      document.getElementById("adminTabDocs").style.display = tab === 'docs' ? 'block' : 'none';
+      document.getElementById("adminTabDrivers").style.display = tab === 'drivers' ? 'block' : 'none';
+      document.getElementById("adminTabUsers").style.display = tab === 'users' ? 'block' : 'none';
+      document.getElementById("adminTabBookings").style.display = tab === 'bookings' ? 'block' : 'none';
+      document.getElementById("adminTabSubs").style.display = tab === 'subs' ? 'block' : 'none';
+      document.getElementById("adminTabBroadcast").style.display = tab === 'broadcast' ? 'block' : 'none';
+    }
+
+    // --- END-TO-END APPROVAL / REJECTION ACTIONS (ADMIN) ---
+    function adminApproveDriver() {
+      state.driverKYC.status = "APPROVED";
+      state.driverKYC.rejectionReason = "";
+      saveState();
+      renderDriverDashboard();
+      renderAdminDashboard();
+      showToast("✅ Driver Approved! Driver is now authorized to go online & accept rides.");
+    }
+
+    function openRejectModal() {
+      document.getElementById("rejectDocModal").classList.add("active");
+    }
+
+    function adminConfirmReject() {
+      const reason = document.getElementById("rejectReasonSelect").value;
+      state.driverKYC.status = "REJECTED";
+      state.driverKYC.rejectionReason = reason;
+      state.driverKYC.dutyOnline = false;
+      saveState();
+      closeModal("rejectDocModal");
+      renderDriverDashboard();
+      renderAdminDashboard();
+      showToast("⚠️ Driver documents rejected. Driver notified with reason.");
+    }
+
+    function adminSendBroadcast() {
+      const title = document.getElementById("pushTitleInput").value;
+      showToast(`📢 Push Broadcast Sent: "${title}"`);
+    }
+
+    // --- USER PROFILE & OTP LOGIN MODALS ---
+    function openEditProfileModal() {
+      document.getElementById("editProfileModal").classList.add("active");
+    }
+
+    function saveUserProfile() {
+      const name = document.getElementById("editUserName").value.trim();
+      const phone = document.getElementById("editUserPhone").value.trim();
+      document.getElementById("profileNameDisplay").textContent = name;
+      document.getElementById("profilePhoneDisplay").textContent = `${phone} • Citizen Member`;
+      closeModal('editProfileModal');
+      showToast("✓ Profile updated successfully");
+    }
+
+    function openLoginModal() {
+      document.getElementById("loginModal").classList.add("active");
+      document.getElementById("otpStep1").style.display = "block";
+      document.getElementById("otpStep2").style.display = "none";
+    }
+
+    function sendLoginOtp() {
+      document.getElementById("otpStep1").style.display = "none";
+      document.getElementById("otpStep2").style.display = "block";
+      showToast("📲 OTP sent! Use demo code 4921");
+    }
+
+    function verifyLoginOtp() {
+      const otp = document.getElementById("loginOtpInput").value.trim();
+      if (otp === "4921" || otp.length === 4) {
+        closeModal("loginModal");
+        showToast("✓ Login Verified Successfully!");
+      } else {
+        showToast("❌ Invalid OTP. Enter 4921");
+      }
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove("active");
+    }
+
+    function showToast(text) {
+      const t = document.getElementById("toast");
+      document.getElementById("toastText").textContent = text;
+      t.classList.add("show");
+      setTimeout(() => {
+        t.classList.remove("show");
+      }, 3000);
+    }
+
+    // ========================================================
+    // FACEBOOK-STYLE SPLASH SCREEN & NAVIGATION ENGINE
+    // ========================================================
+    function dismissSplash() {
+      const splash = document.getElementById("splashScreen");
+      if (splash && !splash.classList.contains("hide")) {
+        splash.classList.add("hide");
+      }
+    }
+    // Auto-dismiss after 1.5s
+    setTimeout(dismissSplash, 1500);
+
+    // --- NAVIGATION HISTORY & POP-SCOPE / WILL-POP-SCOPE ---
+    let lastBackPressTime = 0;
+    let navHistoryStack = ['gari'];
+
+    function pushScreenHistory(screenName) {
+      if (navHistoryStack[navHistoryStack.length - 1] !== screenName) {
+        navHistoryStack.push(screenName);
+        history.pushState({ screen: screenName }, '');
+      }
+    }
+
+    // Intercept hardware and browser back buttons
+    window.addEventListener('popstate', (e) => {
+      handleAppBackAction();
+    });
+
+    // Handle back button action (Facebook-like)
+    function handleAppBackAction() {
+      // 1. If any modal is open -> Close modal and do NOT exit
+      const activeModal = document.querySelector('.modal-overlay.active');
+      if (activeModal) {
+        activeModal.classList.remove('active');
+        history.pushState({ screen: state.currentUserTab }, '');
+        return;
+      }
+
+      // 2. If inside Driver Portal sub-tabs -> Return to live requests tab
+      if (state.currentRole === 'driver') {
+        const docsTab = document.getElementById('driverSubDocs');
+        const planTab = document.getElementById('driverSubPlan');
+        if (docsTab.style.display === 'flex' || planTab.style.display === 'flex') {
+          switchDriverSubTab('requests');
+          history.pushState({ screen: 'driver' }, '');
+          return;
+        }
+      }
+
+      // 3. For inner screens (Sebak, My Bookings, Profile) -> Go to previous screen / Home, NOT exit
+      if (state.currentRole === 'user' && state.currentUserTab !== 'gari') {
+        switchUserTab('gari', true);
+        history.pushState({ screen: 'gari' }, '');
+        return;
+      }
+
+      // 4. On Home screen (Gari Booking): Double-press back to exit like Facebook
+      const now = Date.now();
+      if (now - lastBackPressTime < 2000) {
+        showToast("✓ App kept running in background");
+        // Keep in background, do not kill application
+        lastBackPressTime = 0;
+      } else {
+        lastBackPressTime = now;
+        showToast("Press again to exit");
+        // Push state again so it traps the next press
+        history.pushState({ screen: 'gari' }, '');
+      }
+    }
+
+    // Establish initial state
+    history.replaceState({ screen: 'gari' }, '');
+
+    // --- SWIPE BACK GESTURE (FACEBOOK / INSTAGRAM STYLE) ---
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchEndX = 0;
+    let touchEndY = 0;
+
+    document.addEventListener('touchstart', (e) => {
+      if (e.changedTouches && e.changedTouches.length > 0) {
+        touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
+      }
+    }, { passive: true });
+
+    document.addEventListener('touchend', (e) => {
+      if (e.changedTouches && e.changedTouches.length > 0) {
+        touchEndX = e.changedTouches[0].screenX;
+        touchEndY = e.changedTouches[0].screenY;
+        handleSwipeGesture();
+      }
+    }, { passive: true });
+
+    function handleSwipeGesture() {
+      const deltaX = touchEndX - touchStartX;
+      const deltaY = Math.abs(touchEndY - touchStartY);
+
+      // Edge swipe: start within 55px from left edge, swipe right > 75px, horizontal slope
+      if (touchStartX < 55 && deltaX > 75 && deltaY < 65) {
+        const activeModal = document.querySelector('.modal-overlay.active');
+        if (activeModal || (state.currentRole === 'user' && state.currentUserTab !== 'gari')) {
+          handleAppBackAction();
+        }
+      }
+    }
+  </script>
 </body>
 </html>

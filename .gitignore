@@ -1,0 +1,7 @@
+.gradle/
+build/
+*.apk
+debug.keystore
+debug.keystore.base64
+.env
+.dev.env.json
