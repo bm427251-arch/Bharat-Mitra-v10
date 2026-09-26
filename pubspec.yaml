@@ -1,5 +1,5 @@
 name: bharat_mitra
-description: "Bharat Mitra V10 - Gari Booking & A to Z Sebak"
+description: "Bharat Mitra V10 - Zero Commission Ride & Home Services Platform"
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -9,6 +9,17 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_animate: ^4.5.0
+  url_launcher: ^6.3.0
+  geolocator: ^11.0.0
+  geocoding: ^3.0.0
+  google_maps_flutter: ^2.6.0
+  image_picker: ^1.1.0
+  firebase_core: ^2.30.0
+  cloud_firestore: ^4.17.0
+  firebase_storage: ^11.7.0
+  easy_localization: ^3.0.5
+  lottie: ^3.1.0
 
 dev_dependencies:
   flutter_test:

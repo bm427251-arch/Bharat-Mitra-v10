@@ -86,7 +86,7 @@
       --red-light: #FEF2F2;
       --amber: #F59E0B;
       --amber-light: #FFFBEB;
-      --bg: #F8FAFC;
+      --bg: #F5F7FF;
       --card-bg: #FFFFFF;
       --border: #E2E8F0;
       --text: #0F172A;
@@ -129,7 +129,7 @@
       color: white;
     }
     .role-brand-badge {
-      background: linear-gradient(135deg, #FF9933 0%, #FFFFFF 50%, #138808 100%);
+      background: linear-gradient(135deg, #FF7A00 0%, #FFFFFF 50%, #138808 100%);
       width: 28px;
       height: 28px;
       border-radius: 8px;
@@ -217,7 +217,7 @@
       width: 40px;
       height: 40px;
       border-radius: 12px;
-      background: linear-gradient(135deg, #FF9933 0%, #FFFFFF 50%, #138808 100%);
+      background: linear-gradient(135deg, #FF7A00 0%, #FFFFFF 50%, #138808 100%);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -435,7 +435,7 @@
     }
     .telemetry-tag {
       background: rgba(15, 23, 42, 0.88);
-      color: #F8FAFC;
+      color: #F5F7FF;
       padding: 6px 10px;
       border-radius: 8px;
       font-size: 11px;
@@ -490,7 +490,7 @@
       font-weight: 700;
       cursor: pointer;
       border: 1px solid var(--border);
-      background: #F8FAFC;
+      background: #F5F7FF;
       color: #475569;
       transition: all 0.15s ease;
       user-select: none;
@@ -643,7 +643,7 @@
       .stats-row { grid-template-columns: 1fr; }
     }
     .stat-card {
-      background: #F8FAFC;
+      background: #F5F7FF;
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 12px;
@@ -674,7 +674,7 @@
       padding: 14px;
       text-align: center;
       cursor: pointer;
-      background: #F8FAFC;
+      background: #F5F7FF;
       position: relative;
     }
     .doc-box.uploaded {
@@ -732,7 +732,7 @@
       font-size: 13px;
     }
     .data-table th {
-      background: #F8FAFC;
+      background: #F5F7FF;
       padding: 10px 12px;
       text-align: left;
       font-weight: 700;
@@ -890,7 +890,7 @@
         <img src="assets/app_icon.png" alt="Bharat Mitra Icon" class="header-logo" style="width: 40px; height: 40px; border-radius: 12px; object-fit: contain; background: white; padding: 2px; border: 1px solid #E2E8F0;">
         <div class="header-titles">
           <h1 id="headerAppTitle">Bharat Mitra Customer</h1>
-          <p id="headerAppSub">2 Modules: Gari Booking & A to Z Sebak</p>
+          <p id="headerAppSub">2 Modules: Book a Ride & Home Services</p>
         </div>
       </div>
       <!-- Razorpay link -->
@@ -914,7 +914,7 @@
               <span class="hero-badge badge-blue">Module 1</span>
             </div>
             <div>
-              <h2 class="hero-title">Gari Book Karun</h2>
+              <h2 class="hero-title">Book a Ride</h2>
               <p class="hero-desc">Instant car, cab & auto booking. Pickup/drop map, live fare calculation, 0% platform surcharge.</p>
             </div>
             <div class="hero-chips">
@@ -934,7 +934,7 @@
               <span class="hero-badge badge-orange">Module 2</span>
             </div>
             <div>
-              <h2 class="hero-title">A to Z Sebak</h2>
+              <h2 class="hero-title">Home Services</h2>
               <p class="hero-desc">Verified expert local home technicians. Electrician, plumber, carpenter, painter, AC repair & more.</p>
             </div>
             <div class="hero-chips">
@@ -955,7 +955,7 @@
           <h3 style="font-size: 17px; font-weight: 800; margin-bottom: 4px;">🚕 Car Booking Flow</h3>
           <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">Select pickup & drop points to view transparent fare</p>
 
-          <div style="background: #F8FAFC; border: 1px solid var(--border); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px;">
+          <div style="background: #F5F7FF; border: 1px solid var(--border); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px;">
             <div style="display: flex; align-items: center; gap: 10px;">
               <span style="color: var(--accent);">🟢</span>
               <input type="text" id="userPickup" value="Panchayat Bhavan, Main Circle" style="border: none; background: transparent; width: 100%; font-size: 13px; font-weight: 700; outline: none;">
@@ -1055,7 +1055,7 @@
           </div>
 
           <!-- Trip Status Card -->
-          <div style="margin-top: 12px; padding: 12px; background: #F8FAFC; border-radius: 10px; border: 1px solid var(--border);">
+          <div style="margin-top: 12px; padding: 12px; background: #F5F7FF; border-radius: 10px; border: 1px solid var(--border);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
               <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px;">Trip Details</span>
               <span id="trackerStatusBadge" class="badge badge-green" style="font-size: 11px;">En Route</span>
@@ -1112,7 +1112,7 @@
           <!-- On-Trip Progression Box -->
           <div id="trackerOnTripControls" style="display: none; margin-top: 12px; padding: 12px; background: #EFF6FF; border-radius: 10px; border: 1px solid #BFDBFE;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-              <span style="font-weight: 800; font-size: 13px; color: #1E3A8A;">🚩 On Trip to Drop Location</span>
+              <span style="font-weight: 800; font-size: 13px; color: #0B2E6E;">🚩 On Trip to Drop Location</span>
               <span class="badge badge-green" style="font-size: 11px;">In Transit</span>
             </div>
             <p style="font-size: 11px; color: #1E40AF; margin: 0 0 10px;">Navigating towards Tehsil Railway Junction. Enjoy your ride!</p>
@@ -1130,7 +1130,7 @@
             </div>
 
             <!-- Driver Identity Pill -->
-            <div style="display: flex; align-items: center; gap: 10px; background: #F8FAFC; border: 1px solid var(--border); border-radius: 10px; padding: 10px; margin-bottom: 12px;">
+            <div style="display: flex; align-items: center; gap: 10px; background: #F5F7FF; border: 1px solid var(--border); border-radius: 10px; padding: 10px; margin-bottom: 12px;">
               <div style="width: 42px; height: 42px; border-radius: 50%; background: #DBEAFE; color: #1E40AF; display: flex; align-items: center; justify-content: center; font-size: 20px;">
                 👨‍✈️
               </div>
@@ -1187,13 +1187,13 @@
             </div>
 
             <!-- Submit Rating Button -->
-            <button class="btn btn-primary btn-block" style="padding: 12px; font-size: 14px; background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 100%);" onclick="submitRideRating()">
+            <button class="btn btn-primary btn-block" style="padding: 12px; font-size: 14px; background: linear-gradient(135deg, #0B2E6E 0%, #2563EB 100%);" onclick="submitRideRating()">
               <span>⭐</span> Submit Rating & Review
             </button>
           </div>
 
           <!-- POST-RIDE RATING CONFIRMATION & RECEIPT -->
-          <div id="rideRatingReceiptSection" style="display: none; margin-top: 14px; padding: 16px; background: #F8FAFC; border-radius: 12px; border: 1px solid #CBD5E1; text-align: center;">
+          <div id="rideRatingReceiptSection" style="display: none; margin-top: 14px; padding: 16px; background: #F5F7FF; border-radius: 12px; border: 1px solid #CBD5E1; text-align: center;">
             <div style="width: 48px; height: 48px; border-radius: 50%; background: #DCFCE7; color: #15803D; font-size: 24px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 8px;">
               ✓
             </div>
@@ -1247,7 +1247,7 @@
           </div>
 
           <!-- Canvas Map Container for Sebak -->
-          <div style="position: relative; width: 100%; height: 220px; border-radius: 12px; overflow: hidden; background: #F8FAFC; border: 1px solid var(--border); box-shadow: inset 0 2px 6px rgba(0,0,0,0.06);">
+          <div style="position: relative; width: 100%; height: 220px; border-radius: 12px; overflow: hidden; background: #F5F7FF; border: 1px solid var(--border); box-shadow: inset 0 2px 6px rgba(0,0,0,0.06);">
             <canvas id="liveSebakCanvas" width="480" height="220" style="width: 100%; height: 100%; display: block;"></canvas>
             
             <!-- Sebak Floating HUD -->
@@ -1333,7 +1333,7 @@
             </div>
 
             <!-- Sebak Identity Pill -->
-            <div style="display: flex; align-items: center; gap: 10px; background: #F8FAFC; border: 1px solid var(--border); border-radius: 10px; padding: 10px; margin-bottom: 12px;">
+            <div style="display: flex; align-items: center; gap: 10px; background: #F5F7FF; border: 1px solid var(--border); border-radius: 10px; padding: 10px; margin-bottom: 12px;">
               <div style="width: 42px; height: 42px; border-radius: 50%; background: #FFEDD5; color: #C2410C; display: flex; align-items: center; justify-content: center; font-size: 20px;">
                 👨‍🔧
               </div>
@@ -1342,7 +1342,7 @@
                   <strong style="font-size: 13px; color: #0F172A;" id="ratingSebakNameTitle">Dinesh Sharma</strong>
                   <span style="font-size: 11px; font-weight: 700; color: #B45309; background: #FEF3C7; padding: 2px 6px; border-radius: 4px;">★ 4.9 (Verified)</span>
                 </div>
-                <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;" id="ratingSebakTradeTitle">A to Z Sebak Specialist</div>
+                <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;" id="ratingSebakTradeTitle">Home Services Specialist</div>
               </div>
             </div>
 
@@ -1402,7 +1402,7 @@
           </div>
         </div>
         <div class="card" style="border-top: 4px solid var(--saffron);">
-          <h3 style="font-size: 17px; font-weight: 800; color: var(--saffron-dark);">🛠️ A to Z Sebak Services</h3>
+          <h3 style="font-size: 17px; font-weight: 800; color: var(--saffron-dark);">🛠️ Home Services Services</h3>
           <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Verified doorstep technicians for all home repair & maintenance</p>
 
           <div class="sebak-grid">
@@ -1499,7 +1499,7 @@
       <nav class="bottom-bar">
         <button class="nav-btn active" id="userNavGari" onclick="switchUserTab('gari')">
           <span class="icon">🚕</span>
-          <span class="label">Gari Booking</span>
+          <span class="label">Book a Ride</span>
         </button>
         <button class="nav-btn" id="userNavSebak" onclick="switchUserTab('sebak')">
           <span class="icon">🛠️</span>
@@ -1685,7 +1685,7 @@
       <!-- DRIVER SUB-SECTION 4: RATINGS & REVIEWS SCORECARD -->
       <div id="driverSubRatings" style="display: none; flex-direction: column; gap: 14px;">
         <!-- Scorecard Card -->
-        <div class="card" style="background: linear-gradient(135deg, #1E3A8A 0%, #1E293B 100%); color: white; border: none;">
+        <div class="card" style="background: linear-gradient(135deg, #0B2E6E 0%, #1E293B 100%); color: white; border: none;">
           <div style="display: flex; justify-content: space-between; align-items: center;">
             <div>
               <div style="font-size: 12px; color: #93C5FD; font-weight: 700; text-transform: uppercase;">Partner Rating Scorecard</div>
@@ -1750,7 +1750,7 @@
         <div class="card">
           <h4 style="font-size: 14px; font-weight: 800; margin-bottom: 10px;">💬 Recent Passenger & Customer Reviews</h4>
           <div id="driverReviewsList" style="display: flex; flex-direction: column; gap: 10px;">
-            <div style="background: #F8FAFC; border: 1px solid var(--border); border-radius: 10px; padding: 12px;">
+            <div style="background: #F5F7FF; border: 1px solid var(--border); border-radius: 10px; padding: 12px;">
               <div style="display: flex; justify-content: space-between; align-items: center;">
                 <strong style="font-size: 13px; color: #0F172A;">Rajesh Sharma</strong>
                 <span style="color: #F59E0B; font-weight: 800; font-size: 13px;">★★★★★ 5.0</span>
@@ -1763,7 +1763,7 @@
               </div>
             </div>
 
-            <div style="background: #F8FAFC; border: 1px solid var(--border); border-radius: 10px; padding: 12px;">
+            <div style="background: #F5F7FF; border: 1px solid var(--border); border-radius: 10px; padding: 12px;">
               <div style="display: flex; justify-content: space-between; align-items: center;">
                 <strong style="font-size: 13px; color: #0F172A;">Sunita Devi</strong>
                 <span style="color: #F59E0B; font-weight: 800; font-size: 13px;">★★★★★ 5.0</span>
@@ -2016,7 +2016,7 @@
       </div>
 
       <!-- Service Info Box -->
-      <div style="background: #F8FAFC; border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
+      <div style="background: #F5F7FF; border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <strong style="font-size: 13px; color: #0F172A;" id="genRatingProvider">Vikram Singh</strong>
           <span class="badge badge-blue" id="genRatingModuleBadge">Car Booking</span>
@@ -2189,7 +2189,7 @@
         {
           id: "BK-9390",
           type: "sebak",
-          module: "A to Z Sebak",
+          module: "Home Services",
           title: "Electrician Switchboard Service",
           user: "Rajesh Sharma",
           provider: "Dinesh Sharma (Sebak)",
@@ -2260,7 +2260,7 @@
         driverDash.style.display = "none";
         adminDash.style.display = "none";
         headerTitle.textContent = "Bharat Mitra Customer";
-        headerSub.textContent = "2 Modules: Gari Booking & A to Z Sebak";
+        headerSub.textContent = "2 Modules: Book a Ride & Home Services";
         switchUserTab(state.currentUserTab);
       } else if (role === 'driver') {
         document.getElementById("btnRoleDriver").classList.add("active");
@@ -2971,7 +2971,7 @@
       });
 
       // Route polyline for Sebak
-      ctx.strokeStyle = "#FF9933";
+      ctx.strokeStyle = "#FF7A00";
       ctx.lineWidth = 4;
       ctx.setLineDash([6, 4]);
       ctx.beginPath();
@@ -3007,7 +3007,7 @@
 
       // Scooter Body
       ctx.rotate(techPos.angle);
-      ctx.fillStyle = "#FF9933";
+      ctx.fillStyle = "#FF7A00";
       ctx.strokeStyle = "#FFFFFF";
       ctx.lineWidth = 1.5;
       ctx.beginPath();
@@ -3167,7 +3167,7 @@
       const newBooking = {
         id: "BK-" + Math.floor(1000 + Math.random() * 9000),
         type: "sebak",
-        module: "A to Z Sebak",
+        module: "Home Services",
         title: state.activeSebak.name + " Service",
         user: "Rajesh Sharma",
         provider: "Dinesh Sharma (" + state.activeSebak.name + ")",
@@ -3265,7 +3265,7 @@
 
       state.bookings.forEach(b => {
         const item = document.createElement("div");
-        item.style.background = "#F8FAFC";
+        item.style.background = "#F5F7FF";
         item.style.border = "1px solid var(--border)";
         item.style.borderRadius = "12px";
         item.style.padding = "14px";
@@ -3330,7 +3330,7 @@
         row.style.justifyContent = "space-between";
         row.style.alignItems = "center";
         row.style.padding = "10px";
-        row.style.background = "#F8FAFC";
+        row.style.background = "#F5F7FF";
         row.style.borderRadius = "8px";
         row.style.border = "1px solid var(--border)";
         row.innerHTML = `
@@ -3829,7 +3829,7 @@
         return;
       }
 
-      // 4. On Home screen (Gari Booking): Double-press back to exit like Facebook
+      // 4. On Home screen (Book a Ride): Double-press back to exit like Facebook
       const now = Date.now();
       if (now - lastBackPressTime < 2000) {
         showToast("✓ App kept running in background");
