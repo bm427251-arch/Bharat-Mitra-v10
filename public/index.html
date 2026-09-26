@@ -405,6 +405,129 @@
       text-align: right;
     }
 
+    /* SIMULATED LIVE MAP TRACKER STYLES */
+    @keyframes livePulse {
+      0% { transform: scale(0.92); opacity: 0.8; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+      70% { transform: scale(1.08); opacity: 1; box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+      100% { transform: scale(0.92); opacity: 0.8; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+    }
+    .live-dot-pulse {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      background-color: #22C55E;
+      border-radius: 50%;
+      animation: livePulse 1.6s infinite ease-in-out;
+    }
+    .safety-sim-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 8px;
+      background: #FEF3C7;
+      border: 1px solid #FCD34D;
+      color: #92400E;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+    .telemetry-tag {
+      background: rgba(15, 23, 42, 0.88);
+      color: #F8FAFC;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      backdrop-filter: blur(4px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+    }
+
+    /* 5-STAR RATING & POST-RIDE SYSTEM STYLES */
+    .rating-stars-row {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin: 12px 0 6px;
+    }
+    .star-btn {
+      font-size: 34px;
+      line-height: 1;
+      cursor: pointer;
+      color: #CBD5E1;
+      transition: transform 0.15s ease, color 0.15s ease;
+      user-select: none;
+      background: none;
+      border: none;
+      padding: 2px;
+    }
+    .star-btn:hover {
+      transform: scale(1.22);
+    }
+    .star-btn.active {
+      color: #F59E0B;
+      text-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
+    }
+    .rating-label-display {
+      text-align: center;
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--accent);
+      min-height: 20px;
+      margin-bottom: 12px;
+    }
+    .rating-tags-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+    .rating-chip {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: #F8FAFC;
+      color: #475569;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+    .rating-chip:hover {
+      background: #EFF6FF;
+      border-color: #BFDBFE;
+    }
+    .rating-chip.active {
+      background: #EFF6FF;
+      border-color: var(--accent);
+      color: var(--accent);
+      box-shadow: 0 2px 6px rgba(30, 58, 138, 0.12);
+    }
+    .tip-pills-row {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 14px;
+    }
+    .tip-pill {
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid var(--border);
+      background: white;
+      color: #334155;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .tip-pill.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
     /* BUTTONS */
     .btn {
       padding: 12px 18px;
@@ -884,10 +1007,400 @@
             <span>✓</span> Confirm & Book Ride (<span id="userFareDisplay">₹120</span>)
           </button>
         </div>
+
+        <!-- SIMULATED LIVE MAP TRACKER (CONFIRMED RIDE) -->
+        <div id="liveMapTrackerCard" class="card" style="display: none; margin-top: 8px; border-top: 4px solid var(--accent); padding: 16px;">
+          <!-- Header with simulation badge & OTP -->
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 3px;">
+                <span class="live-dot-pulse"></span>
+                <span style="font-size: 15px; font-weight: 800; color: #0F172A;">Live GPS Ride Tracker</span>
+                <span class="safety-sim-pill">Simulated Mode</span>
+              </div>
+              <p style="font-size: 11px; color: var(--text-muted); margin: 0;">Driver is navigating to your pickup location</p>
+            </div>
+            <div style="text-align: right;">
+              <span id="trackerOtpBadge" class="badge badge-blue" style="font-size: 13px; font-weight: 800; letter-spacing: 0.5px;">OTP: 4921</span>
+            </div>
+          </div>
+
+          <!-- Canvas Map Container -->
+          <div style="position: relative; width: 100%; height: 260px; border-radius: 12px; overflow: hidden; background: #F1F5F9; border: 1px solid var(--border); box-shadow: inset 0 2px 6px rgba(0,0,0,0.06);">
+            <canvas id="liveMapCanvas" width="480" height="260" style="width: 100%; height: 100%; display: block;"></canvas>
+            
+            <!-- Driver & Vehicle Floating HUD -->
+            <div class="telemetry-tag" style="position: absolute; top: 10px; left: 10px;">
+              <div style="font-weight: 800; color: #93C5FD; display: flex; align-items: center; gap: 5px;">
+                <span>🚘</span> <span id="trackerDriverName">Vikram Singh</span>
+              </div>
+              <div style="font-size: 10px; color: #CBD5E1; margin-top: 2px;">
+                <span id="trackerVehName">Prime Sedan</span> • <span id="trackerVehPlate">DL 01 AB 8492</span>
+              </div>
+            </div>
+
+            <!-- ETA and Distance Floating Pill -->
+            <div style="position: absolute; bottom: 10px; right: 10px; background: rgba(255, 255, 255, 0.95); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.14); display: flex; align-items: center; gap: 10px;">
+              <div style="text-align: right;">
+                <div id="trackerEtaText" style="font-size: 14px; font-weight: 800; color: #0F172A;">3 mins away</div>
+                <div id="trackerDistText" style="font-size: 11px; font-weight: 600; color: #64748B;">1.8 km remaining</div>
+              </div>
+              <span id="trackerVehicleIcon" style="font-size: 24px;">🚖</span>
+            </div>
+
+            <!-- Recenter / Replay Simulation Button -->
+            <button onclick="restartMapSimulation()" title="Replay Simulation" style="position: absolute; bottom: 10px; left: 10px; background: white; border: 1px solid var(--border); width: 34px; height: 34px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+              🔄
+            </button>
+          </div>
+
+          <!-- Trip Status Card -->
+          <div style="margin-top: 12px; padding: 12px; background: #F8FAFC; border-radius: 10px; border: 1px solid var(--border);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px;">Trip Details</span>
+              <span id="trackerStatusBadge" class="badge badge-green" style="font-size: 11px;">En Route</span>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="color: var(--green); font-size: 14px;">🟢</span>
+                <div style="flex: 1;">
+                  <div style="font-size: 10px; color: var(--text-muted);">Pickup</div>
+                  <div id="trackerPickupText" style="font-size: 12px; font-weight: 700; color: #0F172A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Panchayat Bhavan, Main Circle</div>
+                </div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="color: var(--saffron); font-size: 14px;">🔴</span>
+                <div style="flex: 1;">
+                  <div style="font-size: 10px; color: var(--text-muted);">Drop</div>
+                  <div id="trackerDropText" style="font-size: 12px; font-weight: 700; color: #0F172A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Tehsil Railway Junction Station</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Driver Action Buttons & Status Controls -->
+          <div id="trackerEnRouteControls" style="display: flex; gap: 8px; margin-top: 12px;">
+            <button class="btn btn-outline" style="flex: 1; padding: 10px; font-size: 12px;" onclick="callTrackerDriver()">
+              📞 Call Driver
+            </button>
+            <button class="btn btn-outline" style="flex: 1; padding: 10px; font-size: 12px; color: #EF4444; border-color: #FCA5A5;" onclick="cancelActiveRideTracker()">
+              ✕ Cancel Ride
+            </button>
+            <button class="btn btn-outline" style="padding: 10px; font-size: 12px; background: #EFF6FF; border-color: #BFDBFE; color: var(--accent);" onclick="fastForwardToPickup()" title="Simulate Immediate Driver Arrival">
+              ⏩ Arrive Now
+            </button>
+          </div>
+
+          <!-- Pickup Arrived Action Box -->
+          <div id="trackerArrivedControls" style="display: none; margin-top: 12px; padding: 12px; background: #ECFDF5; border-radius: 10px; border: 1px solid #A7F3D0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-weight: 800; font-size: 13px; color: #065F46;">🟢 Driver Has Arrived at Pickup!</span>
+              <span class="badge badge-blue" style="font-size: 12px;" id="arrivedOtpPill">OTP: 4921</span>
+            </div>
+            <p style="font-size: 11px; color: #047857; margin: 0 0 10px;">Board vehicle and share OTP with Vikram Singh to begin trip.</p>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-green" style="flex: 2; padding: 10px; font-size: 13px;" onclick="startRideTrip()">
+                🚀 Start Trip to Destination
+              </button>
+              <button class="btn btn-primary" style="flex: 1; padding: 10px; font-size: 13px;" onclick="completeRideTrip()">
+                🏁 Complete Trip
+              </button>
+            </div>
+          </div>
+
+          <!-- On-Trip Progression Box -->
+          <div id="trackerOnTripControls" style="display: none; margin-top: 12px; padding: 12px; background: #EFF6FF; border-radius: 10px; border: 1px solid #BFDBFE;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <span style="font-weight: 800; font-size: 13px; color: #1E3A8A;">🚩 On Trip to Drop Location</span>
+              <span class="badge badge-green" style="font-size: 11px;">In Transit</span>
+            </div>
+            <p style="font-size: 11px; color: #1E40AF; margin: 0 0 10px;">Navigating towards Tehsil Railway Junction. Enjoy your ride!</p>
+            <button class="btn btn-primary btn-block" style="padding: 10px; font-size: 13px;" onclick="completeRideTrip()">
+              🏁 Arrived at Destination • Complete Trip & Rate Driver
+            </button>
+          </div>
+
+          <!-- POST-RIDE 5-STAR RATING SYSTEM (CAR BOOKING) -->
+          <div id="rideRatingSection" style="display: none; margin-top: 14px; padding: 16px; background: #FFFFFF; border-radius: 12px; border: 2px solid #FCD34D; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.15);">
+            <div style="text-align: center; margin-bottom: 12px;">
+              <div style="font-size: 32px; margin-bottom: 4px;">🎉</div>
+              <h4 style="font-size: 16px; font-weight: 800; color: #0F172A; margin: 0;">Trip Completed Successfully!</h4>
+              <p style="font-size: 12px; color: var(--text-muted); margin-top: 3px;">How was your journey with <strong id="ratingDriverNameDisplay" style="color: #0F172A;">Vikram Singh</strong>?</p>
+            </div>
+
+            <!-- Driver Identity Pill -->
+            <div style="display: flex; align-items: center; gap: 10px; background: #F8FAFC; border: 1px solid var(--border); border-radius: 10px; padding: 10px; margin-bottom: 12px;">
+              <div style="width: 42px; height: 42px; border-radius: 50%; background: #DBEAFE; color: #1E40AF; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                👨‍✈️
+              </div>
+              <div style="flex: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <strong style="font-size: 13px; color: #0F172A;" id="ratingDriverNameTitle">Vikram Singh</strong>
+                  <span style="font-size: 11px; font-weight: 700; color: #B45309; background: #FEF3C7; padding: 2px 6px; border-radius: 4px;">★ 4.9 (420+ rides)</span>
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;" id="ratingDriverVehicleTitle">Prime Sedan • DL 01 AB 8492</div>
+              </div>
+            </div>
+
+            <!-- 5 Interactive Gold Stars -->
+            <div style="text-align: center;">
+              <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px;">Tap Stars to Rate</div>
+              <div class="rating-stars-row" id="carRatingStars">
+                <button type="button" class="star-btn active" data-star="1" onclick="setRideStarRating(1)">★</button>
+                <button type="button" class="star-btn active" data-star="2" onclick="setRideStarRating(2)">★</button>
+                <button type="button" class="star-btn active" data-star="3" onclick="setRideStarRating(3)">★</button>
+                <button type="button" class="star-btn active" data-star="4" onclick="setRideStarRating(4)">★</button>
+                <button type="button" class="star-btn active" data-star="5" onclick="setRideStarRating(5)">★</button>
+              </div>
+              <div class="rating-label-display" id="carRatingSentiment">5.0 ★ Outstanding Experience! 🌟</div>
+            </div>
+
+            <!-- Compliment Tags -->
+            <div style="margin-top: 10px;">
+              <div style="font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 6px; text-align: center;">What went well? (Select compliments)</div>
+              <div class="rating-tags-grid" id="carRatingTagsContainer">
+                <div class="rating-chip active" onclick="toggleRideTag(this)">🛡️ Safe Driving</div>
+                <div class="rating-chip active" onclick="toggleRideTag(this)">✨ Clean Car</div>
+                <div class="rating-chip" onclick="toggleRideTag(this)">🤝 Polite Driver</div>
+                <div class="rating-chip" onclick="toggleRideTag(this)">⏰ On-Time</div>
+                <div class="rating-chip" onclick="toggleRideTag(this)">❄️ AC Working Well</div>
+                <div class="rating-chip" onclick="toggleRideTag(this)">🗺️ Smooth Route</div>
+              </div>
+            </div>
+
+            <!-- Review Feedback Textarea -->
+            <div style="margin-top: 10px;">
+              <label style="font-size: 11px; font-weight: 700; color: #475569;">Write a Review (Optional)</label>
+              <textarea id="rideReviewComments" rows="2" placeholder="Share your experience with Vikram Singh..." style="width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 12px; resize: none; margin-top: 4px; font-family: inherit;"></textarea>
+            </div>
+
+            <!-- Driver Tip Option -->
+            <div style="margin-top: 12px;">
+              <div style="font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 6px; text-align: center;">Add Tip for Driver (100% goes to driver)</div>
+              <div class="tip-pills-row" id="carTipPills">
+                <div class="tip-pill active" onclick="selectRideTip(0, this)">No Tip</div>
+                <div class="tip-pill" onclick="selectRideTip(10, this)">+₹10</div>
+                <div class="tip-pill" onclick="selectRideTip(20, this)">+₹20</div>
+                <div class="tip-pill" onclick="selectRideTip(50, this)">+₹50</div>
+              </div>
+            </div>
+
+            <!-- Submit Rating Button -->
+            <button class="btn btn-primary btn-block" style="padding: 12px; font-size: 14px; background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 100%);" onclick="submitRideRating()">
+              <span>⭐</span> Submit Rating & Review
+            </button>
+          </div>
+
+          <!-- POST-RIDE RATING CONFIRMATION & RECEIPT -->
+          <div id="rideRatingReceiptSection" style="display: none; margin-top: 14px; padding: 16px; background: #F8FAFC; border-radius: 12px; border: 1px solid #CBD5E1; text-align: center;">
+            <div style="width: 48px; height: 48px; border-radius: 50%; background: #DCFCE7; color: #15803D; font-size: 24px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 8px;">
+              ✓
+            </div>
+            <h4 style="font-size: 16px; font-weight: 800; color: #0F172A; margin: 0;">Rating Submitted!</h4>
+            <p style="font-size: 12px; color: var(--text-muted); margin: 4px 0 12px;">Thank you for rating <strong id="receiptDriverName">Vikram Singh</strong> <span id="receiptStarsBadge" style="color: #F59E0B; font-weight: 800;">5.0 ★</span></p>
+
+            <div style="background: white; border: 1px solid var(--border); border-radius: 10px; padding: 12px; text-align: left; margin-bottom: 14px; font-size: 12px;">
+              <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                <span style="color: var(--text-muted);">Trip Fare</span>
+                <strong id="receiptFareAmount">₹120</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                <span style="color: var(--text-muted);">Driver Tip</span>
+                <strong id="receiptTipAmount">₹0</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between; border-top: 1px dashed var(--border); padding-top: 6px; margin-top: 6px;">
+                <span style="font-weight: 700; color: #0F172A;">Total Paid (0% Commission)</span>
+                <strong style="color: #15803D; font-size: 14px;" id="receiptTotalAmount">₹120</strong>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-primary" style="flex: 1; padding: 10px; font-size: 12px;" onclick="bookAnotherCar()">
+                + Book Another Ride
+              </button>
+              <button class="btn btn-outline" style="flex: 1; padding: 10px; font-size: 12px;" onclick="switchUserTab('bookings')">
+                📋 View in Bookings
+              </button>
+            </div>
+          </div>
+        </div>
       </section>
 
       <!-- SUB-VIEW A2: A TO Z SEBAK MODULE -->
       <section id="userViewSebak" class="dashboard-view">
+        <!-- SIMULATED LIVE SEBAK TRACKER (SERVICE PROVIDER) -->
+        <div id="liveSebakTrackerCard" class="card" style="display: none; margin-bottom: 14px; border-top: 4px solid var(--saffron); padding: 16px;">
+          <!-- Header with simulation badge & OTP -->
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 3px;">
+                <span class="live-dot-pulse" style="background-color: var(--saffron);"></span>
+                <span style="font-size: 15px; font-weight: 800; color: #0F172A;">Live Sebak Service Tracker</span>
+                <span class="safety-sim-pill" style="background: #FFF7ED; border-color: #FED7AA; color: #9A3412;">Doorstep Mode</span>
+              </div>
+              <p style="font-size: 11px; color: var(--text-muted); margin: 0;">Verified service technician is navigating to your address</p>
+            </div>
+            <div style="text-align: right;">
+              <span id="sebakTrackerOtpBadge" class="badge badge-saffron" style="font-size: 13px; font-weight: 800; letter-spacing: 0.5px;">OTP: 7193</span>
+            </div>
+          </div>
+
+          <!-- Canvas Map Container for Sebak -->
+          <div style="position: relative; width: 100%; height: 220px; border-radius: 12px; overflow: hidden; background: #F8FAFC; border: 1px solid var(--border); box-shadow: inset 0 2px 6px rgba(0,0,0,0.06);">
+            <canvas id="liveSebakCanvas" width="480" height="220" style="width: 100%; height: 100%; display: block;"></canvas>
+            
+            <!-- Sebak Floating HUD -->
+            <div class="telemetry-tag" style="position: absolute; top: 10px; left: 10px; background: rgba(30, 41, 59, 0.9);">
+              <div style="font-weight: 800; color: #FED7AA; display: flex; align-items: center; gap: 5px;">
+                <span id="sebakTechIcon">⚡</span> <span id="sebakTechName">Dinesh Sharma</span>
+              </div>
+              <div style="font-size: 10px; color: #CBD5E1; margin-top: 2px;">
+                <span id="sebakTechTrade">Senior Electrician</span> • <span style="color: #FCD34D;">★ 4.9 (340 jobs)</span>
+              </div>
+            </div>
+
+            <!-- Sebak ETA Pill -->
+            <div style="position: absolute; bottom: 10px; right: 10px; background: rgba(255, 255, 255, 0.95); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.14); display: flex; align-items: center; gap: 8px;">
+              <div style="text-align: right;">
+                <div id="sebakEtaText" style="font-size: 13px; font-weight: 800; color: #0F172A;">3 mins away</div>
+                <div id="sebakDistText" style="font-size: 10px; font-weight: 600; color: #64748B;">1.2 km to doorstep</div>
+              </div>
+              <span style="font-size: 20px;">🛵</span>
+            </div>
+
+            <!-- Replay Button -->
+            <button onclick="restartSebakSimulation()" title="Replay Simulation" style="position: absolute; bottom: 10px; left: 10px; background: white; border: 1px solid var(--border); width: 32px; height: 32px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px;">
+              🔄
+            </button>
+          </div>
+
+          <!-- Service Details Card -->
+          <div style="margin-top: 12px; padding: 12px; background: #FFF7ED; border-radius: 10px; border: 1px solid #FED7AA;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #9A3412;">Service Lead</span>
+              <span id="sebakStatusBadge" class="badge badge-saffron" style="font-size: 11px;">En Route</span>
+            </div>
+            <div style="font-size: 12px; font-weight: 700; color: #0F172A;" id="sebakServiceTitle">Electrician Switchboard Service</div>
+            <div style="font-size: 11px; color: #78350F; margin-top: 2px;" id="sebakServiceAddress">Address: Plot 18, Ward 4, Gandhi Nagar</div>
+          </div>
+
+          <!-- Sebak Action Controls -->
+          <div id="sebakEnRouteControls" style="display: flex; gap: 8px; margin-top: 12px;">
+            <button class="btn btn-outline" style="flex: 1; padding: 10px; font-size: 12px;" onclick="callSebakTechnician()">
+              📞 Call Technician
+            </button>
+            <button class="btn btn-outline" style="padding: 10px; font-size: 12px; background: #FFF7ED; border-color: #FED7AA; color: var(--saffron-dark);" onclick="fastForwardSebakArrival()">
+              ⏩ Arrive Now
+            </button>
+          </div>
+
+          <!-- Sebak Arrived & Start Service Box -->
+          <div id="sebakArrivedControls" style="display: none; margin-top: 12px; padding: 12px; background: #ECFDF5; border-radius: 10px; border: 1px solid #A7F3D0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <span style="font-weight: 800; font-size: 13px; color: #065F46;">🟢 Technician at Doorstep!</span>
+              <span class="badge badge-green" id="sebakArrivedOtpPill">OTP: 7193</span>
+            </div>
+            <p style="font-size: 11px; color: #047857; margin: 0 0 10px;">Share OTP with Dinesh Sharma to start the inspection/repair.</p>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-green" style="flex: 2; padding: 10px; font-size: 13px;" onclick="startSebakServiceWork()">
+                ⚡ Start Work (Verify OTP)
+              </button>
+              <button class="btn btn-saffron" style="flex: 1; padding: 10px; font-size: 13px;" onclick="completeSebakServiceWork()">
+                🏁 Complete Work
+              </button>
+            </div>
+          </div>
+
+          <!-- Sebak Work in Progress Box -->
+          <div id="sebakInProgressControls" style="display: none; margin-top: 12px; padding: 12px; background: #FEF3C7; border-radius: 10px; border: 1px solid #FDE68A;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <span style="font-weight: 800; font-size: 13px; color: #92400E;">🛠️ Service Work in Progress</span>
+              <span class="badge badge-saffron">Active Inspection</span>
+            </div>
+            <p style="font-size: 11px; color: #78350F; margin: 0 0 10px;">Technician Dinesh Sharma is carrying out the repairs.</p>
+            <button class="btn btn-saffron btn-block" style="padding: 10px; font-size: 13px;" onclick="completeSebakServiceWork()">
+              🏁 Service Finished • Complete & Rate Sebak
+            </button>
+          </div>
+
+          <!-- POST-SERVICE 5-STAR RATING SYSTEM (SEBAK / SERVICE PROVIDER) -->
+          <div id="sebakRatingSection" style="display: none; margin-top: 14px; padding: 16px; background: #FFFFFF; border-radius: 12px; border: 2px solid #FCD34D; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.15);">
+            <div style="text-align: center; margin-bottom: 12px;">
+              <div style="font-size: 32px; margin-bottom: 4px;">🛠️</div>
+              <h4 style="font-size: 16px; font-weight: 800; color: #0F172A; margin: 0;">Service Completed!</h4>
+              <p style="font-size: 12px; color: var(--text-muted); margin-top: 3px;">How was the work by <strong id="ratingSebakNameDisplay">Dinesh Sharma</strong>?</p>
+            </div>
+
+            <!-- Sebak Identity Pill -->
+            <div style="display: flex; align-items: center; gap: 10px; background: #F8FAFC; border: 1px solid var(--border); border-radius: 10px; padding: 10px; margin-bottom: 12px;">
+              <div style="width: 42px; height: 42px; border-radius: 50%; background: #FFEDD5; color: #C2410C; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                👨‍🔧
+              </div>
+              <div style="flex: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <strong style="font-size: 13px; color: #0F172A;" id="ratingSebakNameTitle">Dinesh Sharma</strong>
+                  <span style="font-size: 11px; font-weight: 700; color: #B45309; background: #FEF3C7; padding: 2px 6px; border-radius: 4px;">★ 4.9 (Verified)</span>
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;" id="ratingSebakTradeTitle">A to Z Sebak Specialist</div>
+              </div>
+            </div>
+
+            <!-- 5 Interactive Stars -->
+            <div style="text-align: center;">
+              <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px;">Rate Service Quality</div>
+              <div class="rating-stars-row" id="sebakRatingStars">
+                <button type="button" class="star-btn active" data-star="1" onclick="setSebakStarRating(1)">★</button>
+                <button type="button" class="star-btn active" data-star="2" onclick="setSebakStarRating(2)">★</button>
+                <button type="button" class="star-btn active" data-star="3" onclick="setSebakStarRating(3)">★</button>
+                <button type="button" class="star-btn active" data-star="4" onclick="setSebakStarRating(4)">★</button>
+                <button type="button" class="star-btn active" data-star="5" onclick="setSebakStarRating(5)">★</button>
+              </div>
+              <div class="rating-label-display" id="sebakRatingSentiment">5.0 ★ Excellent Workmanship! 🌟</div>
+            </div>
+
+            <!-- Sebak Compliment Tags -->
+            <div style="margin-top: 10px;">
+              <div style="font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 6px; text-align: center;">Technician Compliments</div>
+              <div class="rating-tags-grid" id="sebakRatingTagsContainer">
+                <div class="rating-chip active" onclick="toggleSebakTag(this)">⏱️ Arrived On-Time</div>
+                <div class="rating-chip active" onclick="toggleSebakTag(this)">🛠️ Expert Workmanship</div>
+                <div class="rating-chip" onclick="toggleSebakTag(this)">🧹 Cleaned Up Area</div>
+                <div class="rating-chip" onclick="toggleSebakTag(this)">💰 Transparent Pricing</div>
+                <div class="rating-chip" onclick="toggleSebakTag(this)">🙏 Polite & Respectful</div>
+              </div>
+            </div>
+
+            <!-- Feedback textarea -->
+            <div style="margin-top: 10px;">
+              <label style="font-size: 11px; font-weight: 700; color: #475569;">Comments / Feedback (Optional)</label>
+              <textarea id="sebakReviewComments" rows="2" placeholder="Write feedback about Dinesh Sharma's work..." style="width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 12px; resize: none; margin-top: 4px; font-family: inherit;"></textarea>
+            </div>
+
+            <!-- Submit Rating Button -->
+            <button class="btn btn-saffron btn-block" style="padding: 12px; font-size: 14px; margin-top: 12px;" onclick="submitSebakRating()">
+              <span>⭐</span> Submit Sebak Rating
+            </button>
+          </div>
+
+          <!-- SEBAK RATING RECEIPT -->
+          <div id="sebakRatingReceiptSection" style="display: none; margin-top: 14px; padding: 16px; background: #FFF7ED; border-radius: 12px; border: 1px solid #FED7AA; text-align: center;">
+            <div style="width: 48px; height: 48px; border-radius: 50%; background: #DCFCE7; color: #15803D; font-size: 24px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 8px;">
+              ✓
+            </div>
+            <h4 style="font-size: 16px; font-weight: 800; color: #0F172A; margin: 0;">Rating Submitted!</h4>
+            <p style="font-size: 12px; color: var(--text-muted); margin: 4px 0 12px;">You rated <strong id="receiptSebakName">Dinesh Sharma</strong> <span style="color: #F59E0B; font-weight: 800;">5.0 ★</span></p>
+
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-saffron" style="flex: 1; padding: 10px; font-size: 12px;" onclick="bookAnotherSebak()">
+                + Book Another Sebak
+              </button>
+              <button class="btn btn-outline" style="flex: 1; padding: 10px; font-size: 12px;" onclick="switchUserTab('bookings')">
+                📋 View in Bookings
+              </button>
+            </div>
+          </div>
+        </div>
         <div class="card" style="border-top: 4px solid var(--saffron);">
           <h3 style="font-size: 17px; font-weight: 800; color: var(--saffron-dark);">🛠️ A to Z Sebak Services</h3>
           <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Verified doorstep technicians for all home repair & maintenance</p>
@@ -1051,14 +1564,17 @@
 
       <!-- DRIVER SUB-NAVIGATION -->
       <div style="display: flex; gap: 6px; background: #EEF2F6; padding: 4px; border-radius: 10px; margin-top: 4px;">
-        <button class="btn btn-outline active" style="flex: 1; padding: 8px; font-size: 12px;" id="subTabBtnRequests" onclick="switchDriverSubTab('requests')">
-          🚕 Live Requests
+        <button class="btn btn-outline active" style="flex: 1; padding: 8px; font-size: 11px;" id="subTabBtnRequests" onclick="switchDriverSubTab('requests')">
+          🚕 Leads
         </button>
-        <button class="btn btn-outline" style="flex: 1; padding: 8px; font-size: 12px;" id="subTabBtnDocs" onclick="switchDriverSubTab('docs')">
-          📑 Docs & Vehicle
+        <button class="btn btn-outline" style="flex: 1; padding: 8px; font-size: 11px;" id="subTabBtnDocs" onclick="switchDriverSubTab('docs')">
+          📑 Docs
         </button>
-        <button class="btn btn-outline" style="flex: 1; padding: 8px; font-size: 12px;" id="subTabBtnSub" onclick="switchDriverSubTab('sub')">
-          💎 Subscription
+        <button class="btn btn-outline" style="flex: 1; padding: 8px; font-size: 11px;" id="subTabBtnSub" onclick="switchDriverSubTab('sub')">
+          💎 Plan
+        </button>
+        <button class="btn btn-outline" style="flex: 1; padding: 8px; font-size: 11px;" id="subTabBtnRatings" onclick="switchDriverSubTab('ratings')">
+          ⭐ Ratings
         </button>
       </div>
 
@@ -1161,6 +1677,103 @@
             <div style="text-align: right;">
               <div style="font-size: 16px; font-weight: 800; color: var(--saffron-dark);">₹3,999</div>
               <a href="https://razorpay.me/@bharatmitrainfotech" target="_blank" class="btn btn-saffron" style="padding: 4px 10px; font-size: 11px; margin-top: 4px;">Pay Razorpay</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DRIVER SUB-SECTION 4: RATINGS & REVIEWS SCORECARD -->
+      <div id="driverSubRatings" style="display: none; flex-direction: column; gap: 14px;">
+        <!-- Scorecard Card -->
+        <div class="card" style="background: linear-gradient(135deg, #1E3A8A 0%, #1E293B 100%); color: white; border: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-size: 12px; color: #93C5FD; font-weight: 700; text-transform: uppercase;">Partner Rating Scorecard</div>
+              <div style="display: flex; align-items: baseline; gap: 8px; margin-top: 4px;">
+                <span style="font-size: 38px; font-weight: 800; color: #FCD34D;">4.9</span>
+                <span style="font-size: 18px; color: #FCD34D;">★★★★★</span>
+              </div>
+              <div style="font-size: 11px; color: #E2E8F0;">Based on 186 verified customer reviews</div>
+            </div>
+            <div style="text-align: right; background: rgba(255,255,255,0.1); padding: 10px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.15);">
+              <div style="font-size: 20px; font-weight: 800; color: #34D399;">94%</div>
+              <div style="font-size: 10px; color: #CBD5E1;">5-Star Ratings</div>
+            </div>
+          </div>
+
+          <!-- Rating breakdown bars -->
+          <div style="margin-top: 16px; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 12px; display: flex; flex-direction: column; gap: 6px; font-size: 11px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="width: 32px;">5 ★</span>
+              <div style="flex: 1; height: 7px; background: rgba(255,255,255,0.2); border-radius: 4px; overflow: hidden;">
+                <div style="width: 94%; height: 100%; background: #FCD34D; border-radius: 4px;"></div>
+              </div>
+              <span style="width: 32px; text-align: right; color: #94A3B8;">175</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="width: 32px;">4 ★</span>
+              <div style="flex: 1; height: 7px; background: rgba(255,255,255,0.2); border-radius: 4px; overflow: hidden;">
+                <div style="width: 5%; height: 100%; background: #60A5FA; border-radius: 4px;"></div>
+              </div>
+              <span style="width: 32px; text-align: right; color: #94A3B8;">9</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="width: 32px;">3 ★</span>
+              <div style="flex: 1; height: 7px; background: rgba(255,255,255,0.2); border-radius: 4px; overflow: hidden;">
+                <div style="width: 1%; height: 100%; background: #CBD5E1; border-radius: 4px;"></div>
+              </div>
+              <span style="width: 32px; text-align: right; color: #94A3B8;">2</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Badges Earned -->
+        <div class="card">
+          <h4 style="font-size: 14px; font-weight: 800; margin-bottom: 10px;">🎖️ Partner Trust Badges</h4>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+            <span style="background: #ECFDF5; border: 1px solid #A7F3D0; color: #065F46; padding: 6px 10px; border-radius: 8px; font-size: 11px; font-weight: 700;">
+              🛡️ 100% Verified Pro
+            </span>
+            <span style="background: #EFF6FF; border: 1px solid #BFDBFE; color: #1E40AF; padding: 6px 10px; border-radius: 8px; font-size: 11px; font-weight: 700;">
+              🏆 Top Rated Driver
+            </span>
+            <span style="background: #FFF7ED; border: 1px solid #FED7AA; color: #9A3412; padding: 6px 10px; border-radius: 8px; font-size: 11px; font-weight: 700;">
+              ⚡ 99.4% On-Time Arrival
+            </span>
+            <span style="background: #FAF5FF; border: 1px solid #E9D5FF; color: #6B21A8; padding: 6px 10px; border-radius: 8px; font-size: 11px; font-weight: 700;">
+              ⭐ Super Sebak Partner
+            </span>
+          </div>
+        </div>
+
+        <!-- Customer Reviews Feed -->
+        <div class="card">
+          <h4 style="font-size: 14px; font-weight: 800; margin-bottom: 10px;">💬 Recent Passenger & Customer Reviews</h4>
+          <div id="driverReviewsList" style="display: flex; flex-direction: column; gap: 10px;">
+            <div style="background: #F8FAFC; border: 1px solid var(--border); border-radius: 10px; padding: 12px;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <strong style="font-size: 13px; color: #0F172A;">Rajesh Sharma</strong>
+                <span style="color: #F59E0B; font-weight: 800; font-size: 13px;">★★★★★ 5.0</span>
+              </div>
+              <div style="font-size: 11px; color: var(--text-muted); margin: 2px 0 6px;">Ride Booking • Today, 11:30 AM</div>
+              <p style="font-size: 12px; color: #334155; margin: 0;">"Very smooth and polite ride. Vehicle was clean and AC was running well. Highly recommended driver!"</p>
+              <div style="display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap;">
+                <span class="badge badge-blue" style="font-size: 10px;">🛡️ Safe Driving</span>
+                <span class="badge badge-green" style="font-size: 10px;">✨ Clean Car</span>
+              </div>
+            </div>
+
+            <div style="background: #F8FAFC; border: 1px solid var(--border); border-radius: 10px; padding: 12px;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <strong style="font-size: 13px; color: #0F172A;">Sunita Devi</strong>
+                <span style="color: #F59E0B; font-weight: 800; font-size: 13px;">★★★★★ 5.0</span>
+              </div>
+              <div style="font-size: 11px; color: var(--text-muted); margin: 2px 0 6px;">Electrician Sebak • Yesterday</div>
+              <p style="font-size: 12px; color: #334155; margin: 0;">"Technician came on time, fixed our main circuit breaker issue quickly, and cleaned up after finishing."</p>
+              <div style="display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap;">
+                <span class="badge badge-saffron" style="font-size: 10px;">⏱️ On-Time</span>
+                <span class="badge badge-green" style="font-size: 10px;">🛠️ Expert Work</span>
+              </div>
             </div>
           </div>
         </div>
@@ -1388,6 +2001,62 @@
 
       <button class="btn btn-saffron btn-block" onclick="userConfirmSebak()">
         <span>✓</span> Confirm Sebak Booking
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL: GENERIC POST-SERVICE RATING (FOR BOOKINGS LIST) -->
+  <div id="genericRatingModal" class="modal-overlay">
+    <div class="modal-sheet">
+      <button class="modal-close" onclick="closeModal('genericRatingModal')">×</button>
+      <div style="text-align: center; margin-bottom: 12px;">
+        <div style="font-size: 32px; margin-bottom: 4px;" id="genRatingIcon">⭐</div>
+        <h3 style="font-size: 18px; font-weight: 800; color: var(--primary);" id="genRatingHeading">Rate Service Experience</h3>
+        <p style="font-size: 12px; color: var(--text-muted); margin-top: 2px;" id="genRatingSub">Share your feedback to help us maintain top quality</p>
+      </div>
+
+      <!-- Service Info Box -->
+      <div style="background: #F8FAFC; border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin-bottom: 14px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <strong style="font-size: 13px; color: #0F172A;" id="genRatingProvider">Vikram Singh</strong>
+          <span class="badge badge-blue" id="genRatingModuleBadge">Car Booking</span>
+        </div>
+        <div style="font-size: 11px; color: var(--text-muted); margin-top: 3px;" id="genRatingRoute">Route details</div>
+      </div>
+
+      <!-- 5 Interactive Stars -->
+      <div style="text-align: center;">
+        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px;">Tap Stars to Rate</div>
+        <div class="rating-stars-row" id="genModalStars">
+          <button type="button" class="star-btn active" data-star="1" onclick="setGenModalStar(1)">★</button>
+          <button type="button" class="star-btn active" data-star="2" onclick="setGenModalStar(2)">★</button>
+          <button type="button" class="star-btn active" data-star="3" onclick="setGenModalStar(3)">★</button>
+          <button type="button" class="star-btn active" data-star="4" onclick="setGenModalStar(4)">★</button>
+          <button type="button" class="star-btn active" data-star="5" onclick="setGenModalStar(5)">★</button>
+        </div>
+        <div class="rating-label-display" id="genModalSentiment">5.0 ★ Outstanding Service! 🌟</div>
+      </div>
+
+      <!-- Tag Chips -->
+      <div style="margin-top: 8px;">
+        <div style="font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 6px; text-align: center;">Select Compliments</div>
+        <div class="rating-tags-grid" id="genModalTags">
+          <div class="rating-chip active" onclick="toggleGenModalTag(this)">🛡️ Great Service</div>
+          <div class="rating-chip active" onclick="toggleGenModalTag(this)">⏰ On-Time</div>
+          <div class="rating-chip" onclick="toggleGenModalTag(this)">🤝 Polite & Courteous</div>
+          <div class="rating-chip" onclick="toggleGenModalTag(this)">✨ Clean & Professional</div>
+        </div>
+      </div>
+
+      <!-- Comments -->
+      <div style="margin-top: 10px;">
+        <label style="font-size: 11px; font-weight: 700; color: #475569;">Write a Review</label>
+        <textarea id="genModalComment" rows="2" placeholder="Write feedback..." style="width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 12px; resize: none; margin-top: 4px; font-family: inherit;"></textarea>
+      </div>
+
+      <!-- Submit -->
+      <button class="btn btn-primary btn-block" style="padding: 12px; font-size: 14px; margin-top: 14px;" onclick="submitGenModalRating()">
+        <span>⭐</span> Submit Rating & Review
       </button>
     </div>
   </div>
@@ -1669,7 +2338,7 @@
         module: "Car Booking",
         title: state.selectedCar.name + " Booking",
         user: "Rajesh Sharma",
-        provider: state.driverKYC.status === 'APPROVED' ? state.driverKYC.name : "Mitra Cab Partner",
+        provider: state.driverKYC.status === 'APPROVED' ? state.driverKYC.name : "Vikram Singh",
         from: pickup,
         to: drop,
         fare: state.selectedCar.fare,
@@ -1688,10 +2357,795 @@
       });
       saveState();
 
-      showToast(`🎉 Car Booked! OTP: ${newBooking.otp}. Driver arriving in 3 mins.`);
-      setTimeout(() => {
-        switchUserTab('bookings');
-      }, 1200);
+      // Launch Simulated Live GPS Map Tracker
+      startSimulatedLiveTracker(newBooking);
+      showToast(`🎉 Ride Confirmed! OTP: ${newBooking.otp}. Tracking driver on map.`);
+    }
+
+    // --- SIMULATED LIVE MAP TRACKER ENGINE ---
+    let mapAnimFrameId = null;
+    let mapSimStartTime = null;
+    let activeRideBooking = null;
+    const SIM_DURATION_MS = 18000; // 18-second simulated drive
+
+    // Route Waypoints across street network: Driver -> Pickup
+    const ROUTE_WAYPOINTS = [
+      { x: 70,  y: 60  },
+      { x: 180, y: 60  },
+      { x: 180, y: 130 },
+      { x: 290, y: 130 },
+      { x: 400, y: 130 }
+    ];
+
+    function calculatePolylineTotalLength(points) {
+      let total = 0;
+      for (let i = 0; i < points.length - 1; i++) {
+        const dx = points[i+1].x - points[i].x;
+        const dy = points[i+1].y - points[i].y;
+        total += Math.hypot(dx, dy);
+      }
+      return total;
+    }
+
+    const ROUTE_TOTAL_LEN = calculatePolylineTotalLength(ROUTE_WAYPOINTS);
+
+    function getPointAlongPolyline(points, progress) {
+      const targetDist = Math.max(0, Math.min(1, progress)) * ROUTE_TOTAL_LEN;
+      let accum = 0;
+
+      for (let i = 0; i < points.length - 1; i++) {
+        const p1 = points[i];
+        const p2 = points[i+1];
+        const segDist = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+
+        if (accum + segDist >= targetDist || i === points.length - 2) {
+          const segProgress = segDist === 0 ? 0 : (targetDist - accum) / segDist;
+          const x = p1.x + (p2.x - p1.x) * segProgress;
+          const y = p1.y + (p2.y - p1.y) * segProgress;
+          const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+          return { x, y, angle };
+        }
+        accum += segDist;
+      }
+      return { x: points[points.length - 1].x, y: points[points.length - 1].y, angle: 0 };
+    }
+
+    function startSimulatedLiveTracker(booking) {
+      activeRideBooking = booking;
+
+      // Populate Telemetry & Info
+      document.getElementById("trackerOtpBadge").textContent = "OTP: " + booking.otp;
+      document.getElementById("trackerPickupText").textContent = booking.from;
+      document.getElementById("trackerDropText").textContent = booking.to;
+      document.getElementById("trackerDriverName").textContent = booking.provider || "Vikram Singh";
+      document.getElementById("trackerVehName").textContent = state.selectedCar.name;
+      document.getElementById("trackerVehPlate").textContent = "DL 01 AB " + (1000 + Math.floor(Math.random() * 9000));
+      document.getElementById("trackerStatusBadge").textContent = "En Route";
+      document.getElementById("trackerStatusBadge").className = "badge badge-green";
+      
+      const vehIcon = state.selectedCar.name.includes("Auto") ? "🛺" : (state.selectedCar.name.includes("SUV") ? "🚙" : "🚘");
+      document.getElementById("trackerVehicleIcon").textContent = vehIcon;
+
+      // Switch view cards
+      document.getElementById("gariBookingSection").style.display = "none";
+      const trackerCard = document.getElementById("liveMapTrackerCard");
+      trackerCard.style.display = "block";
+      trackerCard.scrollIntoView({ behavior: 'smooth' });
+
+      // Start animation loop
+      if (mapAnimFrameId) cancelAnimationFrame(mapAnimFrameId);
+      mapSimStartTime = performance.now();
+      runMapAnimationLoop();
+    }
+
+    function runMapAnimationLoop() {
+      const now = performance.now();
+      const elapsed = now - mapSimStartTime;
+      const rawProgress = Math.min(1, elapsed / SIM_DURATION_MS);
+      // Smooth cubic ease-out
+      const progress = 1 - Math.pow(1 - rawProgress, 2.2);
+
+      drawSimulatedMap(progress);
+
+      // Update telemetry display
+      const remainingKm = Math.max(0, (1 - progress) * 1.8);
+      const remainingSec = Math.max(0, Math.ceil((1 - rawProgress) * (SIM_DURATION_MS / 1000)));
+      const etaMin = Math.ceil(remainingSec / 6);
+
+      if (rawProgress < 1) {
+        document.getElementById("trackerEtaText").textContent = etaMin > 1 ? `${etaMin} mins away` : `${Math.max(1, remainingSec * 5)}s away`;
+        document.getElementById("trackerDistText").textContent = `${remainingKm.toFixed(1)} km to pickup`;
+        document.getElementById("trackerStatusBadge").textContent = "En Route (" + (32 + Math.sin(elapsed / 300) * 4).toFixed(0) + " km/h)";
+        mapAnimFrameId = requestAnimationFrame(runMapAnimationLoop);
+      } else {
+        // Driver arrived at pickup!
+        onDriverArrivedAtPickup();
+      }
+    }
+
+    function drawSimulatedMap(progress) {
+      const canvas = document.getElementById("liveMapCanvas");
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      const w = canvas.width;
+      const h = canvas.height;
+
+      // 1. Map Canvas Background (City Grid Tone)
+      ctx.fillStyle = "#EEF2F6";
+      ctx.fillRect(0, 0, w, h);
+
+      // 2. City Blocks & Neighborhood Patches
+      // Green Park (Gandhi Smriti Park)
+      ctx.fillStyle = "#DCFCE7";
+      ctx.strokeStyle = "#86EFAC";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.roundRect(85, 75, 80, 42, 6);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = "#15803D";
+      ctx.font = "bold 9px system-ui, -apple-system, sans-serif";
+      ctx.fillText("🌳 Gandhi Park", 92, 98);
+
+      // Commercial Center (Mitra Bazaar)
+      ctx.fillStyle = "#FEF3C7";
+      ctx.strokeStyle = "#FDE68A";
+      ctx.beginPath();
+      ctx.roundRect(195, 75, 80, 42, 6);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = "#B45309";
+      ctx.fillText("🏬 Mitra Bazaar", 202, 98);
+
+      // Civic Hub / Hospital
+      ctx.fillStyle = "#E0F2FE";
+      ctx.strokeStyle = "#BAE6FD";
+      ctx.beginPath();
+      ctx.roundRect(305, 145, 80, 42, 6);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = "#0369A1";
+      ctx.fillText("🏥 City Hospital", 312, 168);
+
+      // Water Canal at bottom left
+      ctx.fillStyle = "#CFFAFE";
+      ctx.beginPath();
+      ctx.roundRect(20, 150, 40, 90, 8);
+      ctx.fill();
+
+      // 3. Road Network Grid
+      const roads = [
+        // Horizontal Avenues
+        { x1: 0, y1: 60,  x2: w, y2: 60  },
+        { x1: 0, y1: 130, x2: w, y2: 130 },
+        { x1: 0, y1: 200, x2: w, y2: 200 },
+        // Vertical Streets
+        { x1: 70,  y1: 0, x2: 70,  y2: h },
+        { x1: 180, y1: 0, x2: 180, y2: h },
+        { x1: 290, y1: 0, x2: 290, y2: h },
+        { x1: 400, y1: 0, x2: 400, y2: h }
+      ];
+
+      // Draw road asphalt
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.strokeStyle = "#CBD5E1";
+      ctx.lineWidth = 18;
+      roads.forEach(r => {
+        ctx.beginPath();
+        ctx.moveTo(r.x1, r.y1);
+        ctx.lineTo(r.x2, r.y2);
+        ctx.stroke();
+      });
+
+      // Road Dashed Centerlines
+      ctx.strokeStyle = "#FFFFFF";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6, 6]);
+      roads.forEach(r => {
+        ctx.beginPath();
+        ctx.moveTo(r.x1, r.y1);
+        ctx.lineTo(r.x2, r.y2);
+        ctx.stroke();
+      });
+      ctx.setLineDash([]);
+
+      // 4. Planned Navigation Route (Vibrant Blue Polyline)
+      ctx.strokeStyle = "#3B82F6";
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.moveTo(ROUTE_WAYPOINTS[0].x, ROUTE_WAYPOINTS[0].y);
+      for (let i = 1; i < ROUTE_WAYPOINTS.length; i++) {
+        ctx.lineTo(ROUTE_WAYPOINTS[i].x, ROUTE_WAYPOINTS[i].y);
+      }
+      ctx.stroke();
+
+      // Drop location segment (dashed red route from Pickup to Drop)
+      ctx.strokeStyle = "#EF4444";
+      ctx.lineWidth = 4;
+      ctx.setLineDash([5, 5]);
+      ctx.beginPath();
+      ctx.moveTo(400, 130);
+      ctx.lineTo(400, 200);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // 5. Destination Drop Marker (Red Pin at 400, 200)
+      ctx.fillStyle = "#EF4444";
+      ctx.beginPath();
+      ctx.arc(400, 200, 7, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "#FFFFFF";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.fillStyle = "#991B1B";
+      ctx.font = "bold 9px system-ui, sans-serif";
+      ctx.fillText("🎯 DROP", 412, 203);
+
+      // 6. Pickup Marker with Pulsing Concentric Radar Ring (Green Pin at 400, 130)
+      const pulseT = (Date.now() % 1600) / 1600;
+      const pulseRadius = 10 + pulseT * 22;
+      const pulseAlpha = Math.max(0, 1 - pulseT);
+
+      // Radar Ring
+      ctx.strokeStyle = `rgba(34, 197, 94, ${pulseAlpha * 0.8})`;
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.arc(400, 130, pulseRadius, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Outer Green Circle
+      ctx.fillStyle = "#22C55E";
+      ctx.beginPath();
+      ctx.arc(400, 130, 9, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Inner White Center
+      ctx.fillStyle = "#FFFFFF";
+      ctx.beginPath();
+      ctx.arc(400, 130, 4, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#15803D";
+      ctx.font = "bold 10px system-ui, sans-serif";
+      ctx.fillText("📍 PICKUP", 412, 134);
+
+      // 7. Simulated Driver Vehicle Icon Moving along Polyline
+      const carPos = getPointAlongPolyline(ROUTE_WAYPOINTS, progress);
+
+      ctx.save();
+      ctx.translate(carPos.x, carPos.y);
+
+      // Vehicle Shadow & Halo
+      ctx.fillStyle = "rgba(15, 23, 42, 0.25)";
+      ctx.beginPath();
+      ctx.ellipse(0, 4, 14, 7, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Vehicle Pulse Ring
+      ctx.strokeStyle = "rgba(59, 130, 246, 0.5)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(0, 0, 16, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Vehicle Body Base (Yellow/White Cab)
+      ctx.rotate(carPos.angle);
+
+      ctx.fillStyle = "#F59E0B"; // Cab Amber
+      ctx.strokeStyle = "#FFFFFF";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(-12, -7, 24, 14, 4);
+      ctx.fill();
+      ctx.stroke();
+
+      // Windshield & Roof
+      ctx.fillStyle = "#1E293B";
+      ctx.beginPath();
+      ctx.roundRect(-4, -5, 10, 10, 2);
+      ctx.fill();
+
+      // Headlights beam
+      ctx.fillStyle = "rgba(254, 240, 138, 0.6)";
+      ctx.beginPath();
+      ctx.moveTo(12, -5);
+      ctx.lineTo(24, -9);
+      ctx.lineTo(24, 9);
+      ctx.lineTo(12, 5);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    // --- LIVE MAP TRACKER INTERACTION & POST-RIDE RATING SYSTEM ---
+    let currentRideRating = 5;
+    let currentRideTags = ["🛡️ Safe Driving", "✨ Clean Car"];
+    let currentRideTip = 0;
+
+    function onDriverArrivedAtPickup() {
+      if (mapAnimFrameId) cancelAnimationFrame(mapAnimFrameId);
+      drawSimulatedMap(1.0);
+      document.getElementById("trackerEtaText").textContent = "Arrived at Pickup!";
+      document.getElementById("trackerDistText").textContent = "0.0 km (Driver Ready)";
+      document.getElementById("trackerStatusBadge").textContent = "🟢 At Pickup";
+      document.getElementById("trackerStatusBadge").className = "badge badge-green";
+      document.getElementById("trackerEnRouteControls").style.display = "none";
+      document.getElementById("trackerArrivedControls").style.display = "block";
+      document.getElementById("arrivedOtpPill").textContent = "OTP: " + (activeRideBooking?.otp || "4921");
+      showToast(`🚖 Driver has arrived at your pickup point! Share OTP: ${activeRideBooking?.otp || '4921'}`);
+    }
+
+    function fastForwardToPickup() {
+      onDriverArrivedAtPickup();
+      showToast("⏩ Jumped to: Driver Arrived at Pickup");
+    }
+
+    function startRideTrip() {
+      document.getElementById("trackerArrivedControls").style.display = "none";
+      document.getElementById("trackerOnTripControls").style.display = "block";
+      document.getElementById("trackerStatusBadge").textContent = "🚩 In Transit (42 km/h)";
+      document.getElementById("trackerStatusBadge").className = "badge badge-blue";
+      document.getElementById("trackerEtaText").textContent = "5 mins to Drop";
+      document.getElementById("trackerDistText").textContent = "3.2 km to Tehsil Junction";
+      showToast("🚗 OTP verified! Trip started to destination.");
+    }
+
+    function completeRideTrip() {
+      document.getElementById("trackerOnTripControls").style.display = "none";
+      document.getElementById("trackerArrivedControls").style.display = "none";
+      document.getElementById("trackerEnRouteControls").style.display = "none";
+      document.getElementById("trackerStatusBadge").textContent = "🏁 Trip Completed";
+      document.getElementById("trackerStatusBadge").className = "badge badge-blue";
+      document.getElementById("trackerEtaText").textContent = "Arrived at Drop";
+      document.getElementById("trackerDistText").textContent = "0.0 km (Destination)";
+
+      // Update active ride status in state
+      if (activeRideBooking) {
+        activeRideBooking.status = "Completed";
+        const found = state.bookings.find(b => b.id === activeRideBooking.id);
+        if (found) found.status = "Completed";
+        saveState();
+      }
+
+      // Reset rating UI
+      setRideStarRating(5);
+      currentRideTip = 0;
+      document.querySelectorAll("#carTipPills .tip-pill").forEach((p, idx) => {
+        if (idx === 0) p.classList.add("active"); else p.classList.remove("active");
+      });
+      document.getElementById("rideReviewComments").value = "";
+      
+      const ratingSec = document.getElementById("rideRatingSection");
+      ratingSec.style.display = "block";
+      ratingSec.scrollIntoView({ behavior: 'smooth' });
+      showToast("🎉 Arrived at destination! Please rate Vikram Singh.");
+    }
+
+    function setRideStarRating(stars) {
+      currentRideRating = stars;
+      const starButtons = document.querySelectorAll("#carRatingStars .star-btn");
+      starButtons.forEach((btn, idx) => {
+        if (idx < stars) {
+          btn.classList.add("active");
+        } else {
+          btn.classList.remove("active");
+        }
+      });
+
+      const sentiments = {
+        1: "1.0 ★ Poor Experience 😞",
+        2: "2.0 ★ Below Expectations 😐",
+        3: "3.0 ★ Good Ride 🙂",
+        4: "4.0 ★ Very Good Ride! 😊",
+        5: "5.0 ★ Outstanding Experience! 🌟"
+      };
+      document.getElementById("carRatingSentiment").textContent = sentiments[stars] || `${stars}.0 ★`;
+    }
+
+    function toggleRideTag(el) {
+      el.classList.toggle("active");
+    }
+
+    function selectRideTip(amount, el) {
+      currentRideTip = amount;
+      document.querySelectorAll("#carTipPills .tip-pill").forEach(p => p.classList.remove("active"));
+      el.classList.add("active");
+    }
+
+    function submitRideRating() {
+      const selectedTags = [];
+      document.querySelectorAll("#carRatingTagsContainer .rating-chip.active").forEach(chip => {
+        selectedTags.push(chip.textContent.trim());
+      });
+      const reviewText = document.getElementById("rideReviewComments").value.trim();
+
+      if (activeRideBooking) {
+        activeRideBooking.rated = true;
+        activeRideBooking.rating = currentRideRating;
+        activeRideBooking.ratingTags = selectedTags;
+        activeRideBooking.review = reviewText;
+        activeRideBooking.tip = currentRideTip;
+
+        const found = state.bookings.find(b => b.id === activeRideBooking.id);
+        if (found) {
+          found.rated = true;
+          found.rating = currentRideRating;
+          found.ratingTags = selectedTags;
+          found.review = reviewText;
+          found.tip = currentRideTip;
+        }
+      }
+
+      saveState();
+      renderUserBookings();
+
+      // Show receipt view
+      document.getElementById("rideRatingSection").style.display = "none";
+      const fare = activeRideBooking ? activeRideBooking.fare : 120;
+      const total = fare + currentRideTip;
+      document.getElementById("receiptDriverName").textContent = activeRideBooking?.provider || "Vikram Singh";
+      document.getElementById("receiptStarsBadge").textContent = `${currentRideRating}.0 ★`;
+      document.getElementById("receiptFareAmount").textContent = `₹${fare}`;
+      document.getElementById("receiptTipAmount").textContent = `₹${currentRideTip}`;
+      document.getElementById("receiptTotalAmount").textContent = `₹${total}`;
+      
+      const receiptSec = document.getElementById("rideRatingReceiptSection");
+      receiptSec.style.display = "block";
+      receiptSec.scrollIntoView({ behavior: 'smooth' });
+
+      showToast(`⭐ Rated ${currentRideRating}★! Thank you for supporting your driver.`);
+    }
+
+    function restartMapSimulation() {
+      if (mapAnimFrameId) cancelAnimationFrame(mapAnimFrameId);
+      document.getElementById("trackerEnRouteControls").style.display = "flex";
+      document.getElementById("trackerArrivedControls").style.display = "none";
+      document.getElementById("trackerOnTripControls").style.display = "none";
+      document.getElementById("rideRatingSection").style.display = "none";
+      document.getElementById("rideRatingReceiptSection").style.display = "none";
+      mapSimStartTime = performance.now();
+      showToast("🔄 Replaying driver route simulation");
+      runMapAnimationLoop();
+    }
+
+    function bookAnotherCar() {
+      if (mapAnimFrameId) cancelAnimationFrame(mapAnimFrameId);
+      document.getElementById("liveMapTrackerCard").style.display = "none";
+      document.getElementById("gariBookingSection").style.display = "block";
+      document.getElementById("gariBookingSection").scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function cancelActiveRideTracker() {
+      if (confirm("Are you sure you want to cancel this ride?")) {
+        if (mapAnimFrameId) cancelAnimationFrame(mapAnimFrameId);
+        document.getElementById("liveMapTrackerCard").style.display = "none";
+        document.getElementById("gariBookingSection").style.display = "block";
+        showToast("✓ Ride cancelled. No cancellation fee.");
+      }
+    }
+
+    function callTrackerDriver() {
+      alert(`📞 Calling Driver Vikram Singh (+91 98765 12340)...\nVehicle: ${state.selectedCar.name} (DL 01 AB 8492)\nOTP: ${activeRideBooking?.otp || '4921'}`);
+    }
+
+    // --- SEBAK SERVICE PROVIDER SIMULATED TRACKER & RATING ---
+    let sebakAnimFrameId = null;
+    let sebakSimStartTime = null;
+    let activeSebakBooking = null;
+    let currentSebakRating = 5;
+    const SEBAK_SIM_DURATION = 14000; // 14-second simulated travel
+
+    const SEBAK_WAYPOINTS = [
+      { x: 410, y: 40 },
+      { x: 300, y: 40 },
+      { x: 300, y: 120 },
+      { x: 190, y: 120 },
+      { x: 80,  y: 120 }
+    ];
+    const SEBAK_TOTAL_LEN = calculatePolylineTotalLength(SEBAK_WAYPOINTS);
+
+    function getSebakPointAlongPolyline(progress) {
+      const targetDist = Math.max(0, Math.min(1, progress)) * SEBAK_TOTAL_LEN;
+      let accum = 0;
+      for (let i = 0; i < SEBAK_WAYPOINTS.length - 1; i++) {
+        const p1 = SEBAK_WAYPOINTS[i];
+        const p2 = SEBAK_WAYPOINTS[i+1];
+        const segDist = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+        if (accum + segDist >= targetDist || i === SEBAK_WAYPOINTS.length - 2) {
+          const segProgress = segDist === 0 ? 0 : (targetDist - accum) / segDist;
+          const x = p1.x + (p2.x - p1.x) * segProgress;
+          const y = p1.y + (p2.y - p1.y) * segProgress;
+          const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+          return { x, y, angle };
+        }
+        accum += segDist;
+      }
+      return { x: SEBAK_WAYPOINTS[SEBAK_WAYPOINTS.length - 1].x, y: SEBAK_WAYPOINTS[SEBAK_WAYPOINTS.length - 1].y, angle: 0 };
+    }
+
+    function startSimulatedSebakTracker(booking) {
+      activeSebakBooking = booking;
+
+      // Populate Telemetry & Info
+      document.getElementById("sebakTrackerOtpBadge").textContent = "OTP: " + booking.otp;
+      document.getElementById("sebakServiceTitle").textContent = booking.title;
+      document.getElementById("sebakServiceAddress").textContent = "Address: " + (booking.address || "Plot 18, Ward 4");
+      document.getElementById("sebakTechName").textContent = booking.provider || "Dinesh Sharma";
+      document.getElementById("sebakTechTrade").textContent = booking.title.split(' ')[0] + " Specialist";
+      document.getElementById("sebakStatusBadge").textContent = "En Route";
+      document.getElementById("sebakStatusBadge").className = "badge badge-saffron";
+
+      document.getElementById("sebakEnRouteControls").style.display = "flex";
+      document.getElementById("sebakArrivedControls").style.display = "none";
+      document.getElementById("sebakInProgressControls").style.display = "none";
+      document.getElementById("sebakRatingSection").style.display = "none";
+      document.getElementById("sebakRatingReceiptSection").style.display = "none";
+
+      const trackerCard = document.getElementById("liveSebakTrackerCard");
+      trackerCard.style.display = "block";
+      trackerCard.scrollIntoView({ behavior: 'smooth' });
+
+      // Start animation
+      if (sebakAnimFrameId) cancelAnimationFrame(sebakAnimFrameId);
+      sebakSimStartTime = performance.now();
+      runSebakAnimationLoop();
+    }
+
+    function runSebakAnimationLoop() {
+      const now = performance.now();
+      const elapsed = now - sebakSimStartTime;
+      const rawProgress = Math.min(1, elapsed / SEBAK_SIM_DURATION);
+      const progress = 1 - Math.pow(1 - rawProgress, 2.0);
+
+      drawSebakMap(progress);
+
+      const remainingKm = Math.max(0, (1 - progress) * 1.4);
+      const remainingSec = Math.max(0, Math.ceil((1 - rawProgress) * (SEBAK_SIM_DURATION / 1000)));
+
+      if (rawProgress < 1) {
+        document.getElementById("sebakEtaText").textContent = remainingSec > 1 ? `${Math.ceil(remainingSec / 3)} mins away` : `${Math.max(1, remainingSec * 3)}s away`;
+        document.getElementById("sebakDistText").textContent = `${remainingKm.toFixed(1)} km to doorstep`;
+        document.getElementById("sebakStatusBadge").textContent = "En Route (Technician)";
+        sebakAnimFrameId = requestAnimationFrame(runSebakAnimationLoop);
+      } else {
+        onSebakArrivedAtDoorstep();
+      }
+    }
+
+    function drawSebakMap(progress) {
+      const canvas = document.getElementById("liveSebakCanvas");
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      const w = canvas.width;
+      const h = canvas.height;
+
+      // Clean background
+      ctx.fillStyle = "#F1F5F9";
+      ctx.fillRect(0, 0, w, h);
+
+      // Neighborhood blocks
+      ctx.fillStyle = "#FEF3C7";
+      ctx.strokeStyle = "#FDE68A";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.roundRect(40, 30, 80, 50, 6);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "#92400E";
+      ctx.font = "bold 9px system-ui, sans-serif";
+      ctx.fillText("🏡 Residential", 48, 58);
+
+      ctx.fillStyle = "#DCFCE7";
+      ctx.strokeStyle = "#86EFAC";
+      ctx.beginPath();
+      ctx.roundRect(160, 30, 90, 50, 6);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "#15803D";
+      ctx.fillText("🌳 Community Park", 168, 58);
+
+      // Roads
+      const roads = [
+        { x1: 0, y1: 40,  x2: w, y2: 40  },
+        { x1: 0, y1: 120, x2: w, y2: 120 },
+        { x1: 80,  y1: 0, x2: 80,  y2: h },
+        { x1: 190, y1: 0, x2: 190, y2: h },
+        { x1: 300, y1: 0, x2: 300, y2: h },
+        { x1: 410, y1: 0, x2: 410, y2: h }
+      ];
+
+      ctx.lineCap = "round";
+      ctx.strokeStyle = "#CBD5E1";
+      ctx.lineWidth = 16;
+      roads.forEach(r => {
+        ctx.beginPath();
+        ctx.moveTo(r.x1, r.y1);
+        ctx.lineTo(r.x2, r.y2);
+        ctx.stroke();
+      });
+
+      // Route polyline for Sebak
+      ctx.strokeStyle = "#FF9933";
+      ctx.lineWidth = 4;
+      ctx.setLineDash([6, 4]);
+      ctx.beginPath();
+      ctx.moveTo(SEBAK_WAYPOINTS[0].x, SEBAK_WAYPOINTS[0].y);
+      for (let i = 1; i < SEBAK_WAYPOINTS.length; i++) {
+        ctx.lineTo(SEBAK_WAYPOINTS[i].x, SEBAK_WAYPOINTS[i].y);
+      }
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Customer Doorstep Pin (80, 120)
+      ctx.fillStyle = "#DC2626";
+      ctx.beginPath();
+      ctx.arc(80, 120, 8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "white";
+      ctx.beginPath();
+      ctx.arc(80, 120, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#991B1B";
+      ctx.font = "bold 9px system-ui, sans-serif";
+      ctx.fillText("📍 YOUR HOME", 92, 124);
+
+      // Moving Technician Icon
+      const techPos = getSebakPointAlongPolyline(progress);
+      ctx.save();
+      ctx.translate(techPos.x, techPos.y);
+
+      ctx.fillStyle = "rgba(15, 23, 42, 0.2)";
+      ctx.beginPath();
+      ctx.ellipse(0, 4, 12, 6, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Scooter Body
+      ctx.rotate(techPos.angle);
+      ctx.fillStyle = "#FF9933";
+      ctx.strokeStyle = "#FFFFFF";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.roundRect(-10, -5, 20, 10, 3);
+      ctx.fill();
+      ctx.stroke();
+
+      // Tool box on rear
+      ctx.fillStyle = "#0F172A";
+      ctx.beginPath();
+      ctx.roundRect(-10, -4, 6, 8, 1);
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    function onSebakArrivedAtDoorstep() {
+      if (sebakAnimFrameId) cancelAnimationFrame(sebakAnimFrameId);
+      drawSebakMap(1.0);
+      document.getElementById("sebakEtaText").textContent = "At Doorstep!";
+      document.getElementById("sebakDistText").textContent = "0.0 km (Ready)";
+      document.getElementById("sebakStatusBadge").textContent = "🟢 At Doorstep";
+      document.getElementById("sebakStatusBadge").className = "badge badge-green";
+      document.getElementById("sebakEnRouteControls").style.display = "none";
+      document.getElementById("sebakArrivedControls").style.display = "block";
+      document.getElementById("sebakArrivedOtpPill").textContent = "OTP: " + (activeSebakBooking?.otp || "7193");
+      showToast(`👨‍🔧 Technician arrived at your home! Share OTP: ${activeSebakBooking?.otp || '7193'}`);
+    }
+
+    function fastForwardSebakArrival() {
+      onSebakArrivedAtDoorstep();
+      showToast("⏩ Jumped to: Technician at Doorstep");
+    }
+
+    function startSebakServiceWork() {
+      document.getElementById("sebakArrivedControls").style.display = "none";
+      document.getElementById("sebakInProgressControls").style.display = "block";
+      document.getElementById("sebakStatusBadge").textContent = "🛠️ Work in Progress";
+      document.getElementById("sebakStatusBadge").className = "badge badge-saffron";
+      showToast("⚡ OTP Verified! Technician is performing service inspection.");
+    }
+
+    function completeSebakServiceWork() {
+      document.getElementById("sebakInProgressControls").style.display = "none";
+      document.getElementById("sebakArrivedControls").style.display = "none";
+      document.getElementById("sebakEnRouteControls").style.display = "none";
+      document.getElementById("sebakStatusBadge").textContent = "✅ Service Finished";
+      document.getElementById("sebakStatusBadge").className = "badge badge-green";
+
+      if (activeSebakBooking) {
+        activeSebakBooking.status = "Completed";
+        const found = state.bookings.find(b => b.id === activeSebakBooking.id);
+        if (found) found.status = "Completed";
+        saveState();
+      }
+
+      setSebakStarRating(5);
+      const ratingSec = document.getElementById("sebakRatingSection");
+      ratingSec.style.display = "block";
+      ratingSec.scrollIntoView({ behavior: 'smooth' });
+      showToast("🎉 Service completed! Please rate Dinesh Sharma's work.");
+    }
+
+    function setSebakStarRating(stars) {
+      currentSebakRating = stars;
+      const starButtons = document.querySelectorAll("#sebakRatingStars .star-btn");
+      starButtons.forEach((btn, idx) => {
+        if (idx < stars) btn.classList.add("active"); else btn.classList.remove("active");
+      });
+
+      const sentiments = {
+        1: "1.0 ★ Needs Improvement 😞",
+        2: "2.0 ★ Fair Work 😐",
+        3: "3.0 ★ Good Work 🙂",
+        4: "4.0 ★ Very Good Service! 😊",
+        5: "5.0 ★ Excellent Workmanship! 🌟"
+      };
+      document.getElementById("sebakRatingSentiment").textContent = sentiments[stars] || `${stars}.0 ★`;
+    }
+
+    function toggleSebakTag(el) {
+      el.classList.toggle("active");
+    }
+
+    function submitSebakRating() {
+      const selectedTags = [];
+      document.querySelectorAll("#sebakRatingTagsContainer .rating-chip.active").forEach(chip => {
+        selectedTags.push(chip.textContent.trim());
+      });
+      const reviewText = document.getElementById("sebakReviewComments").value.trim();
+
+      if (activeSebakBooking) {
+        activeSebakBooking.rated = true;
+        activeSebakBooking.rating = currentSebakRating;
+        activeSebakBooking.ratingTags = selectedTags;
+        activeSebakBooking.review = reviewText;
+
+        const found = state.bookings.find(b => b.id === activeSebakBooking.id);
+        if (found) {
+          found.rated = true;
+          found.rating = currentSebakRating;
+          found.ratingTags = selectedTags;
+          found.review = reviewText;
+        }
+      }
+
+      saveState();
+      renderUserBookings();
+
+      document.getElementById("sebakRatingSection").style.display = "none";
+      document.getElementById("receiptSebakName").textContent = activeSebakBooking?.provider || "Dinesh Sharma";
+      const receiptSec = document.getElementById("sebakRatingReceiptSection");
+      receiptSec.style.display = "block";
+      receiptSec.scrollIntoView({ behavior: 'smooth' });
+
+      showToast(`⭐ Rated Dinesh Sharma ${currentSebakRating}★! Review recorded.`);
+    }
+
+    function bookAnotherSebak() {
+      if (sebakAnimFrameId) cancelAnimationFrame(sebakAnimFrameId);
+      document.getElementById("liveSebakTrackerCard").style.display = "none";
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function restartSebakSimulation() {
+      if (sebakAnimFrameId) cancelAnimationFrame(sebakAnimFrameId);
+      document.getElementById("sebakEnRouteControls").style.display = "flex";
+      document.getElementById("sebakArrivedControls").style.display = "none";
+      document.getElementById("sebakInProgressControls").style.display = "none";
+      document.getElementById("sebakRatingSection").style.display = "none";
+      document.getElementById("sebakRatingReceiptSection").style.display = "none";
+      sebakSimStartTime = performance.now();
+      showToast("🔄 Replaying technician route simulation");
+      runSebakAnimationLoop();
+    }
+
+    function callSebakTechnician() {
+      alert(`📞 Calling Technician Dinesh Sharma (+91 94140 33211)...\nTrade: Electrician / Sebak\nOTP: ${activeSebakBooking?.otp || '7193'}`);
     }
 
     // --- SEBAK BOOKING (USER) ---
@@ -1716,7 +3170,7 @@
         module: "A to Z Sebak",
         title: state.activeSebak.name + " Service",
         user: "Rajesh Sharma",
-        provider: "Verified Mitra Sebak",
+        provider: "Dinesh Sharma (" + state.activeSebak.name + ")",
         address: addr,
         slot: slot,
         fare: state.activeSebak.price,
@@ -1736,10 +3190,68 @@
       saveState();
 
       closeModal('sebakBookingModal');
-      showToast(`✓ Sebak Scheduled! Technician assigned. OTP: ${newBooking.otp}`);
-      setTimeout(() => {
-        switchUserTab('bookings');
-      }, 1000);
+      showToast(`✓ Sebak Scheduled! Technician assigned. Tracking on map.`);
+      
+      // Launch Live Sebak Tracker immediately for customer
+      startSimulatedSebakTracker(newBooking);
+    }
+
+    // --- GENERIC RATING MODAL (BOOKINGS LIST) ---
+    let activeModalBookingId = null;
+    let genericModalRating = 5;
+
+    function openGenericRatingModal(bookingId) {
+      activeModalBookingId = bookingId;
+      const booking = state.bookings.find(b => b.id === bookingId);
+      if (!booking) return;
+
+      document.getElementById("genRatingProvider").textContent = booking.provider || "Mitra Partner";
+      document.getElementById("genRatingModuleBadge").textContent = booking.module;
+      document.getElementById("genRatingRoute").textContent = booking.from ? `${booking.from} ➔ ${booking.to}` : `Address: ${booking.address || 'Local'}`;
+      setGenModalStar(5);
+      document.getElementById("genModalComment").value = "";
+      document.getElementById("genericRatingModal").classList.add("active");
+    }
+
+    function setGenModalStar(stars) {
+      genericModalRating = stars;
+      const starButtons = document.querySelectorAll("#genModalStars .star-btn");
+      starButtons.forEach((btn, idx) => {
+        if (idx < stars) btn.classList.add("active"); else btn.classList.remove("active");
+      });
+      const sentiments = {
+        1: "1.0 ★ Poor Experience 😞",
+        2: "2.0 ★ Fair 😐",
+        3: "3.0 ★ Good Service 🙂",
+        4: "4.0 ★ Very Good! 😊",
+        5: "5.0 ★ Outstanding Service! 🌟"
+      };
+      document.getElementById("genModalSentiment").textContent = sentiments[stars] || `${stars}.0 ★`;
+    }
+
+    function toggleGenModalTag(el) {
+      el.classList.toggle("active");
+    }
+
+    function submitGenModalRating() {
+      const selectedTags = [];
+      document.querySelectorAll("#genModalTags .rating-chip.active").forEach(chip => {
+        selectedTags.push(chip.textContent.trim());
+      });
+      const comment = document.getElementById("genModalComment").value.trim();
+
+      const booking = state.bookings.find(b => b.id === activeModalBookingId);
+      if (booking) {
+        booking.rated = true;
+        booking.rating = genericModalRating;
+        booking.ratingTags = selectedTags;
+        booking.review = comment;
+        saveState();
+        renderUserBookings();
+      }
+
+      closeModal('genericRatingModal');
+      showToast(`⭐ Rated ${genericModalRating}★! Thank you for your review.`);
     }
 
     // --- RENDER USER BOOKINGS & PAYMENT HISTORY ---
@@ -1764,6 +3276,24 @@
         const badgeBg = b.type === 'gari' ? '#DBEAFE' : '#FFEDD5';
         const badgeColor = b.type === 'gari' ? '#1E40AF' : '#9A3412';
 
+        let ratingHtml = "";
+        if (b.rated) {
+          ratingHtml = `
+            <div style="background:#FEF3C7; border:1px solid #FDE68A; border-radius:8px; padding:6px 10px; font-size:11px; color:#92400E; display:flex; justify-content:space-between; align-items:center;">
+              <span>⭐ Rated: <strong>${b.rating}.0 ★</strong> ${b.ratingTags && b.ratingTags.length ? '• ' + b.ratingTags.join(', ') : ''}</span>
+              <span style="color:#B45309; font-weight:700;">✓ Reviewed</span>
+            </div>
+          `;
+        } else {
+          ratingHtml = `
+            <div style="display:flex; justify-content:flex-end;">
+              <button class="btn btn-outline" style="padding:4px 10px; font-size:11px; color:#D97706; border-color:#FCD34D; background:#FFFBEB;" onclick="openGenericRatingModal('${b.id}')">
+                ⭐ Rate ${b.type === 'gari' ? 'Driver' : 'Sebak'}
+              </button>
+            </div>
+          `;
+        }
+
         item.innerHTML = `
           <div style="display:flex; justify-content:space-between; align-items:center;">
             <span style="background:${badgeBg}; color:${badgeColor}; font-size:11px; font-weight:700; padding:2px 8px; border-radius:4px;">
@@ -1777,7 +3307,9 @@
           <div style="font-size:12px; color:var(--text-muted);">
             ${b.from ? `From: ${b.from} ➔ To: ${b.to}` : `Address: ${b.address} (${b.slot})`}
           </div>
-          <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:8px; margin-top:4px;">
+          ${b.review ? `<div style="font-size:11px; color:#475569; font-style:italic;">"${b.review}"</div>` : ''}
+          ${ratingHtml}
+          <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:8px; margin-top:2px;">
             <span style="font-size:12px;">OTP: <strong style="color:var(--accent);">${b.otp}</strong></span>
             <div style="display:flex; align-items:center; gap:8px;">
               <strong style="font-size:15px; color:var(--primary);">₹${b.fare}</strong>
@@ -1841,6 +3373,14 @@
       document.getElementById("driverSubRequests").style.display = sub === 'requests' ? 'flex' : 'none';
       document.getElementById("driverSubDocs").style.display = sub === 'docs' ? 'flex' : 'none';
       document.getElementById("driverSubPlan").style.display = sub === 'sub' ? 'flex' : 'none';
+      const ratingsSec = document.getElementById("driverSubRatings");
+      if (ratingsSec) ratingsSec.style.display = sub === 'ratings' ? 'flex' : 'none';
+
+      document.querySelectorAll("#roleDriverDashboard .btn-outline").forEach(b => b.classList.remove("active"));
+      if (sub === 'requests') document.getElementById("subTabBtnRequests")?.classList.add("active");
+      if (sub === 'docs') document.getElementById("subTabBtnDocs")?.classList.add("active");
+      if (sub === 'sub') document.getElementById("subTabBtnSub")?.classList.add("active");
+      if (sub === 'ratings') document.getElementById("subTabBtnRatings")?.classList.add("active");
     }
 
     function toggleDriverDuty() {
@@ -1930,9 +3470,45 @@
           <div style="font-size:32px;">🚖</div>
           <h4 style="color:#065F46; font-weight:800;">Active Trip with ${passenger}</h4>
           <p style="font-size:12px; color:#047857; margin:6px 0;">Navigate to pickup point. Collect ₹${fare} directly in cash or UPI.</p>
-          <button class="btn btn-primary" style="padding:6px 14px; font-size:12px;" onclick="renderDriverIncoming()">Complete Trip</button>
+          <div style="display:flex; gap:8px; justify-content:center; margin-top:10px;">
+            <button class="btn btn-green" style="padding:8px 14px; font-size:12px;" onclick="driverPromptRatePassenger('${passenger}')">
+              🏁 Complete Trip & Rate Customer
+            </button>
+          </div>
         </div>
       `;
+    }
+
+    function driverPromptRatePassenger(passenger) {
+      const container = document.getElementById("driverIncomingContainer");
+      container.innerHTML = `
+        <div class="card" style="padding:18px; text-align:center; border:2px solid #FCD34D;">
+          <div style="font-size:28px;">⭐</div>
+          <h4 style="font-size:15px; font-weight:800; color:#0F172A;">Trip Completed • Rate Passenger</h4>
+          <p style="font-size:12px; color:var(--text-muted); margin:4px 0 10px;">How was your experience with ${passenger}?</p>
+          <div class="rating-stars-row" id="driverRateCustStars">
+            <button class="star-btn active">★</button>
+            <button class="star-btn active">★</button>
+            <button class="star-btn active">★</button>
+            <button class="star-btn active">★</button>
+            <button class="star-btn active">★</button>
+          </div>
+          <div class="rating-label-display">5.0 ★ Polite & Punctual Customer!</div>
+          <div style="display:flex; gap:6px; justify-content:center; margin-bottom:12px;">
+            <span class="rating-chip active">🤝 Polite</span>
+            <span class="rating-chip active">⏰ On-Time</span>
+            <span class="rating-chip active">💵 Prompt Payment</span>
+          </div>
+          <button class="btn btn-primary btn-block" style="padding:10px; font-size:13px;" onclick="submitDriverCustRating('${passenger}')">
+            ⭐ Submit Passenger Rating
+          </button>
+        </div>
+      `;
+    }
+
+    function submitDriverCustRating(passenger) {
+      showToast(`⭐ Rated ${passenger} 5.0 ★! Job closed and fare collected.`);
+      renderDriverIncoming();
     }
 
     function triggerDocUpload(docName) {
