@@ -1,6 +1,0 @@
-{
-  "name": "Bharat Mitra Infotech V10",
-  "description": "Bharat Mitra - Gari Booking and A to Z Sebak Home Services with instant Razorpay payments.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}
