@@ -7,7 +7,7 @@ plugins {
 android {
     namespace = "com.example.bharat_mitra"
     compileSdk = 34
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "25.1.8937393"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

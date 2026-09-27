@@ -67,13 +67,6 @@ class AppTheme {
           letterSpacing: 0.5,
         ),
       ),
-      cardTheme: CardThemeData(
-        color: Colors.white,
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-      ),
     );
   }
 
