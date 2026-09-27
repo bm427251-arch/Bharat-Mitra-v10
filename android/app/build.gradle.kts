@@ -22,8 +22,8 @@ android {
         applicationId = "com.example.bharat_mitra"
         minSdk = 21
         targetSdk = 34
-        versionCode = flutter.versionCode
-        versionName = flutter.versionName
+        versionCode = flutter.versionCode()
+        versionName = flutter.versionName()
         multiDexEnabled = true
     }
 
