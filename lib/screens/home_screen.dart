@@ -38,6 +38,60 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isSatelliteMap = false;
   int _selectedServiceCard = 0; // 0: Book a Ride, 1: Home Services, 2: Hire a Driver
   Timer? _adminTimer;
+  int _holdCount = 0;
+  String adminEmail = "bm427251@gmail.com";
+
+  void _openAdmin() {
+    showDialog(
+      context: context,
+      builder: (c) {
+        String pass = "";
+        return AlertDialog(
+          title: const Text("Admin Login 🔓"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                enabled: false,
+                decoration: InputDecoration(
+                  labelText: adminEmail,
+                  border: const OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: "Password",
+                  border: OutlineInputBorder(),
+                ),
+                onChanged: (v) => pass = v,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(c),
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (pass == "Bharat@123") {
+                  Navigator.pop(c);
+                  Navigator.pushNamed(context, '/admin');
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Wrong Password!")),
+                  );
+                }
+              },
+              child: const Text("Login"),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   void dispose() {
@@ -377,58 +431,54 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: const Color(0xFF1A3A6E),
         elevation: 0,
         titleSpacing: 0,
-        automaticallyImplyLeading: false,
-        title: Row(
-          children: [
-            const SizedBox(width: 12),
-            // LOGO - Left side with 7 sec admin
-            GestureDetector(
-              onLongPressStart: (_) {
-                debugPrint("Admin hold started...");
-                _adminTimer = Timer(const Duration(seconds: 7), () {
-                  // Admin ID: bm427251@gmail.com
-                  Navigator.pushNamed(context, '/admin-login', arguments: {
-                    'admin_email': 'bm427251@gmail.com'
-                  });
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Admin Mode Unlocked 🔓 bm427251@gmail.com"))
-                  );
-                });
-              },
-              onLongPressEnd: (_) {
-                _adminTimer?.cancel();
-              },
-              onLongPressCancel: () {
-                _adminTimer?.cancel();
-              },
-              child: Image.asset(
-                'assets/images/logo.png',
-                width: 42,
-                height: 42,
-                errorBuilder: (c, e, s) => const Icon(Icons.handshake, color: Colors.white, size: 32),
+        title: Row(children: [
+          const SizedBox(width: 12),
+          GestureDetector(
+            onLongPressDown: (_) {
+              _holdCount = 0;
+              _adminTimer?.cancel();
+              _adminTimer = Timer.periodic(const Duration(seconds: 1), (t) {
+                _holdCount++;
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Admin: $_holdCount/7 sec..."), duration: const Duration(seconds: 1)),
+                );
+                if (_holdCount >= 7) {
+                  t.cancel();
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                  _openAdmin();
+                }
+              });
+            },
+            onLongPressUp: () {
+              if (_holdCount < 7) _adminTimer?.cancel();
+            },
+            child: Image.asset(
+              'assets/images/logo.png',
+              width: 42,
+              height: 42,
+              errorBuilder: (c, e, s) => const Icon(Icons.handshake, color: Colors.white, size: 30),
+            ),
+          ),
+          const SizedBox(width: 10),
+          const Expanded(
+            child: Text(
+              'BHARAT MITRA',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 21,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.2,
               ),
             ),
-            const SizedBox(width: 10),
-            // CENTER BIG TEXT
-            const Expanded(
-              child: Text(
-                'BHARAT MITRA',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.5,
-                ),
-              ),
-            ),
-            GestureDetector(
-              onTap: _fetchCurrentLocation,
-              child: const Icon(Icons.my_location, color: Colors.white),
-            ),
-            const SizedBox(width: 16),
-          ],
-        ),
+          ),
+          GestureDetector(
+            onTap: _fetchCurrentLocation,
+            child: const Icon(Icons.my_location, color: Colors.white),
+          ),
+          const SizedBox(width: 16),
+        ]),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -499,6 +549,68 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ).animate().fadeIn(duration: 350.ms).slideY(begin: -0.1, end: 0),
+
+            // MY PROFILE - RESTORED ✅
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFF1A3A6E).withOpacity(0.3), width: 1.5),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x0F000000),
+                    blurRadius: 10,
+                    offset: Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "MY PROFILE",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF1A3A6E)),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          icon: const Icon(Icons.person_add, size: 18),
+                          label: const Text("Driver হিসাবে Join", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF1A3A6E),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                          onPressed: () => Navigator.pushNamed(context, '/driver-register'),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          icon: const Icon(Icons.handyman, size: 18),
+                          label: const Text("Sevak হিসাবে Join", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.orange.shade800,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                          onPressed: () => Navigator.pushNamed(context, '/sevak-register'),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  const Text("প্রোফাইল Create করলেই লোক Add হবে", style: TextStyle(fontSize: 11, color: Colors.grey)),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
 
             // 3 SERVICE CARDS:
             // 1. "Book a Ride"

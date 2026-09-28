@@ -4,6 +4,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'theme/app_theme.dart';
 import 'screens/home_screen.dart';
 import 'screens/admin_screen.dart';
+import 'screens/become_driver_screen.dart';
+import 'screens/become_sebak_screen.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -40,11 +42,21 @@ class BharatMitraApp extends StatelessWidget {
       locale: context.locale,
       home: const HomeScreen(),
       onGenerateRoute: (settings) {
-        if (settings.name == '/admin-login') {
+        if (settings.name == '/admin' || settings.name == '/admin-login') {
           final args = settings.arguments as Map<String, dynamic>?;
           final email = args?['admin_email'] as String? ?? 'bm427251@gmail.com';
           return MaterialPageRoute(
             builder: (_) => AdminLoginScreen(adminEmail: email),
+          );
+        }
+        if (settings.name == '/driver-register') {
+          return MaterialPageRoute(
+            builder: (_) => const BecomeDriverScreen(),
+          );
+        }
+        if (settings.name == '/sevak-register') {
+          return MaterialPageRoute(
+            builder: (_) => const BecomeSebakScreen(),
           );
         }
         return null;
