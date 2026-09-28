@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -36,6 +37,13 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isLocating = false;
   bool _isSatelliteMap = false;
   int _selectedServiceCard = 0; // 0: Book a Ride, 1: Home Services, 2: Hire a Driver
+  Timer? _adminTimer;
+
+  @override
+  void dispose() {
+    _adminTimer?.cancel();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -366,21 +374,61 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('app_name'.tr()),
+        backgroundColor: const Color(0xFF1A3A6E),
+        elevation: 0,
+        titleSpacing: 0,
         automaticallyImplyLeading: false,
-        actions: [
-          IconButton(
-            icon: _isLocating
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                  )
-                : const Icon(Icons.my_location_rounded),
-            tooltip: 'detecting_gps'.tr(),
-            onPressed: _fetchCurrentLocation,
-          ),
-        ],
+        title: Row(
+          children: [
+            const SizedBox(width: 12),
+            // LOGO - Left side with 7 sec admin
+            GestureDetector(
+              onLongPressStart: (_) {
+                debugPrint("Admin hold started...");
+                _adminTimer = Timer(const Duration(seconds: 7), () {
+                  // Admin ID: bm427251@gmail.com
+                  Navigator.pushNamed(context, '/admin-login', arguments: {
+                    'admin_email': 'bm427251@gmail.com'
+                  });
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Admin Mode Unlocked 🔓 bm427251@gmail.com"))
+                  );
+                });
+              },
+              onLongPressEnd: (_) {
+                _adminTimer?.cancel();
+              },
+              onLongPressCancel: () {
+                _adminTimer?.cancel();
+              },
+              child: Image.asset(
+                'assets/images/logo.png',
+                width: 42,
+                height: 42,
+                errorBuilder: (c, e, s) => const Icon(Icons.handshake, color: Colors.white, size: 32),
+              ),
+            ),
+            const SizedBox(width: 10),
+            // CENTER BIG TEXT
+            const Expanded(
+              child: Text(
+                'BHARAT MITRA',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.5,
+                ),
+              ),
+            ),
+            GestureDetector(
+              onTap: _fetchCurrentLocation,
+              child: const Icon(Icons.my_location, color: Colors.white),
+            ),
+            const SizedBox(width: 16),
+          ],
+        ),
       ),
       body: SingleChildScrollView(
         child: Column(

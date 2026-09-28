@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'theme/app_theme.dart';
 import 'screens/home_screen.dart';
+import 'screens/admin_screen.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -38,6 +39,16 @@ class BharatMitraApp extends StatelessWidget {
       supportedLocales: context.supportedLocales,
       locale: context.locale,
       home: const HomeScreen(),
+      onGenerateRoute: (settings) {
+        if (settings.name == '/admin-login') {
+          final args = settings.arguments as Map<String, dynamic>?;
+          final email = args?['admin_email'] as String? ?? 'bm427251@gmail.com';
+          return MaterialPageRoute(
+            builder: (_) => AdminLoginScreen(adminEmail: email),
+          );
+        }
+        return null;
+      },
     );
   }
 }
