@@ -7,6 +7,9 @@ import '../models/driver_model.dart';
 import '../services/firestore_service.dart';
 import '../widgets/searching_radar.dart';
 import '../widgets/driver_coming.dart';
+import '../widgets/rating_dialog.dart';
+import '../services/rating_service.dart';
+import 'tracking_screen.dart';
 
 class ActiveDriversScreen extends StatefulWidget {
   final RideOption rideOption;
@@ -35,6 +38,8 @@ class _ActiveDriversScreenState extends State<ActiveDriversScreen> {
   bool _isSatellite = false;
 
   // Rating flow
+  bool _driverPaymentConfirmed = false;
+  String _currentBookingId = '';
   int _driverRating = 5;
   int _providerRating = 5;
   final _commentController = TextEditingController();
@@ -84,6 +89,26 @@ class _ActiveDriversScreenState extends State<ActiveDriversScreen> {
         fare: widget.rideOption.baseFare.toDouble(),
         status: 'searching',
       );
+      _currentBookingId = bookingId;
+
+      RatingService().addBooking({
+        'bookingId': bookingId,
+        'serviceType': 'book_ride',
+        'customerId': 'user_current',
+        'customerName': 'Bharat Customer',
+        'driverId': driver.id,
+        'driverName': driver.name,
+        'driverPhone': driver.phone,
+        'vehicleType': widget.rideOption.title,
+        'vehicleNo': driver.vehicleNo,
+        'pickupAddress': widget.pickupAddress,
+        'dropAddress': widget.dropAddress,
+        'fare': widget.rideOption.baseFare.toDouble(),
+        'status': 'accepted',
+        'paymentStatus': 'pending',
+        'driverConfirmed': false,
+        'ratingGiven': false,
+      });
 
       // 2. Simulate driver accepting after 2 seconds
       await Future.delayed(const Duration(seconds: 2));
@@ -150,6 +175,30 @@ class _ActiveDriversScreenState extends State<ActiveDriversScreen> {
             icon: const Icon(Icons.arrow_back_ios_new_rounded),
             onPressed: () => Navigator.pop(context),
           ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.navigation_rounded, color: Colors.white),
+              tooltip: 'Open Full Live Tracking Screen',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => TrackingScreen(
+                      serviceType: 'book_ride',
+                      partnerId: _selectedDriver!.id,
+                      partnerName: _selectedDriver!.name,
+                      partnerPhone: _selectedDriver!.phone,
+                      vehicleInfo: '${_selectedDriver!.vehicleNo} • ${widget.rideOption.title}',
+                      pickupAddress: widget.pickupAddress,
+                      dropAddress: widget.dropAddress,
+                      fare: widget.rideOption.baseFare.toDouble(),
+                      rating: _selectedDriver!.rating,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
         ),
         body: DriverComingWidget(
           driver: _selectedDriver!,
@@ -703,7 +752,116 @@ class _ActiveDriversScreenState extends State<ActiveDriversScreen> {
               color: AppColors.primary,
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
+
+          // DRIVER PAYMENT CONFIRMATION SECTION
+          if (!_driverPaymentConfirmed) ...[
+            Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF0FDF4),
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: const Color(0xFF86EFAC), width: 1.5),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      const CircleAvatar(
+                        backgroundColor: Color(0xFF16A34A),
+                        child: Icon(Icons.currency_rupee, color: Colors.white),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Driver Payment Confirmation',
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF166534)),
+                            ),
+                            Text(
+                              'Direct cash/UPI of ${widget.rideOption.fare} handed to driver.',
+                              style: const TextStyle(fontSize: 12, color: Color(0xFF15803D)),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
+                      label: const Text(
+                        'Payment Received - Received',
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF15803D),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      onPressed: () async {
+                        await RatingService().confirmPaymentReceived(_currentBookingId);
+                        if (mounted) {
+                          setState(() {
+                            _driverPaymentConfirmed = true;
+                          });
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Payment Confirmed! Rating request sent to Customer.'),
+                              backgroundColor: AppColors.success,
+                            ),
+                          );
+                          // Auto popup rating dialog
+                          RatingDialog.show(
+                            context,
+                            booking: {
+                              'bookingId': _currentBookingId,
+                              'driverName': _selectedDriver?.name,
+                              'vehicleNo': _selectedDriver?.vehicleNo,
+                              'fare': widget.rideOption.baseFare,
+                              'driverId': _selectedDriver?.id,
+                            },
+                            onSubmitted: () {
+                              if (mounted) {
+                                setState(() => _ratingSubmitted = true);
+                              }
+                            },
+                          );
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 18),
+          ] else ...[
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFE8F5E9),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.verified, color: Colors.green, size: 20),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Payment Confirmed • Rating request sent to Customer',
+                      style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: Color(0xFF1A5D1A)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 18),
+          ],
 
           // Rate Driver card
           Container(

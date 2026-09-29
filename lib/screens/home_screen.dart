@@ -11,6 +11,15 @@ import '../services/location_service.dart';
 import 'map_picker_screen.dart';
 import 'active_drivers_screen.dart';
 import 'sebak_list_screen.dart';
+import 'my_trips_screen.dart';
+import 'tracking_screen.dart';
+import 'rent_drive_screen.dart';
+import 'profile_screen.dart';
+import 'driver_home_screen.dart';
+import 'sevak_home_screen.dart';
+import 'rent_owner_home_screen.dart';
+import '../services/rating_service.dart';
+import '../widgets/rating_dialog.dart';
 
 class HomeScreen extends StatefulWidget {
   final Function(int)? onNavigateTab;
@@ -36,10 +45,14 @@ class _HomeScreenState extends State<HomeScreen> {
   RideOption _selectedRide = RideOption.availableRides.first;
   bool _isLocating = false;
   bool _isSatelliteMap = false;
-  int _selectedServiceCard = 0; // 0: Book a Ride, 1: Home Services, 2: Hire a Driver
+  int _selectedServiceCard = 0; // 0: Book Ride, 1: Rent & Drive, 2: Home Service, 3: Hire Driver
+  int _bottomNavIndex = 0;
+  final TextEditingController _citySearchCtrl = TextEditingController();
   Timer? _adminTimer;
   int _holdCount = 0;
   String adminEmail = "bm427251@gmail.com";
+  StreamSubscription? _ratingSubscription;
+  bool _isPartnerLiveActive = false;
 
   void _openAdmin() {
     showDialog(
@@ -95,6 +108,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
+    _citySearchCtrl.dispose();
+    _ratingSubscription?.cancel();
     _adminTimer?.cancel();
     super.dispose();
   }
@@ -104,6 +119,27 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _recalculateDistanceAndFare();
     _fetchCurrentLocation();
+
+    // Listen for driver payment confirmation to show rating popup automatically
+    _ratingSubscription = RatingService().onPendingRating.listen((booking) {
+      if (mounted) {
+        RatingDialog.show(
+          context,
+          booking: booking,
+        );
+      }
+    });
+
+    // Check if any existing booking is awaiting customer rating
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final pending = RatingService().getPendingRatingForCustomer('user_current');
+      if (pending != null && mounted) {
+        RatingDialog.show(
+          context,
+          booking: pending,
+        );
+      }
+    });
   }
 
   /// Calculates dynamic geodesic distance via Geolocator.distanceBetween
@@ -477,7 +513,18 @@ class _HomeScreenState extends State<HomeScreen> {
             onTap: _fetchCurrentLocation,
             child: const Icon(Icons.my_location, color: Colors.white),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 4),
+          IconButton(
+            icon: const Icon(Icons.receipt_long_rounded, color: Colors.white),
+            tooltip: 'My Bookings / Trips',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const MyTripsScreen()),
+              );
+            },
+          ),
+          const SizedBox(width: 8),
         ]),
       ),
       body: SingleChildScrollView(
@@ -579,7 +626,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Expanded(
                         child: ElevatedButton.icon(
                           icon: const Icon(Icons.person_add, size: 18),
-                          label: const Text("Driver হিসাবে Join", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                          label: const Text("Join as Driver", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF1A3A6E),
                             foregroundColor: Colors.white,
@@ -593,7 +640,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Expanded(
                         child: ElevatedButton.icon(
                           icon: const Icon(Icons.handyman, size: 18),
-                          label: const Text("Sevak হিসাবে Join", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                          label: const Text("Join as Sevak", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.orange.shade800,
                             foregroundColor: Colors.white,
@@ -606,76 +653,358 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                   const SizedBox(height: 6),
-                  const Text("প্রোফাইল Create করলেই লোক Add হবে", style: TextStyle(fontSize: 11, color: Colors.grey)),
+                  const Text("Create profile to start receiving booking requests", style: TextStyle(fontSize: 11, color: Colors.grey)),
+                  const SizedBox(height: 12),
+
+                  // BIG SWITCH: Active - ON/OFF (Requirement 2 & 6)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: _isPartnerLiveActive ? const Color(0xFFF0FDF4) : const Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: _isPartnerLiveActive ? const Color(0xFF86EFAC) : const Color(0xFFCBD5E1),
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          _isPartnerLiveActive ? Icons.wifi_tethering_rounded : Icons.wifi_tethering_off_rounded,
+                          color: _isPartnerLiveActive ? const Color(0xFF16A34A) : Colors.grey,
+                          size: 26,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                _isPartnerLiveActive ? "You are Live - Party can see you 🟢" : "You are Offline ⚪",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                  color: _isPartnerLiveActive ? const Color(0xFF15803D) : Colors.grey.shade800,
+                                ),
+                              ),
+                              const Text(
+                                "Customers can see your live location when Active",
+                                style: TextStyle(fontSize: 11, color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Switch(
+                          value: _isPartnerLiveActive,
+                          activeColor: const Color(0xFF16A34A),
+                          onChanged: (val) async {
+                            setState(() => _isPartnerLiveActive = val);
+                            if (val) {
+                              await LocationService.instance.startLiveLocationUpdates(
+                                userId: 'driver_current',
+                                userName: 'Bharat Partner (Me)',
+                                userType: 'driver',
+                                serviceType: 'book_ride',
+                                vehicleNumber: 'WB 02 CZ 9012',
+                              );
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('You are Live - Party can see you 🟢 (Live location sharing started)'),
+                                    backgroundColor: Color(0xFF16A34A),
+                                  ),
+                                );
+                              }
+                            } else {
+                              await LocationService.instance.stopLiveLocationUpdates('driver_current');
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('You are Offline ⚪'),
+                                    backgroundColor: Colors.grey,
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+                  // Short actions row: My Bookings & Party Live Tracking Map
+                  Row(
+                    children: [
+                      Expanded(
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => const MyTripsScreen()),
+                            );
+                          },
+                          borderRadius: BorderRadius.circular(10),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF1F5FD),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.history_rounded, size: 16, color: Color(0xFF1A3A6E)),
+                                SizedBox(width: 6),
+                                Text(
+                                  'My Bookings',
+                                  style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFF1A3A6E)),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const TrackingScreen(
+                                  serviceType: 'book_ride',
+                                  partnerId: 'd1',
+                                  partnerName: 'Rajesh Das',
+                                  partnerPhone: '+91 98301 23456',
+                                  vehicleInfo: 'Bike • WB 02 BB 1024',
+                                  pickupAddress: 'Howrah Station, Kolkata',
+                                  dropAddress: 'Park Street, Kolkata',
+                                  fare: 45.0,
+                                ),
+                              ),
+                            );
+                          },
+                          borderRadius: BorderRadius.circular(10),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFECFDF5),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: const Color(0xFFA7F3D0)),
+                            ),
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.map_rounded, size: 16, color: Color(0xFF047857)),
+                                SizedBox(width: 6),
+                                Text(
+                                  'Live Track 🗺️',
+                                  style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFF047857)),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
             const SizedBox(height: 16),
 
-            // 3 SERVICE CARDS:
-            // 1. "Book a Ride"
-            // 2. "Home Services"
-            // 3. "Hire a Driver ₹700/8Hrs"
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+            // SEARCH BAR FOR CITY (Requirement 1)
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.grey.shade300),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x0D000000),
+                    blurRadius: 10,
+                    offset: Offset(0, 3),
+                  ),
+                ],
+              ),
               child: Row(
                 children: [
-                  // Card 1: Book a Ride
-                  Expanded(
-                    child: _buildServiceCard(
-                      index: 0,
-                      title: 'book_ride'.tr(),
-                      subtitle: 'Bike, Toto, Auto, Car',
-                      icon: Icons.directions_car_filled_rounded,
-                      gradient: AppColors.primaryGradient,
-                      onTap: () {
-                        setState(() => _selectedServiceCard = 0);
-                      },
-                    ),
-                  ),
+                  const Icon(Icons.search_rounded, color: Color(0xFF1A3A6E), size: 22),
                   const SizedBox(width: 10),
-
-                  // Card 2: Home Services
                   Expanded(
-                    child: _buildServiceCard(
-                      index: 1,
-                      title: 'home_services'.tr(),
-                      subtitle: 'Electrician, AC...',
-                      icon: Icons.home_repair_service_rounded,
-                      gradient: AppColors.orangeGradient,
-                      onTap: () {
-                        setState(() => _selectedServiceCard = 1);
-                        if (widget.onNavigateTab != null) {
-                          widget.onNavigateTab!(1);
-                        } else {
+                    child: TextField(
+                      controller: _citySearchCtrl,
+                      decoration: InputDecoration(
+                        hintText: 'Search City (e.g. Digha, Darjeeling, Puri, Goa...)',
+                        hintStyle: TextStyle(fontSize: 12.5, color: Colors.grey.shade500),
+                        border: InputBorder.none,
+                        isDense: true,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                      ),
+                      onSubmitted: (val) {
+                        if (val.trim().isNotEmpty) {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => const SebakListScreen()),
+                            MaterialPageRoute(builder: (_) => const RentDriveScreen()),
                           );
                         }
                       },
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  IconButton(
+                    icon: const Icon(Icons.explore_rounded, color: Color(0xFF1A3A6E), size: 20),
+                    tooltip: 'Explore Pan-India Rentals & Rides',
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const RentDriveScreen()),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ).animate().fadeIn(duration: 350.ms),
 
-                  // Card 3: Hire a Driver ₹700/8Hrs
-                  Expanded(
-                    child: _buildServiceCard(
-                      index: 2,
-                      title: 'hire_driver'.tr(),
-                      badge: '₹700',
-                      subtitle: '8 Hours Shift',
-                      icon: Icons.airline_seat_recline_normal_rounded,
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF0F766E), Color(0xFF14B8A6)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      onTap: () {
-                        setState(() => _selectedServiceCard = 2);
-                        _showHireDriverDialog();
+            const SizedBox(height: 8),
+
+            // Pan-India Popular City Chips
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  'All India', 'Digha', 'Darjeeling', 'Puri', 'Goa', 'Manali', 'Jaipur', 'Kolkata', 'Delhi', 'Mumbai',
+                ].map((city) {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 6),
+                    child: ActionChip(
+                      label: Text(city, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
+                      backgroundColor: const Color(0xFFF1F5F9),
+                      side: BorderSide(color: Colors.grey.shade300, width: 0.8),
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      onPressed: () {
+                        setState(() {
+                          _citySearchCtrl.text = city;
+                          _dropAddress = '$city Center';
+                        });
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Selected City: $city (Pan India Service Active)'),
+                            duration: const Duration(seconds: 1),
+                          ),
+                        );
                       },
                     ),
+                  );
+                }).toList(),
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // 4 SERVICE CARDS (2x2 Grid):
+            // 1. Book Ride (Bike/Toto/Auto)
+            // 2. Rent & Drive (Self-Drive Pan India)
+            // 3. Home Service (Sevak)
+            // 4. Hire Driver
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                children: [
+                  // Row 1: Book Ride & Rent & Drive
+                  Row(
+                    children: [
+                      // Card 1: Book a Ride
+                      Expanded(
+                        child: _buildServiceCard(
+                          index: 0,
+                          title: 'book_ride'.tr(),
+                          subtitle: 'Bike, Toto, Auto, Car',
+                          icon: Icons.directions_car_filled_rounded,
+                          gradient: AppColors.primaryGradient,
+                          onTap: () {
+                            setState(() => _selectedServiceCard = 0);
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+
+                      // Card 2: Rent & Drive (Self-Drive Pan India)
+                      Expanded(
+                        child: _buildServiceCard(
+                          index: 1,
+                          title: 'Rent & Drive',
+                          badge: 'PAN INDIA',
+                          subtitle: 'Self-Drive Bike / Car',
+                          icon: Icons.car_rental_rounded,
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFFC2410C), Color(0xFFEA580C)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          onTap: () {
+                            setState(() => _selectedServiceCard = 1);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => const RentDriveScreen()),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+
+                  // Row 2: Home Service & Hire Driver
+                  Row(
+                    children: [
+                      // Card 3: Home Service (Sevak)
+                      Expanded(
+                        child: _buildServiceCard(
+                          index: 2,
+                          title: 'home_services'.tr(),
+                          badge: '0% CUT',
+                          subtitle: 'Electrician, AC, Plumber',
+                          icon: Icons.home_repair_service_rounded,
+                          gradient: AppColors.orangeGradient,
+                          onTap: () {
+                            setState(() => _selectedServiceCard = 2);
+                            if (widget.onNavigateTab != null) {
+                              widget.onNavigateTab!(1);
+                            } else {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => const SebakListScreen()),
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+
+                      // Card 4: Hire Driver ₹700/8Hrs
+                      Expanded(
+                        child: _buildServiceCard(
+                          index: 3,
+                          title: 'hire_driver'.tr(),
+                          badge: '₹700',
+                          subtitle: '8 Hours Shift',
+                          icon: Icons.airline_seat_recline_normal_rounded,
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF0F766E), Color(0xFF14B8A6)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          onTap: () {
+                            setState(() => _selectedServiceCard = 3);
+                            _showHireDriverDialog();
+                          },
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -998,6 +1327,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
+      bottomNavigationBar: _buildBottomDualModeAndNav(context),
     );
   }
 
@@ -1189,6 +1519,233 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
     ).animate().fadeIn(duration: 400.ms, delay: 180.ms);
+  }
+
+  Widget _buildBottomDualModeAndNav(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 16,
+            offset: const Offset(0, -4),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // DUAL MODE SWITCH BAR: [I am Customer] [I am Provider] - ALWAYS VISIBLE
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8FAFC),
+                border: Border(
+                  bottom: BorderSide(color: Colors.grey.shade200),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.person, size: 18),
+                      label: const Text(
+                        'I am Customer',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF1A3A6E),
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      onPressed: () {
+                        // Already in Customer mode
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      icon: const Icon(Icons.handyman, size: 18),
+                      label: const Text(
+                        'I am Provider',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Color(0xFF1A3A6E), width: 1.5),
+                        foregroundColor: const Color(0xFF1A3A6E),
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      onPressed: _showProviderSwitchBottomSheet,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // BOTTOM NAVIGATION: Home, Bookings, Profile
+            BottomNavigationBar(
+              currentIndex: _bottomNavIndex,
+              selectedItemColor: const Color(0xFF1A3A6E),
+              unselectedItemColor: Colors.grey.shade500,
+              backgroundColor: Colors.white,
+              elevation: 0,
+              type: BottomNavigationBarType.fixed,
+              selectedFontSize: 12,
+              unselectedFontSize: 12,
+              onTap: (index) {
+                setState(() => _bottomNavIndex = index);
+                if (index == 1) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const MyTripsScreen()),
+                  ).then((_) {
+                    if (mounted) setState(() => _bottomNavIndex = 0);
+                  });
+                } else if (index == 2) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ProfileScreen()),
+                  ).then((_) {
+                    if (mounted) setState(() => _bottomNavIndex = 0);
+                  });
+                }
+              },
+              items: const [
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.home_rounded),
+                  activeIcon: Icon(Icons.home_rounded),
+                  label: 'Home',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.receipt_long_rounded),
+                  activeIcon: Icon(Icons.receipt_long_rounded),
+                  label: 'Bookings',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.person_rounded),
+                  activeIcon: Icon(Icons.person_rounded),
+                  label: 'Profile',
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showProviderSwitchBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return Container(
+          padding: const EdgeInsets.all(22),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Switch to Provider Dashboard',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1A3A6E),
+                ),
+              ),
+              const SizedBox(height: 6),
+              const Text(
+                'Select your partner role to manage booking requests and live GPS location:',
+                style: TextStyle(fontSize: 12.5, color: Colors.grey),
+              ),
+              const SizedBox(height: 16),
+              ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14), side: BorderSide(color: Colors.grey.shade200)),
+                leading: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(color: const Color(0xFF1A3A6E).withOpacity(0.1), shape: BoxShape.circle),
+                  child: const Icon(Icons.directions_car_filled_rounded, color: Color(0xFF1A3A6E)),
+                ),
+                title: const Text('Driver Dashboard', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                subtitle: const Text('Bike, Toto, Auto, Sedan, Personal Driver', style: TextStyle(fontSize: 12)),
+                trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => const DriverHomeScreen()),
+                  );
+                },
+              ),
+              const SizedBox(height: 10),
+              ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14), side: BorderSide(color: Colors.grey.shade200)),
+                leading: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(color: const Color(0xFF0F766E).withOpacity(0.1), shape: BoxShape.circle),
+                  child: const Icon(Icons.handyman_rounded, color: Color(0xFF0F766E)),
+                ),
+                title: const Text('Sevak Partner Dashboard', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                subtitle: const Text('Electrician, Plumber, AC Repair & Home Specialist', style: TextStyle(fontSize: 12)),
+                trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => const SevakHomeScreen()),
+                  );
+                },
+              ),
+              const SizedBox(height: 10),
+              ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14), side: BorderSide(color: Colors.grey.shade200)),
+                leading: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(color: const Color(0xFFC2410C).withOpacity(0.1), shape: BoxShape.circle),
+                  child: const Icon(Icons.car_rental_rounded, color: Color(0xFFC2410C)),
+                ),
+                title: const Text('Rent Vehicle Owner Dashboard', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                subtitle: const Text('Manage Self-Drive fleet (Bikes, Scooters, Cars)', style: TextStyle(fontSize: 12)),
+                trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => const RentOwnerHomeScreen()),
+                  );
+                },
+              ),
+              const SizedBox(height: 12),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildServiceCard({

@@ -26,6 +26,7 @@ class _SebakListScreenState extends State<SebakListScreen> {
   String _searchQuery = '';
   List<SebakModel> _sebaks = [];
   bool _isLoading = true;
+  bool _sortByRating = false;
 
   @override
   void initState() {
@@ -197,6 +198,10 @@ class _SebakListScreenState extends State<SebakListScreen> {
           s.area.toLowerCase().contains(_searchQuery.toLowerCase());
     }).toList();
 
+    if (_sortByRating) {
+      filteredSebaks.sort((a, b) => b.rating.compareTo(a.rating));
+    }
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -229,31 +234,49 @@ class _SebakListScreenState extends State<SebakListScreen> {
                 ),
                 const SizedBox(height: 12),
                 // Horizontal category chips
-                SizedBox(
-                  height: 38,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: _categories.length,
-                    separatorBuilder: (_, __) => const SizedBox(width: 8),
-                    itemBuilder: (context, index) {
-                      final cat = _categories[index];
-                      final isSelected = _selectedCategory == cat;
-                      return ChoiceChip(
-                        label: Text(cat),
-                        selected: isSelected,
-                        selectedColor: AppColors.secondary,
-                        backgroundColor: AppColors.surfaceVariant,
-                        labelStyle: TextStyle(
-                          color: isSelected ? Colors.white : AppColors.textPrimary,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                          fontSize: 12.5,
+                Row(
+                  children: [
+                    FilterChip(
+                      label: const Text('⭐ Top Rated'),
+                      selected: _sortByRating,
+                      selectedColor: Colors.amber.shade100,
+                      labelStyle: TextStyle(
+                        color: _sortByRating ? Colors.amber.shade900 : Colors.black87,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                      onSelected: (val) => setState(() => _sortByRating = val),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: SizedBox(
+                        height: 38,
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: _categories.length,
+                          separatorBuilder: (_, __) => const SizedBox(width: 8),
+                          itemBuilder: (context, index) {
+                            final cat = _categories[index];
+                            final isSelected = _selectedCategory == cat;
+                            return ChoiceChip(
+                              label: Text(cat),
+                              selected: isSelected,
+                              selectedColor: AppColors.secondary,
+                              backgroundColor: AppColors.surfaceVariant,
+                              labelStyle: TextStyle(
+                                color: isSelected ? Colors.white : AppColors.textPrimary,
+                                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                                fontSize: 12.5,
+                              ),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                              showCheckmark: false,
+                              onSelected: (_) => _onCategorySelected(cat),
+                            );
+                          },
                         ),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                        showCheckmark: false,
-                        onSelected: (_) => _onCategorySelected(cat),
-                      );
-                    },
-                  ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -359,7 +382,7 @@ class _SebakListScreenState extends State<SebakListScreen> {
                                           const Icon(Icons.star_rounded, color: Colors.amber, size: 16),
                                           const SizedBox(width: 4),
                                           Text(
-                                            '${sebak.rating} (${sebak.reviewsCount})',
+                                            '${sebak.rating} (${sebak.reviewsCount} Ratings)',
                                             style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                                           ),
                                           const Spacer(),

@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/driver_model.dart';
 import '../models/sebak_model.dart';
+import '../models/rent_vehicle_model.dart';
+import '../models/complaint_model.dart';
 import '../config/fare_config.dart';
 
 class FirestoreService {
@@ -566,6 +568,304 @@ class FirestoreService {
     }
   }
 
+  // In-memory Pan-India Rent Vehicles
+  final List<RentVehicleModel> _mockRentVehicles = [
+    RentVehicleModel(
+      id: 'rv_1',
+      ownerId: 'owner_1',
+      ownerName: 'Ramesh Verma',
+      ownerPhone: '+91 98305 66778',
+      city: 'Goa',
+      vehicleType: 'Scooty',
+      modelName: 'Honda Activa 6G (Auto)',
+      rcNumber: 'GA 03 AB 4512',
+      dailyRent: 450.0,
+      deposit: 1500.0,
+      photos: [
+        'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=600&q=80',
+        'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=600&q=80',
+      ],
+      rcPhoto: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=600&q=80',
+      insurancePhoto: 'https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=600&q=80',
+      gpsInstalled: true,
+      pickupLat: 15.2993,
+      pickupLng: 74.1240,
+      status: 'approved',
+      avgRating: 4.9,
+      totalRatings: 112,
+      createdAt: DateTime.now().subtract(const Duration(days: 30)).toIso8601String(),
+    ),
+    RentVehicleModel(
+      id: 'rv_2',
+      ownerId: 'owner_2',
+      ownerName: 'Sanjay Sharma',
+      ownerPhone: '+91 98306 12345',
+      city: 'Manali',
+      vehicleType: 'Bike',
+      modelName: 'Royal Enfield Himalayan 411',
+      rcNumber: 'HP 01 XY 7788',
+      dailyRent: 1200.0,
+      deposit: 3000.0,
+      photos: [
+        'https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=600&q=80',
+        'https://images.unsplash.com/photo-1558980664-769d59546b3d?auto=format&fit=crop&w=600&q=80',
+      ],
+      rcPhoto: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=600&q=80',
+      insurancePhoto: 'https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=600&q=80',
+      gpsInstalled: true,
+      pickupLat: 32.2396,
+      pickupLng: 77.1887,
+      status: 'approved',
+      avgRating: 4.8,
+      totalRatings: 94,
+      createdAt: DateTime.now().subtract(const Duration(days: 20)).toIso8601String(),
+    ),
+    RentVehicleModel(
+      id: 'rv_3',
+      ownerId: 'owner_3',
+      ownerName: 'Pradeep Das',
+      ownerPhone: '+91 98307 98711',
+      city: 'Digha',
+      vehicleType: 'Bike',
+      modelName: 'Royal Enfield Classic 350',
+      rcNumber: 'WB 32 CD 2234',
+      dailyRent: 800.0,
+      deposit: 2000.0,
+      photos: [
+        'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=600&q=80',
+      ],
+      rcPhoto: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=600&q=80',
+      insurancePhoto: 'https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=600&q=80',
+      gpsInstalled: true,
+      pickupLat: 21.6266,
+      pickupLng: 87.5074,
+      status: 'approved',
+      avgRating: 4.9,
+      totalRatings: 76,
+      createdAt: DateTime.now().subtract(const Duration(days: 15)).toIso8601String(),
+    ),
+    RentVehicleModel(
+      id: 'rv_4',
+      ownerId: 'owner_4',
+      ownerName: 'Tenzing Sherpa',
+      ownerPhone: '+91 98308 55432',
+      city: 'Darjeeling',
+      vehicleType: 'Car',
+      modelName: 'Mahindra Thar 4x4 Hard Top',
+      rcNumber: 'WB 74 EF 9012',
+      dailyRent: 2400.0,
+      deposit: 5000.0,
+      photos: [
+        'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80',
+      ],
+      rcPhoto: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=600&q=80',
+      insurancePhoto: 'https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=600&q=80',
+      gpsInstalled: true,
+      pickupLat: 27.0410,
+      pickupLng: 88.2663,
+      status: 'approved',
+      avgRating: 4.9,
+      totalRatings: 130,
+      createdAt: DateTime.now().subtract(const Duration(days: 45)).toIso8601String(),
+    ),
+    RentVehicleModel(
+      id: 'rv_5',
+      ownerId: 'owner_5',
+      ownerName: 'Anil Pattnaik',
+      ownerPhone: '+91 98309 66123',
+      city: 'Puri',
+      vehicleType: 'Scooty',
+      modelName: 'TVS Jupiter 125',
+      rcNumber: 'OD 02 GH 3456',
+      dailyRent: 400.0,
+      deposit: 1500.0,
+      photos: [
+        'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=600&q=80',
+      ],
+      rcPhoto: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=600&q=80',
+      insurancePhoto: 'https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=600&q=80',
+      gpsInstalled: true,
+      pickupLat: 19.8135,
+      pickupLng: 85.8312,
+      status: 'approved',
+      avgRating: 4.8,
+      totalRatings: 68,
+      createdAt: DateTime.now().subtract(const Duration(days: 10)).toIso8601String(),
+    ),
+    RentVehicleModel(
+      id: 'rv_6',
+      ownerId: 'owner_6',
+      ownerName: 'Vikram Singh',
+      ownerPhone: '+91 98310 77890',
+      city: 'Jaipur',
+      vehicleType: 'Car',
+      modelName: 'Maruti Suzuki Swift Dzire',
+      rcNumber: 'RJ 14 JK 8899',
+      dailyRent: 1600.0,
+      deposit: 3500.0,
+      photos: [
+        'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=600&q=80',
+      ],
+      rcPhoto: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=600&q=80',
+      insurancePhoto: 'https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=600&q=80',
+      gpsInstalled: true,
+      pickupLat: 26.9124,
+      pickupLng: 75.7873,
+      status: 'approved',
+      avgRating: 4.9,
+      totalRatings: 145,
+      createdAt: DateTime.now().subtract(const Duration(days: 60)).toIso8601String(),
+    ),
+  ];
+
+  // In-memory Complaints
+  final List<ComplaintModel> _mockComplaints = [
+    ComplaintModel(
+      id: 'cmp_1',
+      bookingId: 'bk_101',
+      serviceType: 'ride',
+      customerId: 'user_current',
+      customerName: 'Suresh Sen',
+      providerId: 'd4',
+      providerName: 'Biplab Mondal (Sedan)',
+      complaintType: 'Overcharge',
+      description: 'Driver requested ₹50 extra above displayed fare.',
+      photoUrl: '',
+      status: 'pending_admin',
+      createdAt: DateTime.now().subtract(const Duration(hours: 4)).toIso8601String(),
+    ),
+    ComplaintModel(
+      id: 'cmp_2',
+      bookingId: 'bk_102',
+      serviceType: 'home_service',
+      customerId: 'user_current',
+      customerName: 'Meera Roy',
+      providerId: 's1',
+      providerName: 'Tapan Roy (Electrician)',
+      complaintType: 'Late',
+      description: 'Arrived 45 mins late without prior notice.',
+      photoUrl: '',
+      status: 'resolved',
+      createdAt: DateTime.now().subtract(const Duration(days: 2)).toIso8601String(),
+    ),
+  ];
+
+  /// Get approved rent vehicles
+  Future<List<RentVehicleModel>> getRentVehicles({String? city, String? vehicleType}) async {
+    try {
+      final db = firestore;
+      if (db != null) {
+        Query query = db.collection('rent_vehicles').where('status', isEqualTo: 'approved');
+        if (city != null && city.isNotEmpty && city != 'All Cities') {
+          query = query.where('city', isEqualTo: city);
+        }
+        if (vehicleType != null && vehicleType.isNotEmpty && vehicleType != 'All') {
+          query = query.where('vehicleType', isEqualTo: vehicleType);
+        }
+        final snapshot = await query.get();
+        if (snapshot.docs.isNotEmpty) {
+          return snapshot.docs
+              .map((doc) => RentVehicleModel.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+              .toList();
+        }
+      }
+    } catch (e) {
+      debugPrint('Firestore getRentVehicles error: $e');
+    }
+
+    var list = _mockRentVehicles.where((v) => v.status == 'approved').toList();
+    if (city != null && city.isNotEmpty && city != 'All Cities') {
+      list = list.where((v) => v.city.toLowerCase() == city.toLowerCase()).toList();
+    }
+    if (vehicleType != null && vehicleType.isNotEmpty && vehicleType != 'All') {
+      list = list.where((v) => v.vehicleType.toLowerCase() == vehicleType.toLowerCase()).toList();
+    }
+    return list;
+  }
+
+  /// Add new rent vehicle
+  Future<bool> addRentVehicle(RentVehicleModel vehicle) async {
+    try {
+      final db = firestore;
+      if (db != null) {
+        await db.collection('rent_vehicles').doc(vehicle.id).set(vehicle.toMap());
+      }
+      _mockRentVehicles.insert(0, vehicle);
+      return true;
+    } catch (e) {
+      debugPrint('Firestore addRentVehicle error: $e');
+      _mockRentVehicles.insert(0, vehicle);
+      return true;
+    }
+  }
+
+  /// File complaint
+  Future<bool> fileComplaint(Map<String, dynamic> complaintData) async {
+    try {
+      final id = 'cmp_${DateTime.now().millisecondsSinceEpoch}';
+      final model = ComplaintModel.fromMap(complaintData, id);
+      final db = firestore;
+      if (db != null) {
+        await db.collection('complaints').doc(id).set(model.toMap());
+      }
+      _mockComplaints.insert(0, model);
+      return true;
+    } catch (e) {
+      debugPrint('Firestore fileComplaint error: $e');
+      return true;
+    }
+  }
+
+  /// Get complaints for admin
+  Future<List<ComplaintModel>> getComplaintsForAdmin() async {
+    try {
+      final db = firestore;
+      if (db != null) {
+        final snapshot = await db.collection('complaints').orderBy('createdAt', descending: true).get();
+        if (snapshot.docs.isNotEmpty) {
+          return snapshot.docs
+              .map((doc) => ComplaintModel.fromMap(doc.data(), doc.id))
+              .toList();
+        }
+      }
+    } catch (e) {
+      debugPrint('Firestore getComplaintsForAdmin error: $e');
+    }
+    return _mockComplaints;
+  }
+
+  /// Update complaint status
+  Future<bool> updateComplaintStatus(String id, String status) async {
+    try {
+      final db = firestore;
+      if (db != null) {
+        await db.collection('complaints').doc(id).update({'status': status});
+      }
+      final idx = _mockComplaints.indexWhere((c) => c.id == id);
+      if (idx != -1) {
+        final old = _mockComplaints[idx];
+        _mockComplaints[idx] = ComplaintModel(
+          id: old.id,
+          bookingId: old.bookingId,
+          serviceType: old.serviceType,
+          customerId: old.customerId,
+          customerName: old.customerName,
+          providerId: old.providerId,
+          providerName: old.providerName,
+          complaintType: old.complaintType,
+          description: old.description,
+          photoUrl: old.photoUrl,
+          status: status,
+          createdAt: old.createdAt,
+        );
+      }
+      return true;
+    } catch (e) {
+      debugPrint('Firestore updateComplaintStatus error: $e');
+      return true;
+    }
+  }
+
   /// Save editable fare rates to Firestore app_config/fare_rates
   Future<bool> saveFareRatesToCloud(Map<String, dynamic> rates) async {
     try {
@@ -582,5 +882,110 @@ class FirestoreService {
       debugPrint('Firestore saveFareRatesToCloud error: $e');
       return true;
     }
+  }
+
+  /// In-memory cache for registered users
+  final Map<String, Map<String, dynamic>> _registeredUsers = {
+    '9830123456': {
+      'id': 'u_driver_rajesh',
+      'phone': '9830123456',
+      'name': 'Rajesh Das',
+      'userRoles': ['driver', 'customer'],
+      'currentMode': 'provider',
+      'userType': 'driver',
+      'avgRating': 4.9,
+      'totalRatings': 120,
+      'languagePref': 'en',
+      'city': 'Kolkata',
+    },
+    '9830298765': {
+      'id': 'u_sevak_tapan',
+      'phone': '9830298765',
+      'name': 'Tapan Roy',
+      'userRoles': ['sevak', 'customer'],
+      'currentMode': 'provider',
+      'userType': 'sevak',
+      'avgRating': 4.8,
+      'totalRatings': 95,
+      'languagePref': 'en',
+      'city': 'Kolkata',
+    },
+    '9830566778': {
+      'id': 'u_owner_ramesh',
+      'phone': '9830566778',
+      'name': 'Ramesh Verma',
+      'userRoles': ['rent_owner', 'customer'],
+      'currentMode': 'provider',
+      'userType': 'rent_owner',
+      'avgRating': 4.9,
+      'totalRatings': 68,
+      'languagePref': 'en',
+      'city': 'Goa',
+    },
+  };
+
+  /// Get user document by phone number from users collection
+  Future<Map<String, dynamic>?> getUserByPhone(String phone) async {
+    final cleanPhone = phone.replaceAll(RegExp(r'\D'), '');
+    try {
+      final db = firestore;
+      if (db != null) {
+        final query = await db
+            .collection('users')
+            .where('phone', isEqualTo: cleanPhone)
+            .limit(1)
+            .get();
+        if (query.docs.isNotEmpty) {
+          return query.docs.first.data();
+        }
+      }
+    } catch (e) {
+      debugPrint('Firestore getUserByPhone notice: $e');
+    }
+
+    // In-memory fallback
+    for (final entry in _registeredUsers.entries) {
+      if (cleanPhone.endsWith(entry.key) || entry.key.endsWith(cleanPhone)) {
+        return entry.value;
+      }
+    }
+    return null;
+  }
+
+  /// Register or update user in Firestore users collection
+  Future<Map<String, dynamic>> registerUser({
+    required String phone,
+    required String name,
+    required String userType,
+    String? city,
+  }) async {
+    final cleanPhone = phone.replaceAll(RegExp(r'\D'), '');
+    final userId = 'u_${DateTime.now().millisecondsSinceEpoch}';
+    final userData = {
+      'id': userId,
+      'phone': cleanPhone,
+      'name': name,
+      'photo': 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80',
+      'userRoles': [userType, 'customer'],
+      'currentMode': userType == 'customer' ? 'customer' : 'provider',
+      'userType': userType,
+      'avgRating': 5.0,
+      'totalRatings': 0,
+      'languagePref': 'en',
+      'city': city ?? 'Kolkata',
+      'createdAt': DateTime.now().toIso8601String(),
+    };
+
+    try {
+      final db = firestore;
+      if (db != null) {
+        await db.collection('users').doc(userId).set(userData);
+      }
+    } catch (e) {
+      debugPrint('Firestore registerUser notice: $e');
+    }
+
+    _registeredUsers[cleanPhone] = userData;
+    return userData;
   }
 }
