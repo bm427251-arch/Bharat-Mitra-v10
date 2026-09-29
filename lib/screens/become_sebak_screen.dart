@@ -17,21 +17,72 @@ class _BecomeSebakScreenState extends State<BecomeSebakScreen> {
   final _experienceController = TextEditingController();
   final _areaController = TextEditingController();
   final _priceController = TextEditingController(text: '249');
+  final _customProfessionController = TextEditingController();
 
-  String _selectedSkill = 'Electrician';
+  String _selectedSkill = 'AC Technician';
   bool _isSubmitting = false;
   bool _isSubmitted = false;
   bool _hasPhoto = false;
 
   final List<String> _skillsList = [
-    'Electrician',
-    'Plumber',
-    'Carpenter',
-    'Painter',
-    'AC Repair',
-    'Cleaning',
+    'AC Technician',
+    'Advocate / Legal Consultant',
     'Appliance Repair',
-    'Pest Control',
+    'Astrologer / Pandit',
+    'Babysitter / Nanny',
+    'Barber / Hair Stylist',
+    'Bicycle Mechanic',
+    'CCTV & Security Installer',
+    'Carpenter',
+    'Chartered Accountant (CA)',
+    'Chimney & Hob Repair',
+    'Cleaner / Deep Cleaning',
+    'Cook / Chef (Home / Event)',
+    'Curtain & Blind Installer',
+    'DJ / Sound System Specialist',
+    'Decorator / Event Planner',
+    'Delivery / Errand Runner',
+    'Dentist / Oral Hygienist',
+    'Dietitian / Nutritionist',
+    'Doctor (Home Visit)',
+    'Driver (Personal / Commercial)',
+    'Electrician',
+    'Elderly Care Assistant',
+    'Fabricator / Welder',
+    'Flooring & Tile Layer',
+    'Gardener / Plant Specialist',
+    'Glass & Window Glazier',
+    'Home Automation Specialist',
+    'Home Nurse / Caregiver',
+    'Interior Designer',
+    'Laundry & Dry Cleaner',
+    'Laptop Repair Specialist',
+    'Locksmith / Key Maker',
+    'Makeup Artist (Bridal / Party)',
+    'Mason / Civil Contractor',
+    'Massage Therapist',
+    'Mechanic (2 Wheeler / 4 Wheeler)',
+    'Mehndi Artist',
+    'Mobile & Tablet Repair',
+    'Movers & Packers Helper',
+    'Painter (Wall / Texture / Waterproof)',
+    'Pest Control Specialist',
+    'Pet Groomer / Vet Assistant',
+    'Photographer / Videographer',
+    'Physiotherapist',
+    'Plumber',
+    'RO Water Purifier Service',
+    'Roofing & Waterproofing',
+    'Security Guard / Bouncer',
+    'Shoe & Bag Restorer',
+    'Solar Panel Installer',
+    'Sofa & Carpet Cleaner',
+    'Tailor / Dressmaker',
+    'Tattoo Artist',
+    'Tutor (Academic / Music / Dance)',
+    'Water Tank Cleaner',
+    'Yoga & Fitness Trainer',
+    'Others - অন্যান্য ➕',
   ];
 
   @override
@@ -41,18 +92,31 @@ class _BecomeSebakScreenState extends State<BecomeSebakScreen> {
     _experienceController.dispose();
     _areaController.dispose();
     _priceController.dispose();
+    _customProfessionController.dispose();
     super.dispose();
   }
 
   Future<void> _submitApplication() async {
     if (!_formKey.currentState!.validate()) return;
 
+    final isCustom = _selectedSkill == 'Others - অন্যান্য ➕';
+    final customName = _customProfessionController.text.trim();
+    if (isCustom && customName.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please type your custom profession!')),
+      );
+      return;
+    }
+
     setState(() => _isSubmitting = true);
 
     final sebakData = {
       'name': _nameController.text.trim(),
       'phone': _phoneController.text.trim(),
-      'skill': _selectedSkill,
+      'skill': isCustom ? (customName.isNotEmpty ? customName : 'Others') : _selectedSkill,
+      'profession': isCustom ? 'Others' : _selectedSkill,
+      'customProfession': isCustom ? customName : '',
+      'isCustom': isCustom,
       'experienceYears': int.tryParse(_experienceController.text.trim()) ?? 3,
       'area': _areaController.text.trim(),
       'pricePerHour': int.tryParse(_priceController.text.trim()) ?? 249,
@@ -230,6 +294,18 @@ class _BecomeSebakScreenState extends State<BecomeSebakScreen> {
                 ),
               ),
             ),
+            if (_selectedSkill == 'Others - অন্যান্য ➕') ...[
+              const SizedBox(height: 12),
+              _buildField(
+                controller: _customProfessionController,
+                label: 'Type Your Profession',
+                hint: 'e.g. Lawyer, Photographer, Mehndi Artist',
+                icon: Icons.edit_note_rounded,
+                validator: (v) => (v == null || v.trim().isEmpty)
+                    ? 'Please specify your profession'
+                    : null,
+              ),
+            ],
             const SizedBox(height: 14),
 
             // Experience & Hourly rate in Row

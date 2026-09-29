@@ -33,5 +33,4 @@ flutter:
     - assets/images/
     - assets/translations/
     - assets/lottie/
-    - public/
-    - public/assets/
+    - assets/icons/

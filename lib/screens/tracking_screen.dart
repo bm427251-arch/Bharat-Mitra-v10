@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../theme/app_theme.dart';
 import '../services/location_service.dart';
@@ -38,31 +40,115 @@ class _TrackingScreenState extends State<TrackingScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _animController;
   Timer? _refreshTimer;
+  Timer? _vehicleMoveTimer;
   bool _isSatellite = false;
   Map<String, dynamic>? _liveData;
   double _distanceKm = 1.2;
   int _etaMinutes = 5;
 
+  GoogleMapController? _mapController;
+  BitmapDescriptor? _vehicleIcon;
+  int _polyIndex = 0;
+  double _vehicleBearing = 45.0;
+
+  static final List<LatLng> _roadPolylinePoints = [
+    const LatLng(22.5726, 88.3639),
+    const LatLng(22.5732, 88.3655),
+    const LatLng(22.5741, 88.3680),
+    const LatLng(22.5738, 88.3710),
+    const LatLng(22.5745, 88.3735),
+    const LatLng(22.5752, 88.3760),
+    const LatLng(22.5760, 88.3785),
+    const LatLng(22.5755, 88.3820),
+    const LatLng(22.5765, 88.3855),
+    const LatLng(22.5780, 88.3890),
+    const LatLng(22.5800, 88.3920),
+    const LatLng(22.5825, 88.3950),
+    const LatLng(22.5850, 88.3980),
+    const LatLng(22.5867, 88.4005),
+  ];
+
+  late LatLng _currentVehiclePos;
+
+  double _calculateBearing(LatLng start, LatLng end) {
+    final startLat = start.latitude * (math.pi / 180.0);
+    final startLng = start.longitude * (math.pi / 180.0);
+    final endLat = end.latitude * (math.pi / 180.0);
+    final endLng = end.longitude * (math.pi / 180.0);
+
+    final dLng = endLng - startLng;
+    final y = math.sin(dLng) * math.cos(endLat);
+    final x = math.cos(startLat) * math.sin(endLat) -
+        math.sin(startLat) * math.cos(endLat) * math.cos(dLng);
+
+    final initialBearing = math.atan2(y, x);
+    return (initialBearing * (180.0 / math.pi) + 360.0) % 360.0;
+  }
+
   @override
   void initState() {
     super.initState();
+    _currentVehiclePos = _roadPolylinePoints.first;
     _animController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 14),
     )..repeat();
 
+    _loadVehicleIcon();
     _fetchLatestLocation();
 
     // Auto-refresh every 10 seconds from live_locations collection
     _refreshTimer = Timer.periodic(const Duration(seconds: 10), (_) {
       _fetchLatestLocation();
     });
+
+    // 1-second animation timer moving along road polyline with bearing rotation
+    _vehicleMoveTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (!mounted) return;
+      setState(() {
+        _polyIndex = (_polyIndex + 1) % _roadPolylinePoints.length;
+        final nextIdx = (_polyIndex + 1) % _roadPolylinePoints.length;
+        _currentVehiclePos = _roadPolylinePoints[_polyIndex];
+        _vehicleBearing = _calculateBearing(_roadPolylinePoints[_polyIndex], _roadPolylinePoints[nextIdx]);
+        if (_distanceKm > 0.3) {
+          _distanceKm = (_distanceKm - 0.05).clamp(0.2, 5.0);
+          _etaMinutes = (_distanceKm * 4).round().clamp(1, 15);
+        }
+      });
+    });
+  }
+
+  Future<void> _loadVehicleIcon() async {
+    try {
+      String assetName = 'assets/icons/car.png';
+      final v = widget.vehicleInfo.toLowerCase();
+      if (v.contains('bike') || v.contains('bullet') || v.contains('scooty')) {
+        assetName = 'assets/icons/bike.png';
+      } else if (v.contains('auto') || v.contains('toto')) {
+        assetName = 'assets/icons/auto.png';
+      } else if (widget.serviceType == 'home_service') {
+        assetName = 'assets/icons/sevak_walking.png';
+      }
+      final icon = await BitmapDescriptor.fromAssetImage(
+        const ImageConfiguration(size: Size(54, 54)),
+        assetName,
+      );
+      if (mounted) setState(() => _vehicleIcon = icon);
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _vehicleIcon = BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange);
+        });
+      }
+    }
   }
 
   @override
   void dispose() {
     _animController.dispose();
     _refreshTimer?.cancel();
+    _vehicleMoveTimer?.cancel();
+    _mapController?.dispose();
     super.dispose();
   }
 
@@ -144,19 +230,48 @@ class _TrackingScreenState extends State<TrackingScreen>
       ),
       body: Stack(
         children: [
-          // 1. LIVE MAP CANVAS
+          // 1. REAL GOOGLE MAP WITH ROAD TILES & CURVED POLYLINE
           Positioned.fill(
-            child: AnimatedBuilder(
-              animation: _animController,
-              builder: (context, _) {
-                return CustomPaint(
-                  painter: _LiveTrackingMapPainter(
-                    progress: _animController.value,
-                    isSatellite: _isSatellite,
-                    serviceType: widget.serviceType,
-                  ),
-                );
+            child: GoogleMap(
+              initialCameraPosition: const CameraPosition(
+                target: LatLng(22.5760, 88.3785),
+                zoom: 14.2,
+              ),
+              mapType: _isSatellite ? MapType.satellite : MapType.normal,
+              myLocationEnabled: false,
+              zoomControlsEnabled: false,
+              polylines: {
+                Polyline(
+                  polylineId: const PolylineId('road_curved_polyline'),
+                  points: _roadPolylinePoints,
+                  color: const Color(0xFF1A3A6E),
+                  width: 5,
+                  jointType: JointType.round,
+                  endCap: Cap.roundCap,
+                  startCap: Cap.roundCap,
+                ),
               },
+              markers: {
+                Marker(
+                  markerId: const MarkerId('pickup_marker'),
+                  position: _roadPolylinePoints.last,
+                  icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
+                  infoWindow: InfoWindow(title: 'Pickup: ${widget.pickupAddress}'),
+                ),
+                Marker(
+                  markerId: const MarkerId('animated_vehicle_marker'),
+                  position: _currentVehiclePos,
+                  rotation: _vehicleBearing,
+                  flat: true,
+                  anchor: const Offset(0.5, 0.5),
+                  icon: _vehicleIcon ?? BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
+                  infoWindow: InfoWindow(
+                    title: '${widget.partnerName} (${widget.vehicleInfo})',
+                    snippet: 'Speed: ${_liveData?['speed'] ?? 32} km/h • ETA: $_etaMinutes min',
+                  ),
+                ),
+              },
+              onMapCreated: (ctrl) => _mapController = ctrl,
             ),
           ),
 

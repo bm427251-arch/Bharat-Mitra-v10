@@ -6,6 +6,7 @@ import '../l10n/app_translations.dart';
 import '../models/sebak_model.dart';
 import '../services/payment_service.dart';
 import '../services/firestore_service.dart';
+import '../widgets/admin_login_dialog.dart';
 import 'become_driver_screen.dart';
 import 'become_sebak_screen.dart';
 
@@ -19,6 +20,7 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   String _activePlan = 'None (Free Rider)';
   bool _isPartnerActive = false;
+  int _versionTapCount = 0;
 
   void _openPaymentAndVerify(SubscriptionPlan plan) async {
     // 1. Open Razorpay link
@@ -713,9 +715,47 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: const Icon(Icons.translate_rounded, color: AppColors.primary),
                 ),
                 title: const Text('App Language', style: TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: Text('Current: ${AppTranslations.currentLanguage.toUpperCase()} (7 Available)'),
+                subtitle: Text('Current: ${AppTranslations.currentLanguage.toUpperCase()} (8 Languages Available)'),
                 trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16),
                 onTap: _showLanguageSelector,
+              ),
+            ),
+            const SizedBox(height: 18),
+
+            // App Version & 5-Tap Admin Backup
+            Center(
+              child: GestureDetector(
+                onTap: () {
+                  _versionTapCount++;
+                  if (_versionTapCount >= 5) {
+                    _versionTapCount = 0;
+                    AdminLoginDialog.show(context);
+                  } else if (_versionTapCount >= 2) {
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Admin access: Tap ${5 - _versionTapCount} more times...'),
+                        duration: const Duration(seconds: 1),
+                      ),
+                    );
+                  }
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Column(
+                    children: [
+                      Text(
+                        'Bharat Mitra Pan India • v1.0.0',
+                        style: TextStyle(fontSize: 12, color: Colors.grey.shade600, fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(height: 2),
+                      const Text(
+                        '0% Commission Movement • Direct UPI (Admin 5-Tap Backup)',
+                        style: TextStyle(fontSize: 10.5, color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 24),

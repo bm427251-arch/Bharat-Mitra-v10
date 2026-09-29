@@ -20,6 +20,7 @@ import 'sevak_home_screen.dart';
 import 'rent_owner_home_screen.dart';
 import '../services/rating_service.dart';
 import '../widgets/rating_dialog.dart';
+import '../widgets/admin_login_dialog.dart';
 
 class HomeScreen extends StatefulWidget {
   final Function(int)? onNavigateTab;
@@ -55,55 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isPartnerLiveActive = false;
 
   void _openAdmin() {
-    showDialog(
-      context: context,
-      builder: (c) {
-        String pass = "";
-        return AlertDialog(
-          title: const Text("Admin Login 🔓"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                enabled: false,
-                decoration: InputDecoration(
-                  labelText: adminEmail,
-                  border: const OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: "Password",
-                  border: OutlineInputBorder(),
-                ),
-                onChanged: (v) => pass = v,
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(c),
-              child: const Text("Cancel"),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                if (pass == "Bharat@123") {
-                  Navigator.pop(c);
-                  Navigator.pushNamed(context, '/admin');
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Wrong Password!")),
-                  );
-                }
-              },
-              child: const Text("Login"),
-            ),
-          ],
-        );
-      },
-    );
+    AdminLoginDialog.show(context);
   }
 
   @override
@@ -1087,62 +1040,107 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
 
-                  // Drop Field
-                  InkWell(
-                    onTap: _openDropMapPicker,
-                    borderRadius: BorderRadius.circular(16),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 44,
-                          height: 44,
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFFFF4EB),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.location_on_rounded,
-                            color: AppColors.secondary,
-                            size: 24,
-                          ),
+                  // Drop Location Field with direct typing + Autocomplete (Requirement 2)
+                  Row(
+                    children: [
+                      Container(
+                        width: 44,
+                        height: 44,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFFFF4EB),
+                          shape: BoxShape.circle,
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'drop_location'.tr().toUpperCase(),
-                                style: const TextStyle(
+                        child: const Icon(
+                          Icons.location_on_rounded,
+                          color: AppColors.secondary,
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Autocomplete<String>(
+                          initialValue: TextEditingValue(text: _dropAddress),
+                          optionsBuilder: (TextEditingValue textEditingValue) {
+                            final query = textEditingValue.text.trim();
+                            const List<String> popularDestinations = [
+                              'Behala, Kolkata',
+                              'Digha Sea Beach',
+                              'Salt Lake Sector V, Kolkata',
+                              'Howrah Railway Station',
+                              'Park Street, Kolkata',
+                              'Kolkata Airport (CCU)',
+                              'Puri Sea Beach, Odisha',
+                              'Darjeeling Mall Road',
+                              'Baga Beach, North Goa',
+                              'Mall Road, Manali',
+                              'Hawa Mahal, Jaipur',
+                              'Connaught Place, Delhi',
+                              'Marine Drive, Mumbai',
+                            ];
+                            if (query.isEmpty) {
+                              return popularDestinations.take(5);
+                            }
+                            final filtered = popularDestinations
+                                .where((s) => s.toLowerCase().contains(query.toLowerCase()))
+                                .toList();
+                            filtered.add("Use: \"$query\"");
+                            return filtered;
+                          },
+                          onSelected: (String selection) {
+                            final actual = selection.startsWith("Use: \"") && selection.endsWith("\"")
+                                ? selection.substring(6, selection.length - 1)
+                                : selection;
+                            setState(() {
+                              _dropAddress = actual;
+                              _recalculateDistanceAndFare();
+                            });
+                          },
+                          fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+                            if (controller.text.isEmpty && _dropAddress.isNotEmpty && !_dropAddress.startsWith('Where to')) {
+                              controller.text = _dropAddress;
+                            }
+                            return TextField(
+                              controller: controller,
+                              focusNode: focusNode,
+                              decoration: InputDecoration(
+                                isDense: true,
+                                contentPadding: const EdgeInsets.symmetric(vertical: 4),
+                                labelText: 'drop_location'.tr().toUpperCase(),
+                                labelStyle: const TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.bold,
                                   color: AppColors.secondary,
                                   letterSpacing: 0.5,
                                 ),
+                                hintText: 'Type Drop Location - e.g. Behala, Digha Sea Beach',
+                                hintStyle: const TextStyle(fontSize: 12.5, color: AppColors.textMuted),
+                                border: InputBorder.none,
                               ),
-                              const SizedBox(height: 2),
-                              Text(
-                                _dropAddress,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: _dropAddress.startsWith('Where to')
-                                      ? AppColors.textMuted
-                                      : AppColors.textPrimary,
-                                ),
-                              ),
-                            ],
-                          ),
+                              style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                              onChanged: (val) {
+                                if (val.trim().isNotEmpty) {
+                                  _dropAddress = val.trim();
+                                  _recalculateDistanceAndFare();
+                                }
+                              },
+                              onSubmitted: (val) {
+                                if (val.trim().isNotEmpty) {
+                                  setState(() {
+                                    _dropAddress = val.trim();
+                                    _recalculateDistanceAndFare();
+                                  });
+                                }
+                              },
+                            );
+                          },
                         ),
-                        const Icon(
-                          Icons.arrow_forward_ios_rounded,
-                          color: AppColors.textMuted,
-                          size: 16,
-                        ),
-                      ],
-                    ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.map_rounded, color: AppColors.textMuted, size: 22),
+                        tooltip: 'Pick on Map',
+                        onPressed: _openDropMapPicker,
+                      ),
+                    ],
                   ),
                 ],
               ),
