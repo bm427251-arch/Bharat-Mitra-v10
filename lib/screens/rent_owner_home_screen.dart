@@ -194,7 +194,7 @@ class _RentOwnerHomeScreenState extends State<RentOwnerHomeScreen> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFFC2410C).withValues(alpha: 0.25)),
+                    border: Border.all(color: const Color(0xFFC2410C).withOpacity(0.25)),
                     boxShadow: const [
                       BoxShadow(color: Color(0x0A000000), blurRadius: 10, offset: Offset(0, 4)),
                     ],

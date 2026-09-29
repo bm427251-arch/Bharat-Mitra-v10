@@ -1,0 +1,62 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // User profile and authentication documents
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Rides and booking requests
+    match /bookings/{bookingId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // App configuration and fare rates
+    match /app_config/{configId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Rental vehicle listings
+    match /rent_vehicles/{vehicleId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Service providers / Sebaks
+    match /sebaks/{sebakId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Reviews
+    match /service_provider_reviews/{reviewId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+    }
+
+    match /rent_owner_reviews/{reviewId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+    }
+
+    // Subscriptions, feedbacks and complaints
+    match /subscriptions/{subId} {
+      allow read, write: if request.auth != null;
+    }
+
+    match /complaints/{complaintId} {
+      allow read, write: if request.auth != null;
+    }
+
+    match /feedbacks/{feedbackId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+    }
+
+    match /rent_owners/{id} { allow create: if request.auth != null; allow read: if true; allow update: if request.auth.uid == resource.data.uid; }
+    match /drivers/{id} { allow create: if request.auth != null; allow read: if true; allow update: if request.auth.uid == resource.data.uid; }
+    match /driver_reviews/{id} { allow create: if request.auth != null; allow read: if true; }
+  }
+}

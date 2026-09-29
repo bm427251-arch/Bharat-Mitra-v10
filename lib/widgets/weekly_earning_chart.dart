@@ -68,7 +68,7 @@ class WeeklyEarningChart extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
-                  color: primaryColor.withValues(alpha: 0.1),
+                  color: primaryColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
@@ -145,7 +145,7 @@ class WeeklyEarningChart extends StatelessWidget {
                     barRods: [
                       BarChartRodData(
                         toY: val,
-                        color: isHighest ? primaryColor : primaryColor.withValues(alpha: 0.45),
+                        color: isHighest ? primaryColor : primaryColor.withOpacity(0.45),
                         width: 16,
                         borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
                         backDrawRodData: BackgroundBarChartRodData(
