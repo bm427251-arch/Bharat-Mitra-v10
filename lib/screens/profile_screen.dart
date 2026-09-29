@@ -730,14 +730,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   if (_versionTapCount >= 5) {
                     _versionTapCount = 0;
                     AdminLoginDialog.show(context);
-                  } else if (_versionTapCount >= 2) {
-                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Admin access: Tap ${5 - _versionTapCount} more times...'),
-                        duration: const Duration(seconds: 1),
-                      ),
-                    );
                   }
                 },
                 child: Padding(

@@ -16,6 +16,8 @@ import 'screens/my_trips_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/sebak_list_screen.dart';
 import 'screens/login_screen.dart';
+import 'screens/hire_driver_screen.dart';
+import 'screens/become_rent_owner_screen.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -42,6 +44,7 @@ void main() async {
       ],
       path: 'assets/translations',
       fallbackLocale: const Locale('en'),
+      startLocale: const Locale('en'),
       child: const BharatMitraApp(),
     ),
   );
@@ -71,6 +74,8 @@ class BharatMitraApp extends StatelessWidget {
         '/profile': (_) => const ProfileScreen(),
         '/sebak-list': (_) => const SebakListScreen(),
         '/login': (_) => const LoginScreen(),
+        '/hire-driver': (_) => const HireDriverScreen(),
+        '/become-owner': (_) => const BecomeRentOwnerScreen(),
         '/admin': (_) => const AdminLoginScreen(adminEmail: 'bm427251@gmail.com'),
         '/admin-login': (_) => const AdminLoginScreen(adminEmail: 'bm427251@gmail.com'),
         '/tracking': (_) => const TrackingScreen(

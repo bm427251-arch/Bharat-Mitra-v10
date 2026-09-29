@@ -24,9 +24,9 @@ class LanguageService {
 
   static const List<LanguageModel> supportedLanguages = [
     LanguageModel(code: 'en', name: 'English', nativeName: 'English'),
-    LanguageModel(code: 'hi', name: 'Hindi', nativeName: 'हिन्दी'),
-    LanguageModel(code: 'bn', name: 'Bengali', nativeName: 'বাংলা'),
-    LanguageModel(code: 'ta', name: 'Tamil', nativeName: 'தமிழ்'),
+    LanguageModel(code: 'hi', name: 'Hindi', nativeName: 'Hindi'),
+    LanguageModel(code: 'bn', name: 'Bengali', nativeName: 'Bangla'),
+    LanguageModel(code: 'ta', name: 'Tamil', nativeName: 'Tamil'),
     LanguageModel(code: 'te', name: 'Telugu', nativeName: 'తెలుగు'),
     LanguageModel(code: 'mr', name: 'Marathi', nativeName: 'मराठी'),
     LanguageModel(code: 'gu', name: 'Gujarati', nativeName: 'ગુજરાતી'),

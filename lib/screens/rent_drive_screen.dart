@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../theme/app_theme.dart';
 import '../models/rent_vehicle_model.dart';
 import '../services/firestore_service.dart';
 import 'rent_drive_detail_screen.dart';
+import 'become_rent_owner_screen.dart';
 
 class RentDriveScreen extends StatefulWidget {
   const RentDriveScreen({super.key});
@@ -69,15 +71,39 @@ class _RentDriveScreenState extends State<RentDriveScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: const Text('Rent & Drive (Self-Drive Pan India)'),
-        backgroundColor: const Color(0xFF1A3A6E),
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: AppBar(
+          title: Text("rentDrive".tr()),
+          backgroundColor: const Color(0xFF1A3A6E),
+          foregroundColor: Colors.white,
+          bottom: TabBar(
+            indicatorColor: Colors.amber,
+            indicatorWeight: 3,
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.white70,
+            tabs: [
+              Tab(text: "rentACar".tr()),
+              Tab(text: "becomeOwner".tr()),
+            ],
+          ),
+        ),
+        body: TabBarView(
+          children: [
+            _buildRentListView(),
+            const BecomeRentOwnerScreen(),
+          ],
+        ),
       ),
-      body: Column(
-        children: [
-          // Filters Header
+    );
+  }
+
+  Widget _buildRentListView() {
+    return Column(
+      children: [
+        // Filters Header
           Container(
             padding: const EdgeInsets.all(14),
             color: Colors.white,
@@ -342,7 +368,6 @@ class _RentDriveScreenState extends State<RentDriveScreen> {
                       ),
           ),
         ],
-      ),
-    );
+      );
   }
 }

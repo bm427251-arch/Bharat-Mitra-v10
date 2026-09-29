@@ -18,9 +18,12 @@ import 'profile_screen.dart';
 import 'driver_home_screen.dart';
 import 'sevak_home_screen.dart';
 import 'rent_owner_home_screen.dart';
+import 'hire_driver_screen.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../services/rating_service.dart';
 import '../widgets/rating_dialog.dart';
 import '../widgets/admin_login_dialog.dart';
+import '../services/places_service.dart';
 
 class HomeScreen extends StatefulWidget {
   final Function(int)? onNavigateTab;
@@ -49,8 +52,12 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedServiceCard = 0; // 0: Book Ride, 1: Rent & Drive, 2: Home Service, 3: Hire Driver
   int _bottomNavIndex = 0;
   final TextEditingController _citySearchCtrl = TextEditingController();
+  final TextEditingController _dropLocationController = TextEditingController();
+  List<PlaceSuggestion> _placeSuggestions = [];
+  bool _showPlaceSuggestions = false;
   Timer? _adminTimer;
   int _holdCount = 0;
+  bool _isLogoPressing = false;
   String adminEmail = "bm427251@gmail.com";
   StreamSubscription? _ratingSubscription;
   bool _isPartnerLiveActive = false;
@@ -62,6 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void dispose() {
     _citySearchCtrl.dispose();
+    _dropLocationController.dispose();
     _ratingSubscription?.cancel();
     _adminTimer?.cancel();
     super.dispose();
@@ -70,6 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    _dropLocationController.text = _dropAddress;
     _recalculateDistanceAndFare();
     _fetchCurrentLocation();
 
@@ -280,7 +289,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _showHireDriverDialog() {
+  void showHireDriverModal(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -424,29 +433,45 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(width: 12),
           GestureDetector(
             onLongPressDown: (_) {
+              setState(() => _isLogoPressing = true);
               _holdCount = 0;
               _adminTimer?.cancel();
               _adminTimer = Timer.periodic(const Duration(seconds: 1), (t) {
                 _holdCount++;
-                ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Admin: $_holdCount/7 sec..."), duration: const Duration(seconds: 1)),
-                );
                 if (_holdCount >= 7) {
                   t.cancel();
-                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                  if (mounted) setState(() => _isLogoPressing = false);
                   _openAdmin();
                 }
               });
             },
             onLongPressUp: () {
+              if (mounted) setState(() => _isLogoPressing = false);
               if (_holdCount < 7) _adminTimer?.cancel();
             },
-            child: Image.asset(
-              'assets/images/logo.png',
-              width: 42,
-              height: 42,
-              errorBuilder: (c, e, s) => const Icon(Icons.handshake, color: Colors.white, size: 30),
+            onLongPressCancel: () {
+              if (mounted) setState(() => _isLogoPressing = false);
+              _adminTimer?.cancel();
+            },
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Image.asset(
+                  'assets/images/logo.png',
+                  width: 42,
+                  height: 42,
+                  errorBuilder: (c, e, s) => const Icon(Icons.handshake, color: Colors.white, size: 30),
+                ),
+                if (_isLogoPressing)
+                  const SizedBox(
+                    width: 44,
+                    height: 44,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      color: Colors.white70,
+                    ),
+                  ),
+              ],
             ),
           ),
           const SizedBox(width: 10),
@@ -874,7 +899,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Expanded(
                         child: _buildServiceCard(
                           index: 0,
-                          title: 'book_ride'.tr(),
+                          title: "bookRide".tr(),
                           subtitle: 'Bike, Toto, Auto, Car',
                           icon: Icons.directions_car_filled_rounded,
                           gradient: AppColors.primaryGradient,
@@ -889,7 +914,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Expanded(
                         child: _buildServiceCard(
                           index: 1,
-                          title: 'Rent & Drive',
+                          title: "rentDrive".tr(),
                           badge: 'PAN INDIA',
                           subtitle: 'Self-Drive Bike / Car',
                           icon: Icons.car_rental_rounded,
@@ -914,11 +939,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Row 2: Home Service & Hire Driver
                   Row(
                     children: [
-                      // Card 3: Home Service (Sevak)
+                      // Card 3: Home Service (Service Provider)
                       Expanded(
                         child: _buildServiceCard(
                           index: 2,
-                          title: 'home_services'.tr(),
+                          title: "serviceProvider".tr(),
                           badge: '0% CUT',
                           subtitle: 'Electrician, AC, Plumber',
                           icon: Icons.home_repair_service_rounded,
@@ -942,7 +967,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Expanded(
                         child: _buildServiceCard(
                           index: 3,
-                          title: 'hire_driver'.tr(),
+                          title: "hireDriver".tr(),
                           badge: '₹700',
                           subtitle: '8 Hours Shift',
                           icon: Icons.airline_seat_recline_normal_rounded,
@@ -953,7 +978,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           onTap: () {
                             setState(() => _selectedServiceCard = 3);
-                            _showHireDriverDialog();
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => const HireDriverScreen()),
+                            );
                           },
                         ),
                       ),
@@ -1019,11 +1047,17 @@ class _HomeScreenState extends State<HomeScreen> {
                             ],
                           ),
                         ),
-                        const Icon(
-                          Icons.map_rounded,
-                          color: AppColors.textMuted,
-                          size: 20,
-                        ),
+                        _isLocating
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
+                              )
+                            : const Icon(
+                                Icons.map_rounded,
+                                color: AppColors.textMuted,
+                                size: 20,
+                              ),
                       ],
                     ),
                   ),
@@ -1040,7 +1074,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
 
-                  // Drop Location Field with direct typing + Autocomplete (Requirement 2)
+                  // Drop Location Field with Places Search & Barasat Linked Suggestions (Problem 1)
                   Row(
                     children: [
                       Container(
@@ -1058,80 +1092,53 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: Autocomplete<String>(
-                          initialValue: TextEditingValue(text: _dropAddress),
-                          optionsBuilder: (TextEditingValue textEditingValue) {
-                            final query = textEditingValue.text.trim();
-                            const List<String> popularDestinations = [
-                              'Behala, Kolkata',
-                              'Digha Sea Beach',
-                              'Salt Lake Sector V, Kolkata',
-                              'Howrah Railway Station',
-                              'Park Street, Kolkata',
-                              'Kolkata Airport (CCU)',
-                              'Puri Sea Beach, Odisha',
-                              'Darjeeling Mall Road',
-                              'Baga Beach, North Goa',
-                              'Mall Road, Manali',
-                              'Hawa Mahal, Jaipur',
-                              'Connaught Place, Delhi',
-                              'Marine Drive, Mumbai',
-                            ];
-                            if (query.isEmpty) {
-                              return popularDestinations.take(5);
-                            }
-                            final filtered = popularDestinations
-                                .where((s) => s.toLowerCase().contains(query.toLowerCase()))
-                                .toList();
-                            filtered.add("Use: \"$query\"");
-                            return filtered;
-                          },
-                          onSelected: (String selection) {
-                            final actual = selection.startsWith("Use: \"") && selection.endsWith("\"")
-                                ? selection.substring(6, selection.length - 1)
-                                : selection;
-                            setState(() {
-                              _dropAddress = actual;
+                        child: TextField(
+                          controller: _dropLocationController,
+                          decoration: InputDecoration(
+                            isDense: true,
+                            contentPadding: const EdgeInsets.symmetric(vertical: 4),
+                            labelText: 'drop_location'.tr().toUpperCase(),
+                            labelStyle: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.secondary,
+                              letterSpacing: 0.5,
+                            ),
+                            hintText: 'Type Drop Location - e.g. Barasat, Behala, Digha',
+                            hintStyle: const TextStyle(fontSize: 12.5, color: AppColors.textMuted),
+                            border: InputBorder.none,
+                          ),
+                          style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                          onChanged: (val) async {
+                            if (val.trim().isNotEmpty) {
+                              _dropAddress = val.trim();
                               _recalculateDistanceAndFare();
-                            });
-                          },
-                          fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
-                            if (controller.text.isEmpty && _dropAddress.isNotEmpty && !_dropAddress.startsWith('Where to')) {
-                              controller.text = _dropAddress;
                             }
-                            return TextField(
-                              controller: controller,
-                              focusNode: focusNode,
-                              decoration: InputDecoration(
-                                isDense: true,
-                                contentPadding: const EdgeInsets.symmetric(vertical: 4),
-                                labelText: 'drop_location'.tr().toUpperCase(),
-                                labelStyle: const TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.secondary,
-                                  letterSpacing: 0.5,
-                                ),
-                                hintText: 'Type Drop Location - e.g. Behala, Digha Sea Beach',
-                                hintStyle: const TextStyle(fontSize: 12.5, color: AppColors.textMuted),
-                                border: InputBorder.none,
-                              ),
-                              style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
-                              onChanged: (val) {
-                                if (val.trim().isNotEmpty) {
-                                  _dropAddress = val.trim();
-                                  _recalculateDistanceAndFare();
-                                }
-                              },
-                              onSubmitted: (val) {
-                                if (val.trim().isNotEmpty) {
-                                  setState(() {
-                                    _dropAddress = val.trim();
-                                    _recalculateDistanceAndFare();
-                                  });
-                                }
-                              },
-                            );
+                            if (val.trim().length >= 2) {
+                              final suggestions = await PlacesService.getPlaceSuggestions(
+                                val,
+                                currentLatLng: LatLng(_pickupLat, _pickupLng),
+                              );
+                              if (mounted) {
+                                setState(() {
+                                  _placeSuggestions = suggestions;
+                                  _showPlaceSuggestions = suggestions.isNotEmpty;
+                                });
+                              }
+                            } else {
+                              if (mounted) {
+                                setState(() => _showPlaceSuggestions = false);
+                              }
+                            }
+                          },
+                          onSubmitted: (val) {
+                            if (val.trim().isNotEmpty) {
+                              setState(() {
+                                _dropAddress = val.trim();
+                                _showPlaceSuggestions = false;
+                                _recalculateDistanceAndFare();
+                              });
+                            }
                           },
                         ),
                       ),
@@ -1142,6 +1149,69 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ],
                   ),
+
+                  // Linked Suggestions List (Barasat Court, Station, SP Office, etc.)
+                  if (_showPlaceSuggestions && _placeSuggestions.isNotEmpty) ...[
+                    const Divider(height: 16),
+                    Container(
+                      constraints: const BoxConstraints(maxHeight: 220),
+                      child: ListView.separated(
+                        shrinkWrap: true,
+                        itemCount: _placeSuggestions.length,
+                        separatorBuilder: (_, __) => const Divider(height: 1),
+                        itemBuilder: (ctx, i) {
+                          final p = _placeSuggestions[i];
+                          return ListTile(
+                            dense: true,
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                            leading: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: AppColors.secondary.withOpacity(0.12),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.location_on_rounded, size: 16, color: AppColors.secondary),
+                            ),
+                            title: Text(
+                              p.mainText,
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5),
+                            ),
+                            subtitle: Text(
+                              p.secondaryText,
+                              style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            trailing: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFE8F1FD),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Text(
+                                p.distance,
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            ),
+                            onTap: () {
+                              setState(() {
+                                _dropAddress = p.fullAddress;
+                                _dropLocationController.text = p.fullAddress;
+                                _dropLat = p.lat;
+                                _dropLng = p.lng;
+                                _showPlaceSuggestions = false;
+                                _recalculateDistanceAndFare();
+                              });
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ).animate().fadeIn(duration: 400.ms, delay: 150.ms),

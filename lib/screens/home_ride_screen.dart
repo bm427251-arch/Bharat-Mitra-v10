@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../theme/app_theme.dart';
 import '../models/ride_model.dart';
 import '../services/location_service.dart';
+import '../services/places_service.dart';
 import 'map_picker_screen.dart';
 import 'active_drivers_screen.dart';
 
@@ -14,13 +16,23 @@ class HomeRideScreen extends StatefulWidget {
 }
 
 class _HomeRideScreenState extends State<HomeRideScreen> {
+  final TextEditingController _dropController = TextEditingController();
+  List<PlaceSuggestion> _placeSuggestions = [];
+  bool _showSuggestions = false;
+
   String _pickupAddress = 'Detecting current GPS location...';
-  String _dropAddress = 'Where to? (e.g. Salt Lake Sector V)';
+  String _dropAddress = 'Where to? (e.g. Barasat, Salt Lake)';
   double _pickupLat = LocationService.defaultLat;
   double _pickupLng = LocationService.defaultLng;
 
   RideOption _selectedRide = RideOption.availableRides.first;
   bool _isLocating = false;
+
+  @override
+  void dispose() {
+    _dropController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -268,63 +280,139 @@ class _HomeRideScreenState extends State<HomeRideScreen> {
                     ),
                   ),
 
-                  // Drop Field
-                  InkWell(
-                    onTap: _openDropMapPicker,
-                    borderRadius: BorderRadius.circular(16),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 44,
-                          height: 44,
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFFFF4EB),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.location_on_rounded,
-                            color: AppColors.secondary,
-                            size: 24,
-                          ),
+                  // Drop Field with Places Search & Barasat Linked Suggestions
+                  Row(
+                    children: [
+                      Container(
+                        width: 44,
+                        height: 44,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFFFF4EB),
+                          shape: BoxShape.circle,
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'DESTINATION',
-                                style: TextStyle(
+                        child: const Icon(
+                          Icons.location_on_rounded,
+                          color: AppColors.secondary,
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: TextField(
+                          controller: _dropController,
+                          decoration: const InputDecoration(
+                            isDense: true,
+                            contentPadding: EdgeInsets.symmetric(vertical: 4),
+                            labelText: 'DESTINATION',
+                            labelStyle: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.secondary,
+                              letterSpacing: 0.5,
+                            ),
+                            hintText: 'Type Drop Location - e.g. Barasat, Salt Lake',
+                            hintStyle: TextStyle(fontSize: 12.5, color: AppColors.textMuted),
+                            border: InputBorder.none,
+                          ),
+                          style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                          onChanged: (val) async {
+                            if (val.trim().isNotEmpty) {
+                              _dropAddress = val.trim();
+                            }
+                            if (val.trim().length >= 2) {
+                              final suggestions = await PlacesService.getPlaceSuggestions(
+                                val,
+                                currentLatLng: LatLng(_pickupLat, _pickupLng),
+                              );
+                              if (mounted) {
+                                setState(() {
+                                  _placeSuggestions = suggestions;
+                                  _showSuggestions = suggestions.isNotEmpty;
+                                });
+                              }
+                            } else {
+                              if (mounted) {
+                                setState(() => _showSuggestions = false);
+                              }
+                            }
+                          },
+                          onSubmitted: (val) {
+                            if (val.trim().isNotEmpty) {
+                              setState(() {
+                                _dropAddress = val.trim();
+                                _showSuggestions = false;
+                              });
+                            }
+                          },
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.map_rounded, color: AppColors.textMuted, size: 22),
+                        tooltip: 'Pick on Map',
+                        onPressed: _openDropMapPicker,
+                      ),
+                    ],
+                  ),
+
+                  // Linked Suggestions List (Barasat Court, Station, SP Office, etc.)
+                  if (_showSuggestions && _placeSuggestions.isNotEmpty) ...[
+                    const Divider(height: 16),
+                    Container(
+                      constraints: const BoxConstraints(maxHeight: 200),
+                      child: ListView.separated(
+                        shrinkWrap: true,
+                        itemCount: _placeSuggestions.length,
+                        separatorBuilder: (_, __) => const Divider(height: 1),
+                        itemBuilder: (ctx, i) {
+                          final p = _placeSuggestions[i];
+                          return ListTile(
+                            dense: true,
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                            leading: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: AppColors.secondary.withOpacity(0.12),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.location_on_rounded, size: 16, color: AppColors.secondary),
+                            ),
+                            title: Text(
+                              p.mainText,
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5),
+                            ),
+                            subtitle: Text(
+                              p.secondaryText,
+                              style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            trailing: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFE8F1FD),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Text(
+                                p.distance,
+                                style: const TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.bold,
-                                  color: AppColors.secondary,
-                                  letterSpacing: 0.5,
+                                  color: AppColors.primary,
                                 ),
                               ),
-                              const SizedBox(height: 2),
-                              Text(
-                                _dropAddress,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: _dropAddress.startsWith('Where to')
-                                      ? AppColors.textMuted
-                                      : AppColors.textPrimary,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const Icon(
-                          Icons.arrow_forward_ios_rounded,
-                          color: AppColors.textMuted,
-                          size: 16,
-                        ),
-                      ],
+                            ),
+                            onTap: () {
+                              setState(() {
+                                _dropAddress = p.fullAddress;
+                                _dropController.text = p.fullAddress;
+                                _showSuggestions = false;
+                              });
+                            },
+                          );
+                        },
+                      ),
                     ),
-                  ),
+                  ],
                 ],
               ),
             ).animate().fadeIn(duration: 400.ms, delay: 100.ms).slideY(begin: 0.08, end: 0),

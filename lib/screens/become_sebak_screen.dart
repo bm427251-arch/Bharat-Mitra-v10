@@ -82,7 +82,7 @@ class _BecomeSebakScreenState extends State<BecomeSebakScreen> {
     'Tutor (Academic / Music / Dance)',
     'Water Tank Cleaner',
     'Yoga & Fitness Trainer',
-    'Others - অন্যান্য ➕',
+    'Others ➕',
   ];
 
   @override
@@ -99,7 +99,7 @@ class _BecomeSebakScreenState extends State<BecomeSebakScreen> {
   Future<void> _submitApplication() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final isCustom = _selectedSkill == 'Others - অন্যান্য ➕';
+    final isCustom = _selectedSkill == 'Others ➕';
     final customName = _customProfessionController.text.trim();
     if (isCustom && customName.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -294,7 +294,7 @@ class _BecomeSebakScreenState extends State<BecomeSebakScreen> {
                 ),
               ),
             ),
-            if (_selectedSkill == 'Others - অন্যান্য ➕') ...[
+            if (_selectedSkill == 'Others ➕') ...[
               const SizedBox(height: 12),
               _buildField(
                 controller: _customProfessionController,

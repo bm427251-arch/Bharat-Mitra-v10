@@ -4,53 +4,51 @@ import 'package:easy_localization/easy_localization.dart';
 import '../theme/app_theme.dart';
 import '../services/firestore_service.dart';
 
-class BecomeDriverScreen extends StatefulWidget {
-  const BecomeDriverScreen({super.key});
+class BecomeRentOwnerScreen extends StatefulWidget {
+  const BecomeRentOwnerScreen({super.key});
 
   @override
-  State<BecomeDriverScreen> createState() => _BecomeDriverScreenState();
+  State<BecomeRentOwnerScreen> createState() => _BecomeRentOwnerScreenState();
 }
 
-class _BecomeDriverScreenState extends State<BecomeDriverScreen> {
+class _BecomeRentOwnerScreenState extends State<BecomeRentOwnerScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
+  final _ownerNameController = TextEditingController();
   final _phoneController = TextEditingController();
-  final _experienceController = TextEditingController(text: '4');
-  final _chargeController = TextEditingController(text: '700');
-
-  bool _hasLicence = false;
+  final _cityController = TextEditingController();
+  bool _hasGarage = true;
+  bool _hasAadhaar = false;
+  bool _hasSelfie = false;
   bool _isSubmitting = false;
   bool _isSubmitted = false;
 
   @override
   void dispose() {
-    _nameController.dispose();
+    _ownerNameController.dispose();
     _phoneController.dispose();
-    _experienceController.dispose();
-    _chargeController.dispose();
+    _cityController.dispose();
     super.dispose();
   }
 
-  Future<void> _submitDriverProfile() async {
+  Future<void> _submitOwnerProfile() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isSubmitting = true);
 
     try {
-      final driverData = {
-        'driverName': _nameController.text.trim(),
+      final ownerData = {
+        'ownerName': _ownerNameController.text.trim(),
         'phoneNumber': _phoneController.text.trim(),
-        'experienceYears': int.tryParse(_experienceController.text.trim()) ?? 4,
-        'charge8hr': int.tryParse(_chargeController.text.trim()) ?? 700,
-        'hasLicenceFront': _hasLicence,
-        'rating': 4.9,
-        'totalTrips': 0,
-        'status': 'verified',
-        'isAvailable': true,
+        'city': _cityController.text.trim(),
+        'hasGarage': _hasGarage,
+        'hasAadhaar': _hasAadhaar,
+        'hasSelfie': _hasSelfie,
         'createdAt': DateTime.now().toIso8601String(),
+        'status': 'verified',
+        'isApproved': true,
       };
 
-      await FirestoreService.instance.saveDriver(driverData);
+      await FirestoreService.instance.saveRentOwner(ownerData);
 
       if (mounted) {
         setState(() {
@@ -62,7 +60,7 @@ class _BecomeDriverScreenState extends State<BecomeDriverScreen> {
       if (mounted) {
         setState(() => _isSubmitting = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile saved successfully! Welcome Partner.')),
+          SnackBar(content: Text('Profile saved successfully! Welcome Rent Owner.')),
         );
       }
     }
@@ -74,7 +72,7 @@ class _BecomeDriverScreenState extends State<BecomeDriverScreen> {
       return Scaffold(
         backgroundColor: AppColors.background,
         appBar: AppBar(
-          title: Text("becomeDriver".tr()),
+          title: Text("becomeOwner".tr()),
           backgroundColor: const Color(0xFF1A3A6E),
           foregroundColor: Colors.white,
         ),
@@ -94,13 +92,13 @@ class _BecomeDriverScreenState extends State<BecomeDriverScreen> {
                   child: const Icon(Icons.check_circle_rounded, color: Color(0xFF16A34A), size: 48),
                 ),
                 const SizedBox(height: 20),
-                const Text(
-                  "Driver Profile Created!",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                Text(
+                  "Owner Profile Created!",
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  "You are now registered as a verified driver on Bharat Mitra. Earn 100% of your ₹700/8hrs wage directly with 0% commission.",
+                  "Your garage is now verified on Bharat Mitra Pan India network. You can add vehicles and earn direct daily rental with 0% commission.",
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 13.5, color: AppColors.textSecondary),
                 ),
@@ -113,7 +111,7 @@ class _BecomeDriverScreenState extends State<BecomeDriverScreen> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Back to Home', style: TextStyle(fontWeight: FontWeight.bold)),
+                  child: const Text('Back to Rentals', style: TextStyle(fontWeight: FontWeight.bold)),
                 ),
               ],
             ),
@@ -125,7 +123,7 @@ class _BecomeDriverScreenState extends State<BecomeDriverScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text("becomeDriver".tr()),
+        title: Text("becomeOwner".tr()),
         backgroundColor: const Color(0xFF1A3A6E),
         foregroundColor: Colors.white,
       ),
@@ -141,7 +139,7 @@ class _BecomeDriverScreenState extends State<BecomeDriverScreen> {
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Color(0xFF0F766E), Color(0xFF14B8A6)],
+                    colors: [Color(0xFF1A3A6E), Color(0xFF2E5BA8)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -149,19 +147,19 @@ class _BecomeDriverScreenState extends State<BecomeDriverScreen> {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.airline_seat_recline_normal_rounded, color: Colors.white, size: 36),
+                    const Icon(Icons.car_rental_rounded, color: Colors.white, size: 36),
                     const SizedBox(width: 14),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "becomeDriver".tr(),
+                            "becomeOwner".tr(),
                             style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
                           ),
                           const SizedBox(height: 4),
                           const Text(
-                            "Get hired by car owners for 8-hour daily shifts. 100% direct payment.",
+                            "Rent out your bikes, scooties, or cars Pan India with 0% commission.",
                             style: TextStyle(color: Colors.white70, fontSize: 12),
                           ),
                         ],
@@ -173,13 +171,13 @@ class _BecomeDriverScreenState extends State<BecomeDriverScreen> {
 
               const SizedBox(height: 20),
 
-              // Driver Name
+              // Owner Name
               _buildField(
-                controller: _nameController,
-                label: "driverName".tr(),
-                hint: "e.g. Subhash Ghosh",
+                controller: _ownerNameController,
+                label: "ownerName".tr(),
+                hint: "e.g. Ramesh Kumar",
                 icon: Icons.person_rounded,
-                validator: (v) => (v == null || v.trim().isEmpty) ? 'Please enter driver full name' : null,
+                validator: (v) => (v == null || v.trim().isEmpty) ? 'Please enter owner name' : null,
               ),
 
               const SizedBox(height: 14),
@@ -196,43 +194,67 @@ class _BecomeDriverScreenState extends State<BecomeDriverScreen> {
 
               const SizedBox(height: 14),
 
-              // Experience & Charge in Row
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildField(
-                      controller: _experienceController,
-                      label: "${'experience'.tr()} (Years)",
-                      hint: "e.g. 5",
-                      icon: Icons.badge_rounded,
-                      keyboardType: TextInputType.number,
-                      validator: (v) => (v == null || v.trim().isEmpty) ? 'Enter years' : null,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildField(
-                      controller: _chargeController,
-                      label: "charge8hr".tr(),
-                      hint: "700",
-                      icon: Icons.currency_rupee_rounded,
-                      keyboardType: TextInputType.number,
-                      validator: (v) => (v == null || v.trim().isEmpty) ? 'Enter charge' : null,
-                    ),
-                  ),
-                ],
+              // City
+              _buildField(
+                controller: _cityController,
+                label: "city".tr(),
+                hint: "e.g. Digha, Darjeeling, Puri, Goa, Kolkata",
+                icon: Icons.location_city_rounded,
+                validator: (v) => (v == null || v.trim().isEmpty) ? 'Please specify city' : null,
               ),
 
               const SizedBox(height: 16),
 
-              // Licence Front Upload Tile
+              // Has Dedicated Garage
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.garage_rounded, color: Color(0xFF1A3A6E)),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        "hasGarage".tr(),
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5),
+                      ),
+                    ),
+                    Switch(
+                      value: _hasGarage,
+                      activeColor: const Color(0xFF1A3A6E),
+                      onChanged: (val) => setState(() => _hasGarage = val),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              // Document uploads: Aadhaar Front & Selfie Photo
               _buildUploadTile(
-                title: "licenceFront".tr(),
-                isUploaded: _hasLicence,
+                title: "aadhaarFront".tr(),
+                isUploaded: _hasAadhaar,
                 onTap: () {
-                  setState(() => _hasLicence = !_hasLicence);
+                  setState(() => _hasAadhaar = !_hasAadhaar);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(_hasLicence ? 'Driving licence photo attached' : 'Removed licence')),
+                    SnackBar(content: Text(_hasAadhaar ? 'Aadhaar front photo attached' : 'Removed Aadhaar')),
+                  );
+                },
+              ),
+
+              const SizedBox(height: 10),
+
+              _buildUploadTile(
+                title: "selfie".tr(),
+                isUploaded: _hasSelfie,
+                onTap: () {
+                  setState(() => _hasSelfie = !_hasSelfie);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(_hasSelfie ? 'Owner selfie photo attached' : 'Removed selfie')),
                   );
                 },
               ),
@@ -244,12 +266,12 @@ class _BecomeDriverScreenState extends State<BecomeDriverScreen> {
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0F766E),
+                    backgroundColor: const Color(0xFF1A3A6E),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
-                  onPressed: _isSubmitting ? null : _submitDriverProfile,
+                  onPressed: _isSubmitting ? null : _submitOwnerProfile,
                   child: _isSubmitting
                       ? const SizedBox(
                           width: 20,
@@ -257,7 +279,7 @@ class _BecomeDriverScreenState extends State<BecomeDriverScreen> {
                           child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                         )
                       : Text(
-                          "becomeDriver".tr(),
+                          "becomeOwner".tr(),
                           style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                         ),
                 ),
@@ -284,16 +306,16 @@ class _BecomeDriverScreenState extends State<BecomeDriverScreen> {
       style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0F766E)),
+        labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF1A3A6E)),
         hintText: hint,
         hintStyle: const TextStyle(fontSize: 13, color: AppColors.textMuted),
-        prefixIcon: Icon(icon, color: const Color(0xFF0F766E), size: 22),
+        prefixIcon: Icon(icon, color: const Color(0xFF1A3A6E), size: 22),
         filled: true,
         fillColor: Colors.white,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppColors.border)),
         enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: AppColors.border)),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFF0F766E), width: 1.8)),
+        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFF1A3A6E), width: 1.8)),
       ),
     );
   }
@@ -312,7 +334,7 @@ class _BecomeDriverScreenState extends State<BecomeDriverScreen> {
       child: ListTile(
         leading: Icon(
           isUploaded ? Icons.check_circle_rounded : Icons.camera_alt_rounded,
-          color: isUploaded ? const Color(0xFF16A34A) : const Color(0xFF0F766E),
+          color: isUploaded ? const Color(0xFF16A34A) : const Color(0xFF1A3A6E),
         ),
         title: Text(title, style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.bold)),
         subtitle: Text(

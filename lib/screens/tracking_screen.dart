@@ -52,37 +52,29 @@ class _TrackingScreenState extends State<TrackingScreen>
   double _vehicleBearing = 45.0;
 
   static final List<LatLng> _roadPolylinePoints = [
-    const LatLng(22.5726, 88.3639),
-    const LatLng(22.5732, 88.3655),
-    const LatLng(22.5741, 88.3680),
-    const LatLng(22.5738, 88.3710),
-    const LatLng(22.5745, 88.3735),
-    const LatLng(22.5752, 88.3760),
-    const LatLng(22.5760, 88.3785),
-    const LatLng(22.5755, 88.3820),
-    const LatLng(22.5765, 88.3855),
-    const LatLng(22.5780, 88.3890),
-    const LatLng(22.5800, 88.3920),
-    const LatLng(22.5825, 88.3950),
-    const LatLng(22.5850, 88.3980),
-    const LatLng(22.5867, 88.4005),
+    const LatLng(22.7244, 88.4781), // Barasat Court
+    const LatLng(22.7250, 88.4800),
+    const LatLng(22.7258, 88.4815),
+    const LatLng(22.7265, 88.4830), // Rishi Bankim Sarani
+    const LatLng(22.7272, 88.4842),
+    const LatLng(22.7268, 88.4860),
+    const LatLng(22.7255, 88.4875),
+    const LatLng(22.7240, 88.4890),
+    const LatLng(22.7225, 88.4880),
+    const LatLng(22.7210, 88.4865), // Barasat Chapadali
+    const LatLng(22.7195, 88.4850),
+    const LatLng(22.7180, 88.4840), // Barasat Station
+    const LatLng(22.7170, 88.4825),
+    const LatLng(22.7160, 88.4810), // Barasat Colony More
   ];
 
   late LatLng _currentVehiclePos;
 
   double _calculateBearing(LatLng start, LatLng end) {
-    final startLat = start.latitude * (math.pi / 180.0);
-    final startLng = start.longitude * (math.pi / 180.0);
-    final endLat = end.latitude * (math.pi / 180.0);
-    final endLng = end.longitude * (math.pi / 180.0);
-
-    final dLng = endLng - startLng;
-    final y = math.sin(dLng) * math.cos(endLat);
-    final x = math.cos(startLat) * math.sin(endLat) -
-        math.sin(startLat) * math.cos(endLat) * math.cos(dLng);
-
-    final initialBearing = math.atan2(y, x);
-    return (initialBearing * (180.0 / math.pi) + 360.0) % 360.0;
+    final dLat = end.latitude - start.latitude;
+    final dLng = end.longitude - start.longitude;
+    final angle = math.atan2(dLng, dLat) * (180.0 / math.pi);
+    return (angle + 360.0) % 360.0;
   }
 
   @override
@@ -115,29 +107,34 @@ class _TrackingScreenState extends State<TrackingScreen>
           _etaMinutes = (_distanceKm * 4).round().clamp(1, 15);
         }
       });
+      _mapController?.animateCamera(CameraUpdate.newLatLng(_currentVehiclePos));
     });
   }
 
   Future<void> _loadVehicleIcon() async {
+    final v = widget.vehicleInfo.toLowerCase();
+    String assetName = 'assets/icons/car.png';
+    double fallbackHue = BitmapDescriptor.hueAzure;
+    if (v.contains('bike') || v.contains('bullet') || v.contains('scooty')) {
+      assetName = 'assets/icons/bike.png';
+      fallbackHue = BitmapDescriptor.hueOrange;
+    } else if (v.contains('auto') || v.contains('toto')) {
+      assetName = 'assets/icons/auto.png';
+      fallbackHue = BitmapDescriptor.hueGreen;
+    } else if (widget.serviceType == 'home_service') {
+      assetName = 'assets/icons/sevak_walking.png';
+      fallbackHue = BitmapDescriptor.hueViolet;
+    }
     try {
-      String assetName = 'assets/icons/car.png';
-      final v = widget.vehicleInfo.toLowerCase();
-      if (v.contains('bike') || v.contains('bullet') || v.contains('scooty')) {
-        assetName = 'assets/icons/bike.png';
-      } else if (v.contains('auto') || v.contains('toto')) {
-        assetName = 'assets/icons/auto.png';
-      } else if (widget.serviceType == 'home_service') {
-        assetName = 'assets/icons/sevak_walking.png';
-      }
       final icon = await BitmapDescriptor.fromAssetImage(
-        const ImageConfiguration(size: Size(54, 54)),
+        const ImageConfiguration(size: Size(48, 48)),
         assetName,
       );
       if (mounted) setState(() => _vehicleIcon = icon);
     } catch (_) {
       if (mounted) {
         setState(() {
-          _vehicleIcon = BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange);
+          _vehicleIcon = BitmapDescriptor.defaultMarkerWithHue(fallbackHue);
         });
       }
     }
@@ -234,8 +231,8 @@ class _TrackingScreenState extends State<TrackingScreen>
           Positioned.fill(
             child: GoogleMap(
               initialCameraPosition: const CameraPosition(
-                target: LatLng(22.5760, 88.3785),
-                zoom: 14.2,
+                target: LatLng(22.7244, 88.4781), // Barasat Court Center
+                zoom: 14.5,
               ),
               mapType: _isSatellite ? MapType.satellite : MapType.normal,
               myLocationEnabled: false,
@@ -253,13 +250,13 @@ class _TrackingScreenState extends State<TrackingScreen>
               },
               markers: {
                 Marker(
-                  markerId: const MarkerId('pickup_marker'),
+                  markerId: const MarkerId('customer'),
                   position: _roadPolylinePoints.last,
                   icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
                   infoWindow: InfoWindow(title: 'Pickup: ${widget.pickupAddress}'),
                 ),
                 Marker(
-                  markerId: const MarkerId('animated_vehicle_marker'),
+                  markerId: const MarkerId('vehicle'),
                   position: _currentVehiclePos,
                   rotation: _vehicleBearing,
                   flat: true,
@@ -500,7 +497,48 @@ class _TrackingScreenState extends State<TrackingScreen>
 
                   const SizedBox(height: 16),
 
-                  // Action Button
+                  // Share Live Location & Emergency Actions
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          icon: const Icon(Icons.share_location_rounded, size: 18),
+                          label: const Text('Share Live'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: const Color(0xFF1A3A6E),
+                            side: const BorderSide(color: Color(0xFF1A3A6E), width: 1.5),
+                            padding: const EdgeInsets.symmetric(vertical: 11),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Live trip location link copied! Share with family: https://bharatmitra.in/track/${widget.partnerId}'),
+                                backgroundColor: const Color(0xFF1A3A6E),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          icon: const Icon(Icons.call, size: 18),
+                          label: const Text('Call Partner'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF16A34A),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 11),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          onPressed: _callPartner,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+
+                  // Complete & Give Rating Action Button
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -537,12 +575,12 @@ class _TrackingScreenState extends State<TrackingScreen>
   }
 }
 
-class _LiveTrackingMapPainter extends CustomPainter {
+class LiveTrackingFallbackPainter extends CustomPainter {
   final double progress;
   final bool isSatellite;
   final String serviceType;
 
-  _LiveTrackingMapPainter({
+  LiveTrackingFallbackPainter({
     required this.progress,
     required this.isSatellite,
     required this.serviceType,
@@ -641,9 +679,5 @@ class _LiveTrackingMapPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _LiveTrackingMapPainter oldDelegate) {
-    return oldDelegate.progress != progress ||
-        oldDelegate.isSatellite != isSatellite ||
-        oldDelegate.serviceType != serviceType;
-  }
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

@@ -9,7 +9,28 @@ import '../config/fare_config.dart';
 class FirestoreService {
   static final FirestoreService _instance = FirestoreService._internal();
   factory FirestoreService() => _instance;
+  static FirestoreService get instance => _instance;
   FirestoreService._internal();
+
+  Future<void> saveRentOwner(Map<String, dynamic> data) async {
+    try {
+      if (firestore != null) {
+        await firestore!.collection('rent_owners').add(data);
+      }
+    } catch (e) {
+      debugPrint('Error saving rent owner to firestore: $e');
+    }
+  }
+
+  Future<void> saveDriver(Map<String, dynamic> data) async {
+    try {
+      if (firestore != null) {
+        await firestore!.collection('drivers').add(data);
+      }
+    } catch (e) {
+      debugPrint('Error saving driver to firestore: $e');
+    }
+  }
 
   FirebaseFirestore? _firestore;
 
