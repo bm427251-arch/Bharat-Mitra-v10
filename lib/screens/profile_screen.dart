@@ -9,6 +9,7 @@ import '../services/firestore_service.dart';
 import '../widgets/admin_login_dialog.dart';
 import 'become_driver_screen.dart';
 import 'become_sebak_screen.dart';
+import 'profile_edit_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -421,7 +422,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   IconButton(
                     icon: const Icon(Icons.edit_note_rounded, color: Colors.white, size: 26),
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const ProfileEditScreen()),
+                      );
+                    },
                   ),
                 ],
               ),

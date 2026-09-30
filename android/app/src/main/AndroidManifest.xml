@@ -34,10 +34,19 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
-        <!-- Google Maps API Key: Replace YOUR_GOOGLE_MAPS_API_KEY with production key from Google Cloud Console -->
+        <!-- Mappls / ISRO Bhuvan + NavIC MapmyIndia API Keys (Replaced Google Maps) -->
         <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="YOUR_GOOGLE_MAPS_API_KEY" />
+            android:name="MAPPLS_API_KEY"
+            android:value="YOUR_MAPPLS_KEY_HERE" />
+        <meta-data
+            android:name="mappls_api_key"
+            android:value="YOUR_MAPPLS_KEY_HERE" />
+        <meta-data
+            android:name="com.mappls.sdk.maps.API_KEY"
+            android:value="YOUR_MAPPLS_KEY_HERE" />
+        <meta-data
+            android:name="com.mappls.sdk.maps.REST_API_KEY"
+            android:value="YOUR_MAPPLS_KEY_HERE" />
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

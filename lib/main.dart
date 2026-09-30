@@ -18,6 +18,10 @@ import 'screens/sebak_list_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/hire_driver_screen.dart';
 import 'screens/become_rent_owner_screen.dart';
+import 'screens/company_post_job_screen.dart';
+import 'job_dashboard_page.dart';
+import 'screens/splash_screen.dart';
+import 'splash_screen.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -30,28 +34,24 @@ void main() async {
   } catch (e) {
     debugPrint('Firebase initialization notice: $e');
   }
+
   runApp(
     EasyLocalization(
       supportedLocales: const [
         Locale('en'),
-        Locale('hi'),
         Locale('bn'),
-        Locale('ta'),
-        Locale('te'),
-        Locale('mr'),
-        Locale('gu'),
-        Locale('kn'),
+        Locale('hi'),
       ],
       path: 'assets/translations',
-      fallbackLocale: const Locale('en'),
+      fallbackLocale: const Locale('en'), // Default Language English Only
       startLocale: const Locale('en'),
-      child: const BharatMitraApp(),
+      child: const MyApp(),
     ),
   );
 }
 
-class BharatMitraApp extends StatelessWidget {
-  const BharatMitraApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -61,9 +61,10 @@ class BharatMitraApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
-      locale: context.locale,
-      home: const HomeScreen(),
+      locale: context.locale, // If user selects bn/hi, that language will be active
+      home: const SplashScreen(),
       routes: {
+        '/splash': (_) => const SplashScreen(),
         '/home': (_) => const HomeScreen(),
         '/rent-drive': (_) => const RentDriveScreen(),
         '/driver-home': (_) => const DriverHomeScreen(),
@@ -76,6 +77,8 @@ class BharatMitraApp extends StatelessWidget {
         '/login': (_) => const LoginScreen(),
         '/hire-driver': (_) => const HireDriverScreen(),
         '/become-owner': (_) => const BecomeRentOwnerScreen(),
+        '/post-job': (_) => const CompanyPostJobScreen(),
+        '/job-dashboard': (_) => const JobDashboardPage(),
         '/admin': (_) => const AdminLoginScreen(adminEmail: 'bm427251@gmail.com'),
         '/admin-login': (_) => const AdminLoginScreen(adminEmail: 'bm427251@gmail.com'),
         '/tracking': (_) => const TrackingScreen(
@@ -112,3 +115,5 @@ class BharatMitraApp extends StatelessWidget {
     );
   }
 }
+
+typedef BharatMitraApp = MyApp;

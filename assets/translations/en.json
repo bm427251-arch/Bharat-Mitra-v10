@@ -82,5 +82,6 @@
   "totalVehiclesRented": "Total Vehicles Rented",
   "serviceProviderDashboard": "Service Provider Dashboard",
   "driverDashboard": "Driver Dashboard",
-  "rentOwnerDashboard": "Rent Owner Dashboard"
+  "rentOwnerDashboard": "Rent Owner Dashboard",
+  "adminEarningsReport": "Admin Earnings Report"
 }

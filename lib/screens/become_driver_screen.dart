@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:easy_localization/easy_localization.dart';
 import '../theme/app_theme.dart';
 import '../services/firestore_service.dart';
+import 'driver_document_upload_screen.dart';
 
 class BecomeDriverScreen extends StatefulWidget {
   const BecomeDriverScreen({super.key});
@@ -229,11 +230,16 @@ class _BecomeDriverScreenState extends State<BecomeDriverScreen> {
               _buildUploadTile(
                 title: "licenceFront".tr(),
                 isUploaded: _hasLicence,
-                onTap: () {
-                  setState(() => _hasLicence = !_hasLicence);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(_hasLicence ? 'Driving licence photo attached' : 'Removed licence')),
+                onTap: () async {
+                  final res = await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const DriverDocumentUploadScreen()),
                   );
+                  if (res == true) {
+                    setState(() => _hasLicence = true);
+                  } else {
+                    setState(() => _hasLicence = !_hasLicence);
+                  }
                 },
               ),
 

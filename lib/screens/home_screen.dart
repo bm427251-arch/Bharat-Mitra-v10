@@ -23,6 +23,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../services/rating_service.dart';
 import '../widgets/rating_dialog.dart';
 import '../widgets/admin_login_dialog.dart';
+import '../widgets/bharat_mitra_watermark.dart';
 import '../services/places_service.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -505,8 +506,11 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(width: 8),
         ]),
       ),
-      body: SingleChildScrollView(
-        child: Column(
+      body: Stack(
+        children: [
+          const BharatMitraWatermark(),
+          SingleChildScrollView(
+            child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // "0% Commission" banner: Gradient light green to light blue with border & icon
@@ -1395,7 +1399,9 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: _buildBottomDualModeAndNav(context),
+    ],
+  ),
+  bottomNavigationBar: _buildBottomDualModeAndNav(context),
     );
   }
 

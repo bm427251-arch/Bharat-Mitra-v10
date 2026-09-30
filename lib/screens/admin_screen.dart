@@ -7,6 +7,7 @@ import '../models/driver_model.dart';
 import '../models/sebak_model.dart';
 import '../models/complaint_model.dart';
 import '../config/fare_config.dart';
+import 'admin_earnings_screen.dart';
 
 class AdminLoginScreen extends StatefulWidget {
   final String adminEmail;
@@ -201,7 +202,34 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                             ],
                           ),
                         ),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 14),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF16A34A),
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                            ),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const AdminEarningsScreen(),
+                                ),
+                              );
+                            },
+                            icon: const Icon(Icons.analytics_rounded),
+                            label: const Text(
+                              'Earnings Report',
+                              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
                         const Text('Registered Drivers', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 12),
                         ..._drivers.map((driver) => Card(

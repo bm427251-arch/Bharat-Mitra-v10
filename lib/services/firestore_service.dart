@@ -4,6 +4,7 @@ import '../models/driver_model.dart';
 import '../models/sebak_model.dart';
 import '../models/rent_vehicle_model.dart';
 import '../models/complaint_model.dart';
+import '../models/job_model.dart';
 import '../config/fare_config.dart';
 
 class FirestoreService {
@@ -11,6 +12,37 @@ class FirestoreService {
   factory FirestoreService() => _instance;
   static FirestoreService get instance => _instance;
   FirestoreService._internal();
+
+  Future<void> saveJob(Map<String, dynamic> data) async {
+    try {
+      if (firestore != null) {
+        await firestore!.collection('jobs').add({
+          'company_id': 'current_company_id',
+          ...data,
+          'posted_free': true,
+          'created_at': FieldValue.serverTimestamp(),
+        });
+      }
+    } catch (e) {
+      debugPrint('Error saving job to firestore: $e');
+    }
+  }
+
+  Stream<List<JobModel>> getJobsStream() {
+    try {
+      if (firestore != null) {
+        return firestore!
+            .collection('jobs')
+            .orderBy('created_at', descending: true)
+            .snapshots()
+            .map((snap) =>
+                snap.docs.map((doc) => JobModel.fromFirestore(doc)).toList());
+      }
+    } catch (e) {
+      debugPrint('Error getting jobs stream: $e');
+    }
+    return Stream.value([]);
+  }
 
   Future<void> saveRentOwner(Map<String, dynamic> data) async {
     try {
