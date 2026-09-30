@@ -4,6 +4,7 @@ import 'screens/become_driver_screen.dart';
 import 'screens/booking_detail_screen.dart';
 import 'widgets/active_radar_pulse.dart';
 import 'isro_map_page.dart';
+import 'services/location_service.dart';
 
 class HomeRidePage extends StatefulWidget {
   const HomeRidePage({super.key});
@@ -14,17 +15,34 @@ class HomeRidePage extends StatefulWidget {
 
 class _HomeRidePageState extends State<HomeRidePage> {
   int _selectedVehicle = 0; // 0: Bike, 1: Auto, 2: Car, 3: Toto
-  final TextEditingController _destinationCtrl = TextEditingController(text: 'Salt Lake Sector V, Kolkata');
-  String _pickupLocation = 'Kolkata, 700158 (ISRO NavIC)';
+  final TextEditingController _destinationCtrl = TextEditingController(text: 'Barasat Court, Kolkata');
+  String _pickupLocation = 'Madhyamgram, Kolkata 700129 (ISRO NavIC)';
   bool _isLocating = false;
 
   final List<String> _landmarks = [
-    'Howrah Station',
-    'Salt Lake Sector V',
-    'New Town Action Area',
-    'Park Street Metro',
+    'Madhyamgram Chowrasta',
     'Barasat Court',
+    'Madhyamgram Station',
+    'Jessore Road',
+    'Airport Gate 2.5',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchLiveLocation();
+  }
+
+  Future<void> _fetchLiveLocation() async {
+    try {
+      final loc = await LocationService.getCurrentLocation();
+      if (mounted) {
+        setState(() {
+          _pickupLocation = '${loc.formattedAddress} (Live NavIC)';
+        });
+      }
+    } catch (_) {}
+  }
 
   final List<Map<String, dynamic>> _vehicles = [
     {
@@ -317,22 +335,21 @@ class _HomeRidePageState extends State<HomeRidePage> {
                                 )
                               : const Icon(Icons.my_location, color: Color(0xFF138808)),
                           tooltip: 'Detect NavIC Location',
-                          onPressed: () {
+                          onPressed: () async {
                             setState(() => _isLocating = true);
-                            Future.delayed(const Duration(milliseconds: 600), () {
-                              if (mounted) {
-                                setState(() {
-                                  _isLocating = false;
-                                  _pickupLocation = 'Salt Lake Sector V, Kolkata (NavIC)';
-                                });
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    backgroundColor: Color(0xFF138808),
-                                    content: Text('Auto Location locked via ISRO NavIC satellite!'),
-                                  ),
-                                );
-                              }
-                            });
+                            final loc = await LocationService.getCurrentLocation();
+                            if (mounted) {
+                              setState(() {
+                                _isLocating = false;
+                                _pickupLocation = '${loc.formattedAddress} (Live NavIC)';
+                              });
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  backgroundColor: const Color(0xFF138808),
+                                  content: Text('Auto Location locked via ISRO NavIC: ${loc.area}!'),
+                                ),
+                              );
+                            }
                           },
                         ),
                       ],

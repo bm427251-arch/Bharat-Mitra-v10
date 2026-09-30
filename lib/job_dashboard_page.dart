@@ -16,11 +16,11 @@ class JobDashboardPage extends StatefulWidget {
 }
 
 class _JobDashboardPageState extends State<JobDashboardPage> {
-  bool _isSubscribed = false; // Controls Wall Lock Logic
+  bool _isSubscribed = true; // 100% Free Open Platform for both Jobs & Candidates
   bool _hasCandidateProfile = false;
   String _candidateName = 'Rahul Sharma';
   String _candidateCategory = 'Commercial Driver';
-  String _candidateLocation = 'Salt Lake Sector V, Kolkata';
+  String _candidateLocation = 'Madhyamgram, Kolkata 700129';
 
   @override
   void initState() {
@@ -34,8 +34,8 @@ class _JobDashboardPageState extends State<JobDashboardPage> {
       _hasCandidateProfile = prefs.getBool('has_candidate_profile') ?? false;
       _candidateName = prefs.getString('candidate_name') ?? 'Rahul Sharma';
       _candidateCategory = prefs.getString('candidate_category') ?? 'Commercial Driver';
-      _candidateLocation = prefs.getString('candidate_location') ?? 'Salt Lake Sector V, Kolkata';
-      _isSubscribed = prefs.getBool('job_wall_subscribed') ?? false;
+      _candidateLocation = prefs.getString('candidate_location') ?? 'Madhyamgram, Kolkata 700129';
+      _isSubscribed = true;
     });
   }
 
@@ -305,15 +305,15 @@ class _JobDashboardPageState extends State<JobDashboardPage> {
         return ListView(
           padding: const EdgeInsets.all(8),
           children: [
-            // CARD: Point 2 Fix: Removed price text "349/Y Active - Alerts ON", keep only "Alerts ON" with green tick
+            // CARD: 100% Free Open Dashboard - No lock or price texts
             Card(
               color: const Color(0xFF181818),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
                 side: const BorderSide(color: Colors.white12),
               ),
-              child: ListTile(
-                title: const Text(
+              child: const ListTile(
+                title: Text(
                   'My Job Entry Dashboard',
                   style: TextStyle(
                     color: Colors.white,
@@ -323,9 +323,9 @@ class _JobDashboardPageState extends State<JobDashboardPage> {
                 ),
                 subtitle: Row(
                   children: [
-                    const Icon(Icons.check_circle, color: Colors.green, size: 14),
-                    const SizedBox(width: 4),
-                    const Text(
+                    Icon(Icons.check_circle, color: Colors.green, size: 14),
+                    SizedBox(width: 4),
+                    Text(
                       'Alerts ON',
                       style: TextStyle(
                         color: Colors.greenAccent,
@@ -333,24 +333,14 @@ class _JobDashboardPageState extends State<JobDashboardPage> {
                         fontSize: 12,
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    if (_isSubscribed)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFF9933).withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: const Text(
-                          '349/3 Months Active',
-                          style: TextStyle(color: Color(0xFFFF9933), fontSize: 10),
-                        ),
-                      ),
+                    SizedBox(width: 10),
+                    Icon(Icons.verified, color: Color(0xFFFF9933), size: 13),
+                    SizedBox(width: 4),
+                    Text(
+                      '100% Free Open Platform',
+                      style: TextStyle(color: Color(0xFFFF9933), fontSize: 11, fontWeight: FontWeight.bold),
+                    ),
                   ],
-                ),
-                trailing: TextButton(
-                  onPressed: _showSubscribeModal,
-                  child: const Text('Plans', style: TextStyle(color: Color(0xFFFF9933))),
                 ),
               ),
             ),
@@ -692,25 +682,25 @@ class _JobDashboardPageState extends State<JobDashboardPage> {
     final sampleJobs = [
       {
         'title': 'Commercial Fleet Driver',
-        'company': 'Apex Logistics Kolkata',
-        'address': 'Sector V, Salt Lake, Kolkata 700091',
-        'distance': '0.8 km away',
+        'company': 'Apex Logistics Bengal',
+        'address': 'Madhyamgram Chowrasta, Kolkata 700129',
+        'distance': '0.5 km away (Madhyamgram)',
         'vacancies': '3 Openings',
         'phone': '+91 98301 55667',
       },
       {
         'title': 'Certified AC & Home Electrician',
-        'company': 'Metro Facilities Bengal',
-        'address': 'Howrah Station Road, Howrah 711101',
-        'distance': '1.4 km away',
+        'company': 'North 24 Pgs Facility Hub',
+        'address': 'Barasat Road, Madhyamgram 700129',
+        'distance': '1.1 km away',
         'vacancies': '2 Openings',
         'phone': '+91 98302 77889',
       },
       {
         'title': 'B2B Field Sales Partner',
-        'company': 'Bengal Distribution Hub',
-        'address': 'Park Street, Kolkata 700016',
-        'distance': '2.1 km away',
+        'company': 'Kolkata Distribution Hub',
+        'address': 'Jessore Road, Madhyamgram 700129',
+        'distance': '1.4 km away',
         'vacancies': '5 Openings',
         'phone': '+91 98303 99001',
       },
@@ -772,50 +762,64 @@ class _JobDashboardPageState extends State<JobDashboardPage> {
                 ),
                 const SizedBox(height: 8),
 
-                // Address (Point 6: Without Sub = 🔒 Address Hide, With Sub = Unlock address)
+                // Address (100% UNLOCKED - Free Platform)
                 Row(
                   children: [
-                    Icon(_isSubscribed ? Icons.location_on : Icons.lock, size: 14, color: _isSubscribed ? Colors.white60 : Colors.redAccent),
+                    const Icon(Icons.location_on, size: 14, color: Colors.white70),
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(
-                        _isSubscribed ? job['address']! : '🔒 Address Hidden (Subscribe to Unlock)',
-                        style: TextStyle(
-                          color: _isSubscribed ? Colors.white70 : Colors.redAccent,
-                          fontSize: 11,
-                          fontStyle: _isSubscribed ? FontStyle.normal : FontStyle.italic,
-                        ),
+                        job['address']!,
+                        style: const TextStyle(color: Colors.white70, fontSize: 11),
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 12),
 
-                // Call Button (Point 6: Without Sub = 🔒 Subscribe to Call, With Sub = Call)
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _isSubscribed ? const Color(0xFF138808) : Colors.orange[800],
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                // Action Buttons: View Details + Call Employer (Both 100% Open, Free)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.white70,
+                        side: const BorderSide(color: Colors.white24),
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      ),
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            backgroundColor: const Color(0xFF161616),
+                            content: Text('${job['title']} at ${job['company']} - Quick Apply Sent ✅'),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.info_outline, size: 13),
+                      label: const Text('View Details', style: TextStyle(fontSize: 11)),
                     ),
-                    onPressed: _isSubscribed
-                        ? () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                backgroundColor: const Color(0xFF138808),
-                                content: Text('Calling ${job['company']} at ${job['phone']}...'),
-                              ),
-                            );
-                          }
-                        : _showSubscribeModal,
-                    icon: Icon(_isSubscribed ? Icons.call : Icons.lock, size: 14),
-                    label: Text(
-                      _isSubscribed ? 'Call Employer' : '🔒 Subscribe to Call',
-                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                    const SizedBox(width: 8),
+                    ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF138808),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      ),
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            backgroundColor: const Color(0xFF138808),
+                            content: Text('Calling ${job['company']} at ${job['phone']} (Free) ✅'),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.call, size: 14),
+                      label: const Text(
+                        'Call Employer',
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ],
             ),
@@ -833,7 +837,7 @@ class _JobDashboardPageState extends State<JobDashboardPage> {
         'category': _candidateCategory,
         'skills': 'Commercial Driving, Heavy & Light Vehicles',
         'address': _candidateLocation,
-        'distance': '0.3 km away',
+        'distance': '0.3 km away (Madhyamgram)',
         'experience': '4 Years Exp',
         'phone': '+91 98301 22334',
         'isYou': _hasCandidateProfile,
@@ -842,8 +846,8 @@ class _JobDashboardPageState extends State<JobDashboardPage> {
         'name': 'Amit Mondal',
         'category': 'Electrician & Wireman',
         'skills': '3-Phase Wiring, AC Installation, Inverters',
-        'address': 'Barasat Court Area, Barasat 700124',
-        'distance': '1.1 km away',
+        'address': 'Barasat Road, Madhyamgram 700129',
+        'distance': '0.9 km away',
         'experience': '5 Years Exp',
         'phone': '+91 98302 44556',
         'isYou': false,
@@ -852,8 +856,8 @@ class _JobDashboardPageState extends State<JobDashboardPage> {
         'name': 'Pooja Banerjee',
         'category': 'Tuition & Music Teacher',
         'skills': 'Classical Vocal, Rabindra Sangeet, Class 1-8',
-        'address': 'New Town Action Area I, Kolkata 700156',
-        'distance': '1.9 km away',
+        'address': 'Station Road, Madhyamgram 700129',
+        'distance': '1.2 km away',
         'experience': '3 Years Exp',
         'phone': '+91 98303 66778',
         'isYou': false,
@@ -935,50 +939,64 @@ class _JobDashboardPageState extends State<JobDashboardPage> {
                 ),
                 const SizedBox(height: 8),
 
-                // Address (Point 6: Without Sub = 🔒 Address Hide, With Sub = Unlock address)
+                // Address (100% UNLOCKED - Free Platform)
                 Row(
                   children: [
-                    Icon(_isSubscribed ? Icons.location_on : Icons.lock, size: 14, color: _isSubscribed ? Colors.white60 : Colors.redAccent),
+                    const Icon(Icons.location_on, size: 14, color: Colors.white70),
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(
-                        _isSubscribed ? cand['address']!.toString() : '🔒 Address Hidden (Subscribe to Unlock)',
-                        style: TextStyle(
-                          color: _isSubscribed ? Colors.white70 : Colors.redAccent,
-                          fontSize: 11,
-                          fontStyle: _isSubscribed ? FontStyle.normal : FontStyle.italic,
-                        ),
+                        cand['address']!.toString(),
+                        style: const TextStyle(color: Colors.white70, fontSize: 11),
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 12),
 
-                // Call Button (Point 6: Without Sub = 🔒 Subscribe to Call, With Sub = Call)
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _isSubscribed ? const Color(0xFF138808) : Colors.orange[800],
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                // Action Buttons: View Profile + Call Candidate (Both 100% Open, Free)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.white70,
+                        side: const BorderSide(color: Colors.white24),
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      ),
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            backgroundColor: const Color(0xFF161616),
+                            content: Text('Candidate Profile: ${cand['name']} - Skills: ${cand['skills']}'),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.visibility, size: 13),
+                      label: const Text('View Profile', style: TextStyle(fontSize: 11)),
                     ),
-                    onPressed: _isSubscribed
-                        ? () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                backgroundColor: const Color(0xFF138808),
-                                content: Text('Calling ${cand['name']} at ${cand['phone']}...'),
-                              ),
-                            );
-                          }
-                        : _showSubscribeModal,
-                    icon: Icon(_isSubscribed ? Icons.call : Icons.lock, size: 14),
-                    label: Text(
-                      _isSubscribed ? 'Call Candidate' : '🔒 Subscribe to Call',
-                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                    const SizedBox(width: 8),
+                    ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF138808),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      ),
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            backgroundColor: const Color(0xFF138808),
+                            content: Text('Calling Candidate ${cand['name']} at ${cand['phone']} (Free) ✅'),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.call, size: 14),
+                      label: const Text(
+                        'Call Candidate',
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ],
             ),

@@ -30,11 +30,11 @@ class LocationService {
 
   static LocationService get instance => _instance;
 
-  static const double defaultLat = 22.5726; // Kolkata center
-  static const double defaultLng = 88.3639;
-  static const double defaultDropLat = 22.5800;
-  static const double defaultDropLng = 88.4200;
-  static const String defaultAddress = 'Park Street, Kolkata, West Bengal';
+  static const double defaultLat = 22.6900; // Madhyamgram center (22.69, 88.46)
+  static const double defaultLng = 88.4600;
+  static const double defaultDropLat = 22.7000;
+  static const double defaultDropLng = 88.4800;
+  static const String defaultAddress = 'Madhyamgram, Kolkata 700129, West Bengal';
 
   final FirestoreService _firestoreService = FirestoreService();
 
@@ -209,7 +209,7 @@ class LocationService {
       latitude: defaultLat,
       longitude: defaultLng,
       formattedAddress: defaultAddress,
-      area: 'Park Street',
+      area: 'Madhyamgram',
       city: 'Kolkata',
     );
   }

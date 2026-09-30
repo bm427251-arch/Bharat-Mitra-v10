@@ -268,7 +268,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                 ),
                 const SizedBox(height: 24),
 
-                // 4. ACTION BUTTONS: OFFICIAL LINK PAY NOW & GENERATE RAZORPAY QR
+                // 4. ACTION BUTTON: OFFICIAL LINK PAY NOW ONLY (NO RANDOM DEMO QR)
                 SizedBox(
                   width: double.infinity,
                   height: 52,
@@ -298,33 +298,6 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                         SizedBox(width: 4),
                         Text('✅', style: TextStyle(fontSize: 12)),
                       ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFFF9933),
-                      foregroundColor: Colors.black,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                    ),
-                    onPressed: () {
-                      RazorpayQrDialog.show(
-                        context,
-                        amount: widget.amount,
-                        serviceTitle: '${widget.serviceCategory} • ${widget.providerName}',
-                        onPaymentSuccess: () {
-                          setState(() => _isCompleted = true);
-                        },
-                      );
-                    },
-                    icon: const Icon(Icons.qr_code_2, color: Colors.black, size: 22),
-                    label: const Text(
-                      'Generate Payment QR (RazorpayX)',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                     ),
                   ),
                 ),

@@ -1,7 +1,5 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../services/payment_service.dart';
 
 class RazorpayConnectScreen extends StatefulWidget {
@@ -12,184 +10,44 @@ class RazorpayConnectScreen extends StatefulWidget {
 }
 
 class _RazorpayConnectScreenState extends State<RazorpayConnectScreen> {
-  // Safe mounted lifecycle flag
   bool _isComponentMounted = false;
+  bool _showDeveloperSettings = false;
 
-  final TextEditingController _keyIdCtrl = TextEditingController();
-  final TextEditingController _keySecretCtrl = TextEditingController();
-  final TextEditingController _merchantNameCtrl = TextEditingController();
-  final TextEditingController _upiIdCtrl = TextEditingController();
+  final TextEditingController _optKeyIdCtrl = TextEditingController();
+  final TextEditingController _optKeySecretCtrl = TextEditingController();
 
-  String? _keyIdError;
-  bool _isSaving = false;
+  static const String officialLink = 'https://razorpay.me/@bharatmitrainfotech';
+  static const String merchantName = 'Bharat Mitra Infotech';
+  static const String upiId = 'bharatmitra@razorpay';
 
   @override
   void initState() {
     super.initState();
-    // Do NOT access storage directly in render. Load safely in post-frame callback
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadConfigSafely();
+      if (mounted) {
+        setState(() => _isComponentMounted = true);
+      }
     });
   }
 
   @override
   void dispose() {
-    _keyIdCtrl.dispose();
-    _keySecretCtrl.dispose();
-    _merchantNameCtrl.dispose();
-    _upiIdCtrl.dispose();
+    _optKeyIdCtrl.dispose();
+    _optKeySecretCtrl.dispose();
     super.dispose();
-  }
-
-  // Safe getter for localStorage / SharedPreferences
-  Future<void> _loadConfigSafely() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final configJson = prefs.getString('razorpay_config');
-
-      Map<String, dynamic> config = {};
-      if (configJson != null && configJson.isNotEmpty) {
-        try {
-          config = jsonDecode(configJson) as Map<String, dynamic>;
-        } catch (_) {}
-      }
-
-      final keyId = config['keyId']?.toString() ?? prefs.getString('razorpay_key_id') ?? '';
-      final keySecret = config['keySecret']?.toString() ?? prefs.getString('razorpay_key_secret') ?? '';
-      final merchant = config['merchantName']?.toString() ?? 'Bharat Mitra Infotech';
-      final upi = config['upiId']?.toString() ?? 'bharatmitra@razorpay';
-
-      if (mounted) {
-        setState(() {
-          _keyIdCtrl.text = keyId;
-          _keySecretCtrl.text = keySecret;
-          _merchantNameCtrl.text = merchant;
-          _upiIdCtrl.text = upi;
-          _isComponentMounted = true;
-        });
-      }
-    } catch (_) {
-      if (mounted) {
-        setState(() {
-          _merchantNameCtrl.text = 'Bharat Mitra Infotech';
-          _upiIdCtrl.text = 'bharatmitra@razorpay';
-          _isComponentMounted = true;
-        });
-      }
-    }
-  }
-
-  void _validateKeyId(String val) {
-    final trimmed = val.trim();
-    if (trimmed.isNotEmpty &&
-        !trimmed.startsWith('rzp_live_') &&
-        !trimmed.startsWith('rzp_test_')) {
-      setState(() {
-        _keyIdError = 'Key ID must start with "rzp_live_" or "rzp_test_"';
-      });
-    } else {
-      setState(() {
-        _keyIdError = null;
-      });
-    }
-  }
-
-  Future<void> _handleSave() async {
-    final keyId = _keyIdCtrl.text.trim();
-
-    // Inline validation: do NOT throw exception
-    if (keyId.isEmpty ||
-        (!keyId.startsWith('rzp_live_') && !keyId.startsWith('rzp_test_'))) {
-      setState(() {
-        _keyIdError = 'Key ID must start with "rzp_live_" or "rzp_test_"';
-      });
-      return;
-    }
-
-    setState(() {
-      _keyIdError = null;
-      _isSaving = true;
-    });
-
-    try {
-      final formData = {
-        'keyId': keyId,
-        'keySecret': _keySecretCtrl.text.trim(),
-        'merchantName': _merchantNameCtrl.text.trim(),
-        'upiId': _upiIdCtrl.text.trim(),
-      };
-
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('razorpay_config', jsonEncode(formData));
-      await prefs.setString('razorpay_key_id', keyId);
-      await prefs.setString('razorpay_key_secret', _keySecretCtrl.text.trim());
-
-      // Update static config in PaymentService without reload
-      PaymentService.updateRazorpayConfig(
-        keyId: keyId,
-        merchantName: _merchantNameCtrl.text.trim(),
-        upiId: _upiIdCtrl.text.trim(),
-      );
-
-      if (!mounted) return;
-      setState(() => _isSaving = false);
-
-      // Show toast / snackbar without reloading page
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          backgroundColor: Color(0xFF138808),
-          behavior: SnackBarBehavior.floating,
-          content: Row(
-            children: [
-              Icon(Icons.check_circle, color: Colors.white, size: 20),
-              SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  'Razorpay configuration saved safely!',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    } catch (e) {
-      if (mounted) {
-        setState(() => _isSaving = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: Colors.redAccent,
-            content: Text('Notice saving config: $e'),
-          ),
-        );
-      }
-    }
   }
 
   @override
   Widget build(BuildContext context) {
-    // If !mounted return loading skeleton - Prevents internal render error
     if (!_isComponentMounted) {
       return Scaffold(
         backgroundColor: const Color(0xFF0F0F0F),
         appBar: AppBar(
-          title: const Text('Razorpay Connect Setup'),
+          title: const Text('Razorpay Payment Settings'),
           backgroundColor: Colors.black,
         ),
-        body: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(height: 24, width: 180, decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(4))),
-              const SizedBox(height: 16),
-              Container(height: 52, width: double.infinity, decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(8))),
-              const SizedBox(height: 16),
-              Container(height: 52, width: double.infinity, decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(8))),
-              const SizedBox(height: 24),
-              Container(height: 48, width: 140, decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(8))),
-            ],
-          ),
+        body: const Center(
+          child: CircularProgressIndicator(color: Color(0xFFFF9933)),
         ),
       );
     }
@@ -198,7 +56,7 @@ class _RazorpayConnectScreenState extends State<RazorpayConnectScreen> {
       backgroundColor: const Color(0xFF0F0F0F),
       appBar: AppBar(
         title: const Text(
-          'Razorpay Connect Setup',
+          'Razorpay Payment Settings',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
         ),
         backgroundColor: Colors.black,
@@ -210,32 +68,26 @@ class _RazorpayConnectScreenState extends State<RazorpayConnectScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // INFO BANNER
+            // AUTO CONNECTED VERIFIED BADGE
             Container(
-              padding: const EdgeInsets.all(14),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFF1E1E1E),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFFF9933).withOpacity(0.4)),
+                color: const Color(0xFF138808).withOpacity(0.15),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: const Color(0xFF138808)),
               ),
               child: const Row(
                 children: [
-                  Icon(Icons.payment, color: Color(0xFFFF9933), size: 24),
-                  SizedBox(width: 12),
+                  Icon(Icons.check_circle, color: Color(0xFF138808), size: 20),
+                  SizedBox(width: 10),
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Direct Gateway Configuration',
-                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
-                        ),
-                        SizedBox(height: 2),
-                        Text(
-                          'Configure your Razorpay Live or Test keys for instant ride and service collections.',
-                          style: TextStyle(color: Colors.white70, fontSize: 11),
-                        ),
-                      ],
+                    child: Text(
+                      'Auto Connected - All customer collections go directly here [Verified ✅]',
+                      style: TextStyle(
+                        color: Colors.greenAccent,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
                     ),
                   ),
                 ],
@@ -243,67 +95,74 @@ class _RazorpayConnectScreenState extends State<RazorpayConnectScreen> {
             ),
             const SizedBox(height: 16),
 
-            // OFFICIAL VERIFIED LINK (READONLY)
+            // HARDCODED VERIFIED AUTO - READONLY GREEN BOX
             Container(
-              padding: const EdgeInsets.all(14),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFF142416),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFF138808)),
+                color: const Color(0xFF122415),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: const Color(0xFF138808), width: 1.5),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF138808).withOpacity(0.15),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Row(
                     children: [
-                      Icon(Icons.verified, color: Color(0xFF138808), size: 20),
+                      Icon(Icons.verified, color: Color(0xFF138808), size: 22),
                       SizedBox(width: 8),
                       Text(
-                        'Razorpay.me Link: https://razorpay.me/@bharatmitrainfotech [Verified ✅]',
+                        'Razorpay.me Link: [Verified ✅]',
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
-                          fontSize: 12,
+                          fontSize: 14,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 12),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
-                      color: Colors.black45,
-                      borderRadius: BorderRadius.circular(8),
+                      color: Colors.black54,
+                      borderRadius: BorderRadius.circular(10),
                       border: Border.all(color: Colors.white12),
                     ),
                     child: Row(
                       children: [
                         const Expanded(
                           child: SelectableText(
-                            'https://razorpay.me/@bharatmitrainfotech',
+                            officialLink,
                             style: TextStyle(
                               color: Color(0xFF138808),
                               fontFamily: 'monospace',
                               fontWeight: FontWeight.bold,
-                              fontSize: 11,
+                              fontSize: 12,
                             ),
                           ),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.copy, color: Color(0xFFFF9933), size: 16),
-                          tooltip: 'Copy Official Link',
+                          icon: const Icon(Icons.copy, color: Color(0xFFFF9933), size: 18),
+                          tooltip: 'Copy Link',
                           onPressed: () {
-                            Clipboard.setData(ClipboardData(text: 'https://razorpay.me/@bharatmitrainfotech'));
+                            Clipboard.setData(const ClipboardData(text: officialLink));
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 backgroundColor: Color(0xFF138808),
-                                content: Text('Copied: https://razorpay.me/@bharatmitrainfotech'),
+                                content: Text('Copied: $officialLink'),
                               ),
                             );
                           },
                         ),
                         IconButton(
-                          icon: const Icon(Icons.open_in_new, color: Colors.blueAccent, size: 16),
+                          icon: const Icon(Icons.open_in_new, color: Colors.blueAccent, size: 18),
                           tooltip: 'Open in Browser',
                           onPressed: () async {
                             await PaymentService.openRazorpayPayment();
@@ -312,121 +171,144 @@ class _RazorpayConnectScreenState extends State<RazorpayConnectScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'Bharat Mitra Infotech verified link (Readonly). All customer collections go directly here.',
-                    style: TextStyle(color: Colors.white60, fontSize: 10),
+                  const SizedBox(height: 12),
+                  const Divider(color: Colors.white12),
+                  const SizedBox(height: 8),
+
+                  // AUTO BUSINESS DETAILS
+                  const Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Merchant Business Name:',
+                        style: TextStyle(color: Colors.white70, fontSize: 12),
+                      ),
+                      Text(
+                        merchantName,
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  const Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Settlement UPI ID:',
+                        style: TextStyle(color: Colors.white70, fontSize: 12),
+                      ),
+                      Text(
+                        upiId,
+                        style: TextStyle(color: Color(0xFFFF9933), fontWeight: FontWeight.bold, fontSize: 12),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 20),
 
-            // FORM FIELDS
-            const Text(
-              'Razorpay Key ID *',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
-            ),
-            const SizedBox(height: 6),
-            TextField(
-              controller: _keyIdCtrl,
-              onChanged: _validateKeyId,
-              style: const TextStyle(color: Colors.white, fontSize: 14),
-              decoration: InputDecoration(
-                hintText: 'rzp_live_... or rzp_test_...',
-                hintStyle: const TextStyle(color: Colors.white38),
-                filled: true,
-                fillColor: const Color(0xFF181818),
-                prefixIcon: const Icon(Icons.vpn_key, color: Color(0xFFFF9933), size: 18),
-                errorText: _keyIdError,
-                errorStyle: const TextStyle(color: Colors.redAccent, fontSize: 11),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Colors.white24)),
-                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFFF9933))),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            const Text(
-              'Razorpay Key Secret *',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
-            ),
-            const SizedBox(height: 6),
-            TextField(
-              controller: _keySecretCtrl,
-              obscureText: true,
-              style: const TextStyle(color: Colors.white, fontSize: 14),
-              decoration: InputDecoration(
-                hintText: 'Enter Razorpay Key Secret',
-                hintStyle: const TextStyle(color: Colors.white38),
-                filled: true,
-                fillColor: const Color(0xFF181818),
-                prefixIcon: const Icon(Icons.password, color: Colors.blueAccent, size: 18),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Colors.white24)),
-                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFFF9933))),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            const Text(
-              'Merchant Business Name',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
-            ),
-            const SizedBox(height: 6),
-            TextField(
-              controller: _merchantNameCtrl,
-              style: const TextStyle(color: Colors.white, fontSize: 14),
-              decoration: InputDecoration(
-                hintText: 'Bharat Mitra Infotech',
-                hintStyle: const TextStyle(color: Colors.white38),
-                filled: true,
-                fillColor: const Color(0xFF181818),
-                prefixIcon: const Icon(Icons.store, color: Colors.green, size: 18),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Colors.white24)),
-                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFFF9933))),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            const Text(
-              'Settlement UPI ID',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
-            ),
-            const SizedBox(height: 6),
-            TextField(
-              controller: _upiIdCtrl,
-              style: const TextStyle(color: Colors.white, fontSize: 14),
-              decoration: InputDecoration(
-                hintText: 'bharatmitra@razorpay',
-                hintStyle: const TextStyle(color: Colors.white38),
-                filled: true,
-                fillColor: const Color(0xFF181818),
-                prefixIcon: const Icon(Icons.qr_code, color: Colors.purpleAccent, size: 18),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Colors.white24)),
-                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFFF9933))),
+            // DIRECT PAY NOW TEST BUTTON
+            SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF138808),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                onPressed: () async {
+                  await PaymentService.openRazorpayPayment();
+                },
+                icon: const Icon(Icons.payment, size: 18),
+                label: const Text(
+                  'Test Pay via Official Link (razorpay.me/@bharatmitrainfotech)',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                ),
               ),
             ),
             const SizedBox(height: 24),
 
-            // SAVE BUTTON (Does not reload page, shows toast)
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFF9933),
-                  foregroundColor: Colors.black,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            // OPTIONAL DEVELOPER API SETTINGS (HIDDEN BY DEFAULT)
+            GestureDetector(
+              onTap: () {
+                setState(() => _showDeveloperSettings = !_showDeveloperSettings);
+              },
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF161616),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.white12),
                 ),
-                onPressed: _isSaving ? null : _handleSave,
-                icon: _isSaving
-                    ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
-                    : const Icon(Icons.save, size: 18),
-                label: Text(
-                  _isSaving ? 'Saving...' : 'Save Razorpay Config',
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Advanced Developer API Keys (Optional)',
+                      style: TextStyle(color: Colors.white60, fontSize: 12),
+                    ),
+                    Icon(
+                      _showDeveloperSettings ? Icons.expand_less : Icons.expand_more,
+                      color: Colors.white60,
+                      size: 18,
+                    ),
+                  ],
                 ),
               ),
             ),
+            if (_showDeveloperSettings) ...[
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF141414),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Razorpay Key ID (Optional)',
+                      style: TextStyle(color: Colors.white70, fontSize: 11),
+                    ),
+                    const SizedBox(height: 4),
+                    TextField(
+                      controller: _optKeyIdCtrl,
+                      style: const TextStyle(color: Colors.white, fontSize: 12),
+                      decoration: InputDecoration(
+                        hintText: 'rzp_live_... (Optional)',
+                        hintStyle: const TextStyle(color: Colors.white30, fontSize: 11),
+                        filled: true,
+                        fillColor: const Color(0xFF1E1E1E),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      'Razorpay Key Secret (Optional)',
+                      style: TextStyle(color: Colors.white70, fontSize: 11),
+                    ),
+                    const SizedBox(height: 4),
+                    TextField(
+                      controller: _optKeySecretCtrl,
+                      obscureText: true,
+                      style: const TextStyle(color: Colors.white, fontSize: 12),
+                      decoration: InputDecoration(
+                        hintText: 'Key Secret (Optional)',
+                        hintStyle: const TextStyle(color: Colors.white30, fontSize: 11),
+                        filled: true,
+                        fillColor: const Color(0xFF1E1E1E),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ],
         ),
       ),

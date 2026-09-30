@@ -49,6 +49,25 @@
         }
       } catch (e) {}
     };
+
+    // High-accuracy live geolocation for NavIC and live telemetry
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        function(pos) {
+          window.userCurrentLat = pos.coords.latitude;
+          window.userCurrentLng = pos.coords.longitude;
+          try {
+            window.localStorage.setItem('real_gps_lat', pos.coords.latitude);
+            window.localStorage.setItem('real_gps_lng', pos.coords.longitude);
+          } catch(e) {}
+        },
+        function(err) {
+          window.userCurrentLat = 22.6900;
+          window.userCurrentLng = 88.4600;
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    }
   </script>
 </head>
 <body>

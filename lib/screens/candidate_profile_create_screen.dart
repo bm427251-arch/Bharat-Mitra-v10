@@ -20,7 +20,7 @@ class _CandidateProfileCreateScreenState
   final _nameCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
-  final _locationCtrl = TextEditingController(text: 'Salt Lake Sector V, Kolkata');
+  final _locationCtrl = TextEditingController(text: 'Madhyamgram, Kolkata 700129');
   final _subCategoryCtrl = TextEditingController();
   final _expCtrl = TextEditingController(text: '3 Years');
   final _skillsCtrl = TextEditingController(text: 'Navigation, Customer Service, Punctual');
@@ -48,11 +48,11 @@ class _CandidateProfileCreateScreenState
   ];
 
   final List<String> _landmarks = [
-    'Howrah Station',
-    'Salt Lake Sector V',
-    'New Town Action Area',
-    'Park Street Metro',
+    'Madhyamgram Chowrasta',
     'Barasat Court',
+    'Madhyamgram Station',
+    'Jessore Road',
+    'Airport Gate 2.5',
   ];
 
   @override
@@ -83,7 +83,7 @@ class _CandidateProfileCreateScreenState
       await prefs.setString('candidate_phone', _phoneCtrl.text.trim());
       await prefs.setString('candidate_salary', _salaryCtrl.text.trim());
       await prefs.setString('candidate_exp', _expCtrl.text.trim());
-      await prefs.setString('candidate_subscription', '349/3 Months Active');
+      await prefs.setString('candidate_subscription', 'Free Member Active');
 
       // Also push to Firestore candidates collection
       try {
@@ -103,7 +103,7 @@ class _CandidateProfileCreateScreenState
           'has_resume': _hasResume,
           'bio': _bioCtrl.text.trim(),
           'subscription_active': true,
-          'subscription_plan': '349/3 Months Active',
+          'subscription_plan': '100% Free Member Active',
           'is_live': true,
           'updated_at': FieldValue.serverTimestamp(),
         }, SetOptions(merge: true));

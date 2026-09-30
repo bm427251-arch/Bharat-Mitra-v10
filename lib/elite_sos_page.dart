@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'common_widgets.dart';
 import 'widgets/active_radar_pulse.dart';
+import 'services/location_service.dart';
 
 class EliteSOSPage extends StatefulWidget {
   const EliteSOSPage({super.key});
@@ -14,11 +15,35 @@ class _EliteSOSPageState extends State<EliteSOSPage> {
   bool _isPaidPlan = false;
   final TextEditingController _membersInputCtrl = TextEditingController(text: '+91 98301 23456, +91 98302 34567');
   String? _generatedInviteLink;
+  double _realLat = 22.6900;
+  double _realLng = 88.4600;
+  String _realArea = 'Madhyamgram';
+
   final List<String> _groupMembers = [
-    'Self (Admin) - Live NavIC',
+    'Self (Admin) - Live NavIC (22.6900, 88.4600) • Madhyamgram',
     '+91 98301 23456 (Family Member 1)',
     '+91 98302 34567 (Family Member 2)',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchRealGps();
+  }
+
+  Future<void> _fetchRealGps() async {
+    try {
+      final loc = await LocationService.getCurrentLocation();
+      if (mounted) {
+        setState(() {
+          _realLat = loc.latitude;
+          _realLng = loc.longitude;
+          _realArea = loc.area.isNotEmpty ? loc.area : 'Madhyamgram';
+          _groupMembers[0] = 'Self (Admin) - Live NavIC (${_realLat.toStringAsFixed(4)}, ${_realLng.toStringAsFixed(4)}) • $_realArea';
+        });
+      }
+    } catch (_) {}
+  }
 
   @override
   void dispose() {
@@ -29,12 +54,12 @@ class _EliteSOSPageState extends State<EliteSOSPage> {
   void _triggerEmergencyBroadcast() {
     HapticFeedback.heavyImpact();
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
+      SnackBar(
         backgroundColor: Colors.red,
         content: Text(
-          'EMERGENCY BROADCAST ACTIVE! Live NavIC coordinates sent to Police (112), Ambulance (108) & Circle.',
+          'EMERGENCY BROADCAST ACTIVE! Live NavIC (${_realLat.toStringAsFixed(4)}, ${_realLng.toStringAsFixed(4)} - $_realArea) sent to Police (112), Ambulance (108) & Circle.',
         ),
-        duration: Duration(seconds: 4),
+        duration: const Duration(seconds: 4),
       ),
     );
   }

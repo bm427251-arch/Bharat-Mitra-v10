@@ -56,7 +56,7 @@ class _MyProfilesOverviewScreenState extends State<MyProfilesOverviewScreen> {
           ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              // 1. SUBSCRIPTION STATUS CARD (Point 1, 16)
+              // 1. MEMBERSHIP STATUS CARD: 100% Free Open Platform
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -66,61 +66,34 @@ class _MyProfilesOverviewScreenState extends State<MyProfilesOverviewScreen> {
                     end: Alignment.bottomRight,
                   ),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFFFF9933)),
+                  border: Border.all(color: const Color(0xFF138808)),
                 ),
-                child: Row(
+                child: const Row(
                   children: [
                     CircleAvatar(
-                      backgroundColor: _isSubscribed ? Colors.green : const Color(0xFFFF9933),
+                      backgroundColor: Colors.green,
                       radius: 22,
-                      child: Icon(_isSubscribed ? Icons.verified : Icons.lock_clock, color: Colors.black, size: 24),
+                      child: Icon(Icons.verified, color: Colors.black, size: 24),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'Platform Membership',
                             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
                           ),
-                          const SizedBox(height: 2),
+                          SizedBox(height: 2),
                           Text(
-                            _isSubscribed
-                                ? 'Status: 349/3 Months Active (All Walls Unlocked)'
-                                : 'Status: Free Member (Tap to Subscribe ₹349/3M)',
+                            'Status: 100% Free Open Platform (All Walls & Profiles Unlocked ✅)',
                             style: TextStyle(
-                              color: _isSubscribed ? Colors.greenAccent : const Color(0xFFFF9933),
+                              color: Colors.greenAccent,
                               fontSize: 12,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ],
-                      ),
-                    ),
-                    TextButton(
-                      style: TextButton.styleFrom(
-                        backgroundColor: const Color(0xFFFF9933),
-                        foregroundColor: Colors.black,
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      ),
-                      onPressed: () async {
-                        final prefs = await SharedPreferences.getInstance();
-                        final newStatus = !_isSubscribed;
-                        await prefs.setBool('job_wall_subscribed', newStatus);
-                        setState(() => _isSubscribed = newStatus);
-                        if (!mounted) return;
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            backgroundColor: const Color(0xFF138808),
-                            content: Text(newStatus
-                                ? 'Subscribed: ₹349 / 3 Months Activated!'
-                                : 'Membership reset to Free'),
-                          ),
-                        );
-                      },
-                      child: Text(
-                        _isSubscribed ? 'Active' : 'Subscribe',
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
                       ),
                     ),
                   ],

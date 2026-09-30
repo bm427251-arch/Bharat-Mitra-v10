@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:geolocator/geolocator.dart';
 import 'common_widgets.dart';
 import 'screens/service_provider_profile_screen.dart';
+import 'services/location_service.dart';
 
 class ProfessionalPage extends StatefulWidget {
   const ProfessionalPage({super.key});
@@ -12,10 +13,12 @@ class ProfessionalPage extends StatefulWidget {
 
 class _ProfessionalPageState extends State<ProfessionalPage> {
   String _selectedCategory = 'All';
-  String _subCategoryFilter = '';
   final TextEditingController _searchController = TextEditingController();
   final TextEditingController _subCategoryInputCtrl = TextEditingController();
-  bool _isSubscribed = false;
+
+  double _userLat = 22.6900; // Madhyamgram center default
+  double _userLng = 88.4600;
+  String _userArea = 'Madhyamgram';
 
   final List<String> _categories = const [
     'All',
@@ -35,7 +38,8 @@ class _ProfessionalPageState extends State<ProfessionalPage> {
       'category': 'Teacher',
       'subCategory': 'Classical Music & Rabindra Sangeet',
       'exp': 'Music Teacher • 7 Yrs Exp',
-      'distance': '0.6 km away',
+      'lat': 22.6930,
+      'lng': 88.4640,
       'rating': '4.9 ★ (140)',
       'services': 'Classical Vocal, Harmonium, Class 1-10 Tuition',
       'reviews': 'Very patient and skilled teacher. Highly recommended!',
@@ -47,7 +51,8 @@ class _ProfessionalPageState extends State<ProfessionalPage> {
       'category': 'Teacher',
       'subCategory': 'Dance - Kathak & Folk',
       'exp': 'Choreographer & Instructor • 9 Yrs Exp',
-      'distance': '1.2 km away',
+      'lat': 22.6850,
+      'lng': 88.4550,
       'rating': '4.8 ★ (92)',
       'services': 'Kathak, Bollywood Contemporary, Stage Performance',
       'reviews': 'Excellent choreography for school and family events.',
@@ -59,7 +64,8 @@ class _ProfessionalPageState extends State<ProfessionalPage> {
       'category': 'Advocate',
       'subCategory': 'High Court & Civil Matters',
       'exp': 'High Court Advocate • 14 Yrs Exp',
-      'distance': '1.5 km away',
+      'lat': 22.7010,
+      'lng': 88.4680,
       'rating': '4.9 ★ (184)',
       'services': 'Property disputes, Corporate agreements, Bail & Civil',
       'reviews': 'Accurate legal counsel with clear guidance.',
@@ -71,7 +77,8 @@ class _ProfessionalPageState extends State<ProfessionalPage> {
       'category': 'CA',
       'subCategory': 'Corporate Tax & GST Filing',
       'exp': 'Chartered Accountant • 8 Yrs Exp',
-      'distance': '0.9 km away',
+      'lat': 22.6950,
+      'lng': 88.4580,
       'rating': '4.9 ★ (210)',
       'services': 'ITR Returns, GST Audit, Company Incorporation',
       'reviews': 'Saved our firm significant tax penalties. Swift filing.',
@@ -83,7 +90,8 @@ class _ProfessionalPageState extends State<ProfessionalPage> {
       'category': 'Doctor',
       'subCategory': 'General Physician & Telehealth',
       'exp': 'Senior Physician • 11 Yrs Exp',
-      'distance': '0.8 km away',
+      'lat': 22.6880,
+      'lng': 88.4620,
       'rating': '4.9 ★ (340)',
       'services': 'Family medicine, Diabetic care, Routine health checks',
       'reviews': 'Caring doctor with accurate diagnosis.',
@@ -95,7 +103,8 @@ class _ProfessionalPageState extends State<ProfessionalPage> {
       'category': 'Beautician',
       'subCategory': 'Bridal & Party Makeover',
       'exp': 'Certified Aesthetician • 6 Yrs Exp',
-      'distance': '1.4 km away',
+      'lat': 22.6920,
+      'lng': 88.4500,
       'rating': '4.9 ★ (175)',
       'services': 'HD Bridal makeup, Hair spa, Organic facials',
       'reviews': 'Flawless makeup that stayed throughout the wedding night.',
@@ -107,7 +116,8 @@ class _ProfessionalPageState extends State<ProfessionalPage> {
       'category': 'Photographer',
       'subCategory': 'Wedding & Cinematic Candid',
       'exp': 'Visual Artist & Studio Owner • 8 Yrs Exp',
-      'distance': '1.1 km away',
+      'lat': 22.6960,
+      'lng': 88.4700,
       'rating': '4.9 ★ (160)',
       'services': 'Pre-wedding shoots, 4K video, Drone cinematography',
       'reviews': 'Breathtaking photos and candid portraits.',
@@ -119,7 +129,8 @@ class _ProfessionalPageState extends State<ProfessionalPage> {
       'category': 'Cameraman',
       'subCategory': 'Live Event & Multi-Cam Streaming',
       'exp': 'Cinematographer • 5 Yrs Exp',
-      'distance': '2.3 km away',
+      'lat': 22.7050,
+      'lng': 88.4750,
       'rating': '4.8 ★ (89)',
       'services': 'Live streaming, 4K multicam, Corporate coverage',
       'reviews': 'High technical mastery and reliable crew.',
@@ -131,7 +142,8 @@ class _ProfessionalPageState extends State<ProfessionalPage> {
       'category': 'Artist',
       'subCategory': 'Portrait & Oil Canvas Painter',
       'exp': 'Fine Arts Graduate • 7 Yrs Exp',
-      'distance': '1.7 km away',
+      'lat': 22.6800,
+      'lng': 88.4520,
       'rating': '4.9 ★ (72)',
       'services': 'Custom oil portraits, Acrylic murals, Charcoal sketching',
       'reviews': 'Beautiful life-like family portrait painting.',
@@ -143,12 +155,20 @@ class _ProfessionalPageState extends State<ProfessionalPage> {
   @override
   void initState() {
     super.initState();
-    _checkSub();
+    _fetchRealLocation();
   }
 
-  Future<void> _checkSub() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() => _isSubscribed = prefs.getBool('job_wall_subscribed') ?? false);
+  Future<void> _fetchRealLocation() async {
+    try {
+      final loc = await LocationService.getCurrentLocation();
+      if (mounted) {
+        setState(() {
+          _userLat = loc.latitude;
+          _userLng = loc.longitude;
+          _userArea = loc.area.isNotEmpty ? loc.area : 'Madhyamgram';
+        });
+      }
+    } catch (_) {}
   }
 
   @override
@@ -158,7 +178,44 @@ class _ProfessionalPageState extends State<ProfessionalPage> {
     super.dispose();
   }
 
+  String _calculateDynamicDistance(double proLat, double proLng) {
+    try {
+      final meters = Geolocator.distanceBetween(_userLat, _userLng, proLat, proLng);
+      final km = meters / 1000;
+      if (km < 0.1) return 'Within 100m';
+      return '${km.toStringAsFixed(1)} km away';
+    } catch (_) {
+      return '0.6 km away';
+    }
+  }
+
+  void _callProfessional(Map<String, dynamic> pro) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: const Color(0xFF138808),
+        behavior: SnackBarBehavior.floating,
+        content: Row(
+          children: [
+            const Icon(Icons.call, color: Colors.white, size: 20),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Calling ${pro['name']} (${pro['phone']}) - 100% Free Service Call ✅',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _openFullProfile(Map<String, dynamic> pro) {
+    final distanceText = _calculateDynamicDistance(
+      pro['lat'] as double? ?? 22.69,
+      pro['lng'] as double? ?? 88.46,
+    );
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -237,7 +294,10 @@ class _ProfessionalPageState extends State<ProfessionalPage> {
                     children: [
                       const Icon(Icons.location_on, size: 14, color: Colors.blueAccent),
                       const SizedBox(width: 4),
-                      Text(pro['distance'] as String, style: const TextStyle(color: Colors.blueAccent, fontSize: 13, fontWeight: FontWeight.bold)),
+                      Text(
+                        '$distanceText from $_userArea',
+                        style: const TextStyle(color: Colors.blueAccent, fontSize: 13, fontWeight: FontWeight.bold),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 14),
@@ -249,36 +309,25 @@ class _ProfessionalPageState extends State<ProfessionalPage> {
                   const SizedBox(height: 4),
                   Text('"${pro['reviews']}"', style: const TextStyle(color: Colors.white60, fontStyle: FontStyle.italic, fontSize: 12)),
                   const SizedBox(height: 24),
+
+                  // 100% FREE CALL NOW - NO LOCK ANYWHERE
                   SizedBox(
                     width: double.infinity,
                     height: 48,
                     child: ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: _isSubscribed ? const Color(0xFF138808) : Colors.orange[800],
+                        backgroundColor: const Color(0xFF138808),
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                       onPressed: () {
-                        if (_isSubscribed) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              backgroundColor: const Color(0xFF138808),
-                              content: Text('Calling ${pro['name']}...'),
-                            ),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              backgroundColor: Colors.orange,
-                              content: Text('🔒 Subscribe to ₹349 / 3 Months to unlock direct calls!'),
-                            ),
-                          );
-                        }
+                        Navigator.pop(ctx);
+                        _callProfessional(pro);
                       },
-                      icon: Icon(_isSubscribed ? Icons.call : Icons.lock, size: 16),
-                      label: Text(
-                        _isSubscribed ? 'Direct Call Professional' : '🔒 Subscribe to Call',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      icon: const Icon(Icons.call, size: 18),
+                      label: const Text(
+                        'Call Now - Free Service Call',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                       ),
                     ),
                   ),
@@ -314,9 +363,18 @@ class _ProfessionalPageState extends State<ProfessionalPage> {
     return Scaffold(
       backgroundColor: const Color(0xFF0A0A0A),
       appBar: AppBar(
-        title: const Text(
-          'Professionals',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+        title: const Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Professionals',
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            Text(
+              '100% Free Open Platform • ISRO NavIC Connected',
+              style: TextStyle(color: Color(0xFFFF9933), fontSize: 10, fontWeight: FontWeight.w600),
+            ),
+          ],
         ),
         backgroundColor: Colors.black,
         elevation: 0,
@@ -419,63 +477,102 @@ class _ProfessionalPageState extends State<ProfessionalPage> {
                 ),
               ),
 
-              // PROFESSIONALS LIST (NO PRICE - Point 35; Distance Mandatory - Point 36; No direct +91 show - Point 26)
+              // PROFESSIONALS LIST - NO LOCK ANYWHERE - BOTH VIEW & CALL OPEN
               Expanded(
                 child: ListView.builder(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   itemCount: filtered.length,
                   itemBuilder: (_, i) {
                     final pro = filtered[i];
+                    final dynamicDist = _calculateDynamicDistance(
+                      pro['lat'] as double? ?? 22.69,
+                      pro['lng'] as double? ?? 88.46,
+                    );
 
                     return Card(
                       color: const Color(0xFF181818),
                       margin: const EdgeInsets.only(bottom: 10),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: const BorderSide(color: Colors.white12)),
-                      child: ListTile(
-                        onTap: () => _openFullProfile(pro),
-                        leading: CircleAvatar(
-                          backgroundColor: const Color(0xFFFF9933).withOpacity(0.2),
-                          child: const Icon(Icons.person, color: Color(0xFFFF9933)),
-                        ),
-                        title: Text(pro['name'] as String, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
-                        subtitle: Column(
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('${pro['category']} • ${pro['subCategory']}', style: const TextStyle(color: Color(0xFFFF9933), fontSize: 11)),
-                            const SizedBox(height: 2),
-                            // Mandatory Distance (Point 36)
                             Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Icon(Icons.near_me, size: 12, color: Colors.blueAccent),
-                                const SizedBox(width: 4),
-                                Text(pro['distance'] as String, style: const TextStyle(color: Colors.blueAccent, fontSize: 11, fontWeight: FontWeight.bold)),
+                                CircleAvatar(
+                                  backgroundColor: const Color(0xFFFF9933).withOpacity(0.2),
+                                  child: const Icon(Icons.person, color: Color(0xFFFF9933)),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        pro['name'] as String,
+                                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                                      ),
+                                      Text(
+                                        '${pro['category']} • ${pro['subCategory']}',
+                                        style: const TextStyle(color: Color(0xFFFF9933), fontSize: 11),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Row(
+                                        children: [
+                                          const Icon(Icons.near_me, size: 12, color: Colors.blueAccent),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            dynamicDist,
+                                            style: const TextStyle(color: Colors.blueAccent, fontSize: 11, fontWeight: FontWeight.bold),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          const Icon(Icons.star, size: 12, color: Colors.amber),
+                                          const SizedBox(width: 2),
+                                          Text(
+                                            pro['rating'] as String,
+                                            style: const TextStyle(color: Colors.white70, fontSize: 10),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+
+                            // ACTION BUTTONS: VIEW PROFILE + CALL NOW (BOTH OPEN, NO LOCK)
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                OutlinedButton.icon(
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor: Colors.white70,
+                                    side: const BorderSide(color: Colors.white24),
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                    minimumSize: const Size(80, 32),
+                                  ),
+                                  onPressed: () => _openFullProfile(pro),
+                                  icon: const Icon(Icons.visibility, size: 13),
+                                  label: const Text('View Profile', style: TextStyle(fontSize: 11)),
+                                ),
                                 const SizedBox(width: 8),
-                                const Icon(Icons.star, size: 12, color: Colors.amber),
-                                const SizedBox(width: 2),
-                                Text(pro['rating'] as String, style: const TextStyle(color: Colors.white60, fontSize: 10)),
+                                ElevatedButton.icon(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF138808),
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                    minimumSize: const Size(80, 32),
+                                  ),
+                                  onPressed: () => _callProfessional(pro),
+                                  icon: const Icon(Icons.call, size: 13),
+                                  label: const Text('Call Now', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                                ),
                               ],
                             ),
                           ],
-                        ),
-                        // Call button only - no direct phone +91 text (Point 26, 38)
-                        trailing: ElevatedButton.icon(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: _isSubscribed ? const Color(0xFF138808) : Colors.orange[800],
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                            minimumSize: const Size(60, 32),
-                          ),
-                          onPressed: () {
-                            if (_isSubscribed) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(backgroundColor: const Color(0xFF138808), content: Text('Calling ${pro['name']}...')),
-                              );
-                            } else {
-                              _openFullProfile(pro);
-                            }
-                          },
-                          icon: Icon(_isSubscribed ? Icons.call : Icons.lock, size: 12),
-                          label: Text(_isSubscribed ? 'Call' : 'Lock', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                         ),
                       ),
                     );

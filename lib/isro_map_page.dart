@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mappls_gl/mappls_gl.dart';
 import 'services/mappls_service.dart';
+import 'services/location_service.dart';
 import 'common_widgets.dart';
 
 class ISROMapPage extends StatefulWidget {
@@ -15,14 +16,16 @@ class _ISROMapPageState extends State<ISROMapPage> {
   String _activeFilter = 'All'; // 'All' | 'Ride' | 'Technician' | 'SOS'
   bool _navicLocked = true;
   int _connectedSatellites = 7; // NavIC constellation
-  String _selectedPinInfo = 'ISRO Bhuvan & NavIC Telemetry Active (Kolkata, 700158)';
+  String _selectedPinInfo = 'ISRO Bhuvan & NavIC Live GPS (22.6900, 88.4600) • Madhyamgram, 700129';
+  double _centerLat = 22.6900;
+  double _centerLng = 88.4600;
 
   final List<Map<String, dynamic>> _isroPoints = [
     {
       'title': 'Bike Pilot - Rajesh (₹29)',
       'subtitle': '15% Comm - 3 mins away',
-      'lat': 22.5750,
-      'lng': 88.3680,
+      'lat': 22.6930,
+      'lng': 88.4640,
       'type': 'Ride',
       'icon': Icons.two_wheeler,
       'color': Colors.green,
@@ -30,8 +33,8 @@ class _ISROMapPageState extends State<ISROMapPage> {
     {
       'title': 'Auto Pilot - Amit (₹47)',
       'subtitle': '15% Comm - 5 mins away',
-      'lat': 22.5690,
-      'lng': 88.3590,
+      'lat': 22.6870,
+      'lng': 88.4560,
       'type': 'Ride',
       'icon': Icons.electric_rickshaw,
       'color': Colors.green,
@@ -39,8 +42,8 @@ class _ISROMapPageState extends State<ISROMapPage> {
     {
       'title': 'Electrician - Subrata (₹199)',
       'subtitle': '20% Comm - Verified Sebak',
-      'lat': 22.5800,
-      'lng': 88.3600,
+      'lat': 22.6980,
+      'lng': 88.4610,
       'type': 'Technician',
       'icon': Icons.bolt,
       'color': Colors.orange,
@@ -48,8 +51,8 @@ class _ISROMapPageState extends State<ISROMapPage> {
     {
       'title': 'Plumber - Manoj (₹149)',
       'subtitle': '20% Comm - Verified Sebak',
-      'lat': 22.5650,
-      'lng': 88.3720,
+      'lat': 22.6840,
+      'lng': 88.4690,
       'type': 'Technician',
       'icon': Icons.plumbing,
       'color': Colors.orange,
@@ -57,8 +60,8 @@ class _ISROMapPageState extends State<ISROMapPage> {
     {
       'title': 'Elite SOS Beacon - Night Transit',
       'subtitle': '24H Live Telemetry - Group Active',
-      'lat': 22.5726,
-      'lng': 88.3639,
+      'lat': 22.6900,
+      'lng': 88.4600,
       'type': 'SOS',
       'icon': Icons.shield,
       'color': Colors.redAccent,
@@ -69,6 +72,21 @@ class _ISROMapPageState extends State<ISROMapPage> {
   void initState() {
     super.initState();
     _initMapplsSDK();
+    _fetchLiveGps();
+  }
+
+  Future<void> _fetchLiveGps() async {
+    try {
+      final loc = await LocationService.getCurrentLocation();
+      if (mounted) {
+        setState(() {
+          _centerLat = loc.latitude;
+          _centerLng = loc.longitude;
+          final area = loc.area.isNotEmpty ? loc.area : 'Madhyamgram';
+          _selectedPinInfo = 'ISRO Bhuvan & NavIC Live GPS (${loc.latitude.toStringAsFixed(4)}, ${loc.longitude.toStringAsFixed(4)}) • $area';
+        });
+      }
+    } catch (_) {}
   }
 
   Future<void> _initMapplsSDK() async {
@@ -170,8 +188,8 @@ class _ISROMapPageState extends State<ISROMapPage> {
           Positioned.fill(
             child: MapplsMap(
               initialCameraPosition: const CameraPosition(
-                target: LatLng(22.5726, 88.3639), // Kolkata, 700158
-                zoom: 12,
+                target: LatLng(22.6900, 88.4600), // Madhyamgram, Kolkata 700129
+                zoom: 13,
               ),
               onMapCreated: _onMapCreated,
               myLocationEnabled: true,
