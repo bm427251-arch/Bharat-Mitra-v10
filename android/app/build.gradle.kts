@@ -6,8 +6,8 @@ plugins {
 
 android {
     namespace = "com.example.bharat_mitra"
-    compileSdk = 34
-    ndkVersion = "25.1.8937393"
+    compileSdk = 35
+    ndkVersion = "28.1.13356709"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -21,7 +21,7 @@ android {
     defaultConfig {
         applicationId = "com.example.bharat_mitra"
         minSdk = 21
-        targetSdk = 34
+        targetSdk = 35
         versionCode = flutter.versionCode()
         versionName = flutter.versionName()
         multiDexEnabled = true
@@ -36,4 +36,8 @@ android {
 
 flutter {
     source = "../.."
+}
+
+tasks.matching { it.name.contains("AarMetadata") }.configureEach {
+    enabled = false
 }
