@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'common_widgets.dart';
 import 'screens/become_sebak_screen.dart';
+import 'screens/booking_detail_screen.dart';
 
 class TechnicianPage extends StatelessWidget {
   const TechnicianPage({super.key});
-
-  double calcComm(double bill) => bill * 0.20; // Urban 25% - Apni 20%
 
   final Map<String, IconData> _serviceIcons = const {
     'Plumber': Icons.plumbing,
@@ -25,6 +24,24 @@ class TechnicianPage extends StatelessWidget {
     'Painter': 199,
   };
 
+  final Map<String, String> _technicianNames = const {
+    'Plumber': 'Manoj Sarkar (Plumbing Specialist)',
+    'Electrician': 'Subhash Sen (Licensed Wireman)',
+    'AC Repair': 'Aniket Roy (HVAC & AC Expert)',
+    'Mechanic': 'Tapas Das (Auto & 2-Wheeler)',
+    'Carpenter': 'Ratan Mondal (Furniture Master)',
+    'Painter': 'Biplab Paul (Home & Waterproofing)',
+  };
+
+  final Map<String, String> _distances = const {
+    'Plumber': '0.7 km away',
+    'Electrician': '0.9 km away',
+    'AC Repair': '1.4 km away',
+    'Mechanic': '0.5 km away',
+    'Carpenter': '1.2 km away',
+    'Painter': '1.8 km away',
+  };
+
   @override
   Widget build(BuildContext context) {
     final services = [
@@ -39,9 +56,19 @@ class TechnicianPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFF0A0A0A),
       appBar: AppBar(
-        title: const Text(
-          'Technicians - 20% Comm',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        // Point 23: Technician header remove "20% Comm" - Only "Technicians"
+        title: const Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Technicians',
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            Text(
+              'Verified Home & Service Experts • ISRO NavIC',
+              style: TextStyle(color: Color(0xFFFF9933), fontSize: 10),
+            ),
+          ],
         ),
         backgroundColor: Colors.black,
         elevation: 0,
@@ -53,6 +80,7 @@ class TechnicianPage extends StatelessWidget {
           const BharatMitraWatermark(),
           Column(
             children: [
+              // ACTION BUTTON (+ Become Tech)
               Padding(
                 padding: const EdgeInsets.all(10),
                 child: SizedBox(
@@ -80,6 +108,8 @@ class TechnicianPage extends StatelessWidget {
                   ),
                 ),
               ),
+
+              // SERVICES GRID (PRICE POLICY GLOBAL: NO PRICE ON CARDS - Point 23, 35, 36)
               Expanded(
                 child: GridView.count(
                   crossAxisCount: 2,
@@ -90,7 +120,8 @@ class TechnicianPage extends StatelessWidget {
                   children: services.map((e) {
                     final icon = _serviceIcons[e] ?? Icons.handyman;
                     final charge = _baseVisitingCharge[e] ?? 149;
-                    final comm = calcComm(charge.toDouble());
+                    final techName = _technicianNames[e] ?? 'Certified Expert';
+                    final distance = _distances[e] ?? '0.8 km away';
 
                     return Card(
                       color: const Color(0xFF181818),
@@ -102,102 +133,134 @@ class TechnicianPage extends StatelessWidget {
                       child: InkWell(
                         borderRadius: BorderRadius.circular(14),
                         onTap: () {
-                          showDialog(
+                          // Show Rate card confirmation dialog (Point 35: Show price only at booking confirmation time)
+                          showModalBottomSheet(
                             context: context,
-                            builder: (dCtx) => AlertDialog(
-                              backgroundColor: const Color(0xFF1E1E1E),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              title: Row(
-                                children: [
-                                  Icon(icon, color: const Color(0xFFFF9933)),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    'Book $e',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              content: Column(
+                            backgroundColor: const Color(0xFF161616),
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                            ),
+                            builder: (ctx) => Padding(
+                              padding: const EdgeInsets.all(20),
+                              child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    'Visiting Charge: ₹$charge',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                  Row(
+                                    children: [
+                                      Icon(icon, color: const Color(0xFFFF9933), size: 28),
+                                      const SizedBox(width: 10),
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            '$e Service Rate Card',
+                                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                                          ),
+                                          Text(
+                                            'Assigned: $techName',
+                                            style: const TextStyle(color: Colors.white60, fontSize: 11),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                  const Divider(color: Colors.white12, height: 24),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const Text('Standard Inspection & Visit Charge', style: TextStyle(color: Colors.white70)),
+                                      Text('₹$charge', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                                    ],
                                   ),
                                   const SizedBox(height: 6),
-                                  Text(
-                                    'Bharat Mitra Commission: 20% (₹${comm.toStringAsFixed(0)})\nUrban Company charges 25% — You save 5% with Bharat Mitra!',
-                                    style: const TextStyle(
-                                      color: Color(0xFF138808),
-                                      fontSize: 12,
-                                    ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const Text('Distance via NavIC', style: TextStyle(color: Colors.blueAccent)),
+                                      Text(distance, style: const TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.bold)),
+                                    ],
                                   ),
-                                  const SizedBox(height: 10),
-                                  const Text(
-                                    'Technician arrives in 20-30 mins with verified identity and sanitized tools.',
-                                    style: TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 12,
+                                  const Divider(color: Colors.white12, height: 24),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const Text('Total Inspection Fare', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
+                                      Text(
+                                        '₹$charge',
+                                        style: const TextStyle(color: Color(0xFFFF9933), fontWeight: FontWeight.bold, fontSize: 20),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 18),
+                                  SizedBox(
+                                    width: double.infinity,
+                                    height: 48,
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color(0xFFFF9933),
+                                        foregroundColor: Colors.black,
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                      ),
+                                      onPressed: () {
+                                        Navigator.pop(ctx);
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) => BookingDetailScreen(
+                                              providerName: techName,
+                                              providerType: 'Technician',
+                                              distance: distance,
+                                              eta: '12 mins',
+                                              amount: charge.toDouble(),
+                                              serviceCategory: '$e Service Visit',
+                                              vehicleType: 'Tool Bag & Emergency Kit',
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      child: const Text('Confirm & Open Live Tracking', style: TextStyle(fontWeight: FontWeight.bold)),
                                     ),
                                   ),
                                 ],
                               ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(dCtx),
-                                  child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
-                                ),
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFFFF9933),
-                                    foregroundColor: Colors.black,
-                                  ),
-                                  onPressed: () {
-                                    Navigator.pop(dCtx);
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        backgroundColor: const Color(0xFF138808),
-                                        content: Text('$e booked successfully! Visiting charge: ₹$charge.'),
-                                      ),
-                                    );
-                                  },
-                                  child: const Text('Confirm Visit', style: TextStyle(fontWeight: FontWeight.bold)),
-                                ),
-                              ],
                             ),
                           );
                         },
-                        child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(icon, color: const Color(0xFFFF9933), size: 36),
+                              CircleAvatar(
+                                radius: 22,
+                                backgroundColor: const Color(0xFFFF9933).withOpacity(0.18),
+                                child: Icon(icon, color: const Color(0xFFFF9933), size: 24),
+                              ),
                               const SizedBox(height: 8),
                               Text(
                                 e,
                                 style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 15,
                                   color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
                                 ),
                               ),
                               const SizedBox(height: 4),
+                              // Distance mandatory on all cards (Point 36)
                               Text(
-                                'From ₹$charge • 20% Comm',
+                                distance,
                                 style: const TextStyle(
-                                  fontSize: 11,
-                                  color: Colors.white60,
+                                  color: Colors.blueAccent,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const Text(
+                                'NavIC Verified Sebak',
+                                style: TextStyle(
+                                  color: Color(0xFF138808),
+                                  fontSize: 9,
                                 ),
                               ),
                             ],

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:video_player/video_player.dart';
+import 'package:flutter/services.dart';
 import 'bharat_mitra_home.dart';
-import 'admin_screen.dart';
+import '../widgets/admin_login_dialog.dart';
+import '../widgets/active_radar_pulse.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -10,24 +11,28 @@ class SplashScreen extends StatefulWidget {
   _SplashScreenState createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
-  late VideoPlayerController _controller;
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animController;
+  late Animation<double> _scaleAnimation;
   bool _adminUnlocked = false;
 
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.asset('assets/splash_logo.mp4')
-      ..initialize().then((_) {
-        if (mounted) {
-          setState(() {});
-          _controller.play();
-        }
-      }).catchError((error) {
-        debugPrint('Splash video player notice: $error');
-      });
 
-    Future.delayed(const Duration(seconds: 10), () {
+    // Pulse animation for logo
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    )..repeat(reverse: true);
+
+    _scaleAnimation = Tween<double>(begin: 0.95, end: 1.05).animate(
+      CurvedAnimation(parent: _animController, curve: Curves.easeInOut),
+    );
+
+    // Auto navigate after 3.5 seconds directly to BharatMitraHome without black loading pause
+    Future.delayed(const Duration(milliseconds: 3200), () {
       if (mounted && !_adminUnlocked) {
         Navigator.pushReplacement(
           context,
@@ -39,125 +44,126 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   void dispose() {
-    _controller.dispose();
+    _animController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      // Silent 7-second Admin Unlock fallback
       onLongPressStart: (_) async {
-        await Future.delayed(const Duration(seconds: 7)); // FINAL 7 SEC - NOT 5 SEC
+        await Future.delayed(const Duration(seconds: 7));
         if (mounted) {
           setState(() => _adminUnlocked = true);
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const AdminLoginPage()),
-          );
+          HapticFeedback.heavyImpact();
+          AdminLoginDialog.show(context);
         }
       },
       child: Scaffold(
         backgroundColor: Colors.black,
         body: Center(
-          child: _controller.value.isInitialized
-              ? AspectRatio(
-                  aspectRatio: _controller.value.aspectRatio,
-                  child: VideoPlayer(_controller),
-                )
-              : const Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CircularProgressIndicator(color: Color(0xFFFF9933)),
-                    SizedBox(height: 16),
-                    Text(
-                      'BHARAT MITRA',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 2.0,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Logo with smooth pulse animation
+              ActiveRadarPulse(
+                ringColor: const Color(0xFFFF9933),
+                maxRadius: 85,
+                child: ScaleTransition(
+                  scale: _scaleAnimation,
+                  child: Container(
+                    width: 130,
+                    height: 130,
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFFFF9933).withOpacity(0.3),
+                          blurRadius: 20,
+                          spreadRadius: 2,
+                        ),
+                      ],
+                    ),
+                    child: ClipOval(
+                      child: Image.asset(
+                        'assets/images/logo.png',
+                        fit: BoxFit.contain,
+                        errorBuilder: (_, __, ___) => const Icon(
+                          Icons.handshake,
+                          color: Color(0xFFFF9933),
+                          size: 70,
+                        ),
                       ),
                     ),
-                    SizedBox(height: 6),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 28),
+
+              // Title
+              const Text(
+                'BHARAT MITRA',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 26,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 3.0,
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              // Tagline (Point 10)
+              const Text(
+                'Bharat Mitra - Apno Ka Saath',
+                style: TextStyle(
+                  color: Color(0xFFFF9933),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.8,
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              // ISRO NavIC connected badge
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF138808).withOpacity(0.18),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: const Color(0xFF138808)),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.satellite_alt, size: 13, color: Color(0xFF138808)),
+                    SizedBox(width: 6),
                     Text(
-                      'Zero Commission Platform',
+                      'ISRO Mappls + NavIC Sovereign Connected',
                       style: TextStyle(
                         color: Colors.white70,
-                        fontSize: 13,
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ],
                 ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
+// Retain AdminLoginPage compatibility
 class AdminLoginPage extends StatelessWidget {
   const AdminLoginPage({super.key});
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          title: const Text('Admin Login - 7 Sec Unlock'),
-          backgroundColor: const Color(0xFF1A3A6E),
-          foregroundColor: Colors.white,
-        ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: const BoxDecoration(
-                  color: Color(0xFFEFF6FF),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.admin_panel_settings_rounded,
-                  size: 64,
-                  color: Color(0xFF1A3A6E),
-                ),
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'Hidden Admin Panel',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1A3A6E),
-                ),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Superuser access unlocked via 7-second splash gesture',
-                style: TextStyle(fontSize: 13, color: Colors.grey),
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1A3A6E),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                icon: const Icon(Icons.dashboard_rounded),
-                label: const Text(
-                  'Open Full Admin Dashboard',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const AdminLoginScreen(adminEmail: 'bm427251@gmail.com'),
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
-        ),
-      );
+  Widget build(BuildContext context) {
+    return const AdminLoginDialog();
+  }
 }

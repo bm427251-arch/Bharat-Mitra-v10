@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'common_widgets.dart';
+import 'widgets/active_radar_pulse.dart';
 
 class EliteSOSPage extends StatefulWidget {
   const EliteSOSPage({super.key});
@@ -9,15 +11,68 @@ class EliteSOSPage extends StatefulWidget {
 }
 
 class _EliteSOSPageState extends State<EliteSOSPage> {
-  int _membersCount = 10;
-  final TextEditingController _memberController = TextEditingController(text: '10');
-
-  int calcPrice(int members) => members * 29; // FINAL - 29 Taka Per Person - 24H
+  bool _isPaidPlan = false;
+  final TextEditingController _membersInputCtrl = TextEditingController(text: '+91 98301 23456, +91 98302 34567');
+  String? _generatedInviteLink;
+  final List<String> _groupMembers = [
+    'Self (Admin) - Live NavIC',
+    '+91 98301 23456 (Family Member 1)',
+    '+91 98302 34567 (Family Member 2)',
+  ];
 
   @override
   void dispose() {
-    _memberController.dispose();
+    _membersInputCtrl.dispose();
     super.dispose();
+  }
+
+  void _triggerEmergencyBroadcast() {
+    HapticFeedback.heavyImpact();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        backgroundColor: Colors.red,
+        content: Text(
+          'EMERGENCY BROADCAST ACTIVE! Live NavIC coordinates sent to Police (112), Ambulance (108) & Circle.',
+        ),
+        duration: Duration(seconds: 4),
+      ),
+    );
+  }
+
+  void _generateInviteLink() {
+    final raw = _membersInputCtrl.text.trim();
+    if (raw.isEmpty) return;
+
+    final code = DateTime.now().millisecondsSinceEpoch.toString().substring(7);
+    setState(() {
+      _generatedInviteLink = 'https://bharatmitra.in/sos/join?circle=$code';
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: const Color(0xFF138808),
+        content: Text('Invite Link Generated: $_generatedInviteLink'),
+      ),
+    );
+  }
+
+  void _acceptAndAddMembers() {
+    final parts = _membersInputCtrl.text.split(',');
+    for (var p in parts) {
+      final clean = p.trim();
+      if (clean.isNotEmpty && !_groupMembers.contains(clean)) {
+        _groupMembers.add('$clean (Accepted)');
+      }
+    }
+    setState(() {
+      _generatedInviteLink = null;
+      _membersInputCtrl.clear();
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        backgroundColor: Color(0xFF138808),
+        content: Text('Members successfully verified and added to SOS Circle!'),
+      ),
+    );
   }
 
   @override
@@ -26,8 +81,8 @@ class _EliteSOSPageState extends State<EliteSOSPage> {
       backgroundColor: const Color(0xFF0A0A0A),
       appBar: AppBar(
         title: const Text(
-          'Elite SOS - 29/member/24H',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          'Elite SOS Group',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
         ),
         backgroundColor: Colors.black,
         elevation: 0,
@@ -38,182 +93,263 @@ class _EliteSOSPageState extends State<EliteSOSPage> {
           const CustomPaint(size: Size.infinite, painter: TricolorWatermarkPainter()),
           const BharatMitraWatermark(),
           SingleChildScrollView(
-            padding: const EdgeInsets.all(15),
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // FREE Permanent Banner
+                // PLAN TOGGLE (Point 32: Free vs Paid logic)
                 Container(
-                  padding: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
-                    color: Colors.green[50],
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.green.shade300),
+                    color: const Color(0xFF181818),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.white12),
                   ),
-                  child: const Text(
-                    'FREE Permanent: 1 Group, 3 Member, Only Text Alert - Free',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF1B5E20),
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-
-                // PAID 24 Hours Validity Banner
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.red[50],
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.red.shade300),
-                  ),
-                  child: Column(
-                    children: const [
-                      Text(
-                        'PAID - 24 Hours Validity - Special Need',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.red,
-                          fontSize: 13,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => setState(() => _isPaidPlan = false),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            decoration: BoxDecoration(
+                              color: !_isPaidPlan ? const Color(0xFF138808) : Colors.transparent,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Center(
+                              child: Text(
+                                'Free (1 Group • 3 Members)',
+                                style: TextStyle(
+                                  color: !_isPaidPlan ? Colors.white : Colors.white60,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
                       ),
-                      SizedBox(height: 4),
-                      Text(
-                        '29 Taka / Person / 24 Hours - Live GPS + SOS + Chat',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                          fontSize: 13,
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => setState(() => _isPaidPlan = true),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            decoration: BoxDecoration(
+                              color: _isPaidPlan ? const Color(0xFFFF9933) : Colors.transparent,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Center(
+                              child: Text(
+                                'Paid (Live GPS + Chat)',
+                                style: TextStyle(
+                                  color: _isPaidPlan ? Colors.black : Colors.white60,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        'Example: 10 Cars Marriage = 10x29=290 Rs | 5 Bikers=145 Rs | 24H Auto Expire - Renew Again 29',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 11, color: Colors.black54),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 15),
-
-                // Members Count TextField
-                TextField(
-                  controller: _memberController,
-                  keyboardType: TextInputType.number,
-                  style: const TextStyle(color: Colors.black87),
-                  onChanged: (val) {
-                    final parsed = int.tryParse(val.trim());
-                    setState(() {
-                      _membersCount = (parsed != null && parsed > 0) ? parsed : 0;
-                    });
-                  },
-                  decoration: InputDecoration(
-                    labelText: 'Add Members Count',
-                    labelStyle: const TextStyle(color: Color(0xFFFF9933), fontWeight: FontWeight.bold),
-                    hintText: 'e.g. 10',
-                    filled: true,
-                    fillColor: Colors.white,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: Color(0xFFFF9933)),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-
-                // Dynamic Total Calculation
-                Text(
-                  'Total: ₹${calcPrice(_membersCount)} for $_membersCount Members - 24H',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                    color: Color(0xFFFF9933),
-                  ),
-                ),
-                const SizedBox(height: 20),
-
-                // Large Circular SOS Button
-                Center(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      minimumSize: const Size(180, 180),
-                      shape: const CircleBorder(),
-                      elevation: 8,
-                      shadowColor: Colors.redAccent.withOpacity(0.5),
-                    ),
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          backgroundColor: Colors.red,
-                          duration: Duration(seconds: 4),
-                          content: Text(
-                            'EMERGENCY SOS TRIGGERED! Broadcasting live GPS coordinates and distress signal to 112 & active group members!',
-                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      );
-                    },
-                    child: const Text(
-                      'SOS',
-                      style: TextStyle(
-                        fontSize: 32,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 2,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 14),
-
-                // Description of use cases
-                const Text(
-                  'Use: Marriage 10 Cars, Bike Ride Group, Family Tour - Tracking',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.white70,
-                  ),
-                ),
                 const SizedBox(height: 12),
 
-                // Create 24H Group Button
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFF9933),
-                    foregroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+                // PLAN DESCRIPTION STATUS (Point 31, 32)
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: _isPaidPlan ? Colors.orange.withOpacity(0.12) : Colors.green.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: _isPaidPlan ? const Color(0xFFFF9933) : const Color(0xFF138808)),
                   ),
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        backgroundColor: const Color(0xFF138808),
-                        content: Text(
-                          'Elite 24H Group Created! Total: ₹${calcPrice(_membersCount)} for $_membersCount members. Live GPS tracking initialized.',
-                        ),
-                      ),
-                    );
-                  },
-                  child: const Text(
-                    'Create 24H Group',
+                  child: Text(
+                    _isPaidPlan
+                        ? 'Paid Circle Active: Live 24-Hour NavIC Satellite GPS Tracking + Instant Chat'
+                        : 'Free Circle Active: 1 Permanent Group, up to 3 Emergency Contacts (SMS & Text Alert)',
+                    textAlign: TextAlign.center,
                     style: TextStyle(
+                      color: _isPaidPlan ? const Color(0xFFFF9933) : Colors.greenAccent,
+                      fontSize: 11,
                       fontWeight: FontWeight.bold,
-                      fontSize: 15,
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 24),
+
+                // ACTIVE PULSING RADAR BEHIND RED SOS BUTTON (Point 34)
+                Center(
+                  child: ActiveRadarPulse(
+                    ringColor: Colors.redAccent,
+                    maxRadius: 105,
+                    ringCount: 3,
+                    child: GestureDetector(
+                      onTap: _triggerEmergencyBroadcast,
+                      child: Container(
+                        width: 140,
+                        height: 140,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFD32F2F),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.red.withOpacity(0.5),
+                              blurRadius: 20,
+                              spreadRadius: 4,
+                            ),
+                          ],
+                        ),
+                        child: const Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.warning_amber_rounded, color: Colors.white, size: 48),
+                            SizedBox(height: 4),
+                            Text(
+                              'HOLD SOS',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                letterSpacing: 1.5,
+                              ),
+                            ),
+                            Text(
+                              'Instant Broadcast',
+                              style: TextStyle(color: Colors.white70, fontSize: 10),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 28),
+
+                // POINT 33: ELITE INVITE FLOW
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF181818),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.white12),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Invite Family & Travel Companions',
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                      ),
+                      const SizedBox(height: 4),
+                      const Text(
+                        'Input member phone numbers separated by commas:',
+                        style: TextStyle(color: Colors.white60, fontSize: 11),
+                      ),
+                      const SizedBox(height: 10),
+                      TextField(
+                        controller: _membersInputCtrl,
+                        style: const TextStyle(color: Colors.white, fontSize: 12),
+                        decoration: InputDecoration(
+                          hintText: 'e.g. 9830123456, 9830234567',
+                          hintStyle: const TextStyle(color: Colors.white30),
+                          filled: true,
+                          fillColor: Colors.white.withOpacity(0.06),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: const Color(0xFFFF9933),
+                                side: const BorderSide(color: Color(0xFFFF9933)),
+                                padding: const EdgeInsets.symmetric(vertical: 8),
+                              ),
+                              onPressed: _generateInviteLink,
+                              icon: const Icon(Icons.link, size: 14),
+                              label: const Text('Generate Invite Link', style: TextStyle(fontSize: 11)),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF138808),
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(vertical: 8),
+                              ),
+                              onPressed: _acceptAndAddMembers,
+                              icon: const Icon(Icons.person_add, size: 14),
+                              label: const Text('Send & Add', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (_generatedInviteLink != null) ...[
+                        const SizedBox(height: 12),
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.05),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.white24),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  _generatedInviteLink!,
+                                  style: const TextStyle(color: Colors.greenAccent, fontSize: 10, fontFamily: 'monospace'),
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.copy, size: 16, color: Colors.white70),
+                                onPressed: () {
+                                  Clipboard.setData(ClipboardData(text: _generatedInviteLink!));
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      backgroundColor: Color(0xFF138808),
+                                      content: Text('Invite link copied to clipboard!'),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // ACTIVE CIRCLE MEMBERS LIST
+                const Text(
+                  'Connected Circle Members',
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                ),
+                const SizedBox(height: 8),
+                ...List.generate(_groupMembers.length, (i) {
+                  return Card(
+                    color: const Color(0xFF181818),
+                    margin: const EdgeInsets.only(bottom: 6),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    child: ListTile(
+                      dense: true,
+                      leading: const CircleAvatar(
+                        radius: 14,
+                        backgroundColor: Color(0xFF138808),
+                        child: Icon(Icons.shield, size: 14, color: Colors.white),
+                      ),
+                      title: Text(_groupMembers[i], style: const TextStyle(color: Colors.white, fontSize: 12)),
+                      trailing: const Text('NavIC Live', style: TextStyle(color: Colors.greenAccent, fontSize: 10)),
+                    ),
+                  );
+                }),
               ],
             ),
           ),

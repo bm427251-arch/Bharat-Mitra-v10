@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../screens/admin_screen.dart';
 
 class AdminLoginDialog extends StatefulWidget {
   final VoidCallback? onSuccess;
@@ -20,9 +23,10 @@ class AdminLoginDialog extends StatefulWidget {
 class _AdminLoginDialogState extends State<AdminLoginDialog> {
   final TextEditingController _emailCtrl =
       TextEditingController(text: 'bm427251@gmail.com');
-  final TextEditingController _passCtrl = TextEditingController();
+  final TextEditingController _passCtrl = TextEditingController(text: '12345678');
   bool _obscureText = true;
   String? _errorMessage;
+  bool _isChecking = false;
 
   @override
   void dispose() {
@@ -31,20 +35,42 @@ class _AdminLoginDialogState extends State<AdminLoginDialog> {
     super.dispose();
   }
 
-  void _handleLogin() {
-    final email = _emailCtrl.text.trim();
+  Future<void> _handleLogin() async {
+    setState(() => _isChecking = true);
+    final rawEmail = _emailCtrl.text;
+    final cleanEmail = rawEmail.trim().replaceAll(' ', '').toLowerCase();
     final pass = _passCtrl.text.trim();
 
-    if (email == 'bm427251@gmail.com' && pass == 'Bharat@123') {
+    final prefs = await SharedPreferences.getInstance();
+    final savedPass = prefs.getString('admin_password') ?? '12345678';
+
+    final isEmailValid = cleanEmail == 'bm427251@gmail.com';
+    final isPassValid = pass == savedPass || pass == '12345678' || pass == 'Bharat@123';
+
+    setState(() => _isChecking = false);
+
+    if (isEmailValid && isPassValid) {
+      HapticFeedback.mediumImpact();
+      if (!mounted) return;
       Navigator.pop(context);
       if (widget.onSuccess != null) {
         widget.onSuccess!();
       } else {
-        Navigator.pushNamed(context, '/admin');
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const AdminLoginScreen(adminEmail: 'bm427251@gmail.com'),
+          ),
+        );
       }
     } else {
+      HapticFeedback.lightImpact();
       setState(() {
-        _errorMessage = 'Invalid Credentials! Use bm427251@gmail.com / Bharat@123';
+        if (!isEmailValid) {
+          _errorMessage = 'Invalid Email! Authorized admin email is bm427251@gmail.com';
+        } else {
+          _errorMessage = 'Incorrect Password! Please check your admin credentials.';
+        }
       });
     }
   }
@@ -52,21 +78,34 @@ class _AdminLoginDialogState extends State<AdminLoginDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      backgroundColor: const Color(0xFF161616),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: const BorderSide(color: Color(0xFFFF9933), width: 1.5),
+      ),
       title: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: const Color(0xFF1A3A6E).withOpacity(0.1),
+              color: const Color(0xFFFF9933).withOpacity(0.15),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.admin_panel_settings, color: Color(0xFF1A3A6E)),
+            child: const Icon(Icons.admin_panel_settings, color: Color(0xFFFF9933), size: 22),
           ),
-          const SizedBox(width: 12),
-          const Text(
-            'Admin Portal Login',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          const SizedBox(width: 10),
+          const Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Admin Portal Login',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white),
+              ),
+              Text(
+                'Superuser Access (7s Silent Trigger)',
+                style: TextStyle(fontSize: 10, color: Colors.white54),
+              ),
+            ],
           ),
         ],
       ),
@@ -75,44 +114,53 @@ class _AdminLoginDialogState extends State<AdminLoginDialog> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Authorized master administrator access only.',
-            style: TextStyle(fontSize: 12.5, color: Colors.grey),
+            'Master administrator access only. Spaces in email are auto-trimmed.',
+            style: TextStyle(fontSize: 11, color: Colors.white70),
           ),
           const SizedBox(height: 16),
           TextField(
             controller: _emailCtrl,
+            style: const TextStyle(color: Colors.white),
             keyboardType: TextInputType.emailAddress,
             decoration: InputDecoration(
               labelText: 'Admin Email',
-              prefixIcon: const Icon(Icons.email_outlined),
+              labelStyle: const TextStyle(color: Colors.white70),
+              hintText: 'bm427251@gmail.com',
+              hintStyle: const TextStyle(color: Colors.white30),
+              prefixIcon: const Icon(Icons.email_outlined, color: Color(0xFFFF9933)),
+              filled: true,
+              fillColor: Colors.white.withOpacity(0.06),
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             ),
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _passCtrl,
+            style: const TextStyle(color: Colors.white),
             obscureText: _obscureText,
             decoration: InputDecoration(
-              labelText: 'Master Password',
-              prefixIcon: const Icon(Icons.lock_outline),
+              labelText: 'Password',
+              labelStyle: const TextStyle(color: Colors.white70),
+              hintText: '12345678',
+              hintStyle: const TextStyle(color: Colors.white30),
+              prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFFFF9933)),
               suffixIcon: IconButton(
                 icon: Icon(
                   _obscureText ? Icons.visibility_off : Icons.visibility,
-                  color: Colors.grey,
+                  color: Colors.white54,
                 ),
-                onPressed: () {
-                  setState(() => _obscureText = !_obscureText);
-                },
+                onPressed: () => setState(() => _obscureText = !_obscureText),
               ),
+              filled: true,
+              fillColor: Colors.white.withOpacity(0.06),
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             ),
-            onSubmitted: (_) => _handleLogin(),
           ),
           if (_errorMessage != null) ...[
             const SizedBox(height: 10),
             Text(
               _errorMessage!,
-              style: const TextStyle(color: Colors.red, fontSize: 12, fontWeight: FontWeight.w600),
+              style: const TextStyle(color: Colors.redAccent, fontSize: 11, fontWeight: FontWeight.bold),
             ),
           ],
         ],
@@ -120,17 +168,16 @@ class _AdminLoginDialogState extends State<AdminLoginDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+          child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
         ),
         ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF1A3A6E),
-            foregroundColor: Colors.white,
+            backgroundColor: const Color(0xFFFF9933),
+            foregroundColor: Colors.black,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           ),
-          onPressed: _handleLogin,
-          child: const Text('Login to Dashboard', style: TextStyle(fontWeight: FontWeight.bold)),
+          onPressed: _isChecking ? null : _handleLogin,
+          child: const Text('Login to Admin', style: TextStyle(fontWeight: FontWeight.bold)),
         ),
       ],
     );

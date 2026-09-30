@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/firestore_service.dart';
 import '../services/rating_service.dart';
 import '../services/location_service.dart';
@@ -8,6 +9,7 @@ import '../models/sebak_model.dart';
 import '../models/complaint_model.dart';
 import '../config/fare_config.dart';
 import 'admin_earnings_screen.dart';
+import 'razorpay_connect_screen.dart';
 
 class AdminLoginScreen extends StatefulWidget {
   final String adminEmail;
@@ -124,6 +126,70 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
     }
   }
 
+  void _showChangePasswordDialog() {
+    final passCtrl = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF161616),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Row(
+          children: [
+            Icon(Icons.password, color: Color(0xFFFF9933)),
+            SizedBox(width: 8),
+            Text('Change Admin Password', style: TextStyle(color: Colors.white, fontSize: 16)),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Enter new password to save to local storage (Default is 12345678):',
+              style: TextStyle(color: Colors.white70, fontSize: 12),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: passCtrl,
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                hintText: 'New Password',
+                hintStyle: const TextStyle(color: Colors.white30),
+                filled: true,
+                fillColor: Colors.white10,
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF9933), foregroundColor: Colors.black),
+            onPressed: () async {
+              final newP = passCtrl.text.trim();
+              if (newP.isNotEmpty) {
+                final prefs = await SharedPreferences.getInstance();
+                await prefs.setString('admin_password', newP);
+                if (!mounted) return;
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    backgroundColor: Color(0xFF138808),
+                    content: Text('Admin password changed and saved successfully!'),
+                  ),
+                );
+              }
+            },
+            child: const Text('Save Password', style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final lowRatingsCount = _ratings.where((r) => (r['driverRating'] as num) < 3).length;
@@ -138,6 +204,21 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
           backgroundColor: const Color(0xFF1A3A6E),
           title: const Text('Admin Dashboard', style: TextStyle(fontWeight: FontWeight.bold)),
           actions: [
+            IconButton(
+              icon: const Icon(Icons.payment, color: Color(0xFFFF9933)),
+              tooltip: 'Razorpay Connect Setup',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const RazorpayConnectScreen()),
+                );
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.key, color: Colors.amber),
+              tooltip: 'Change Admin Password',
+              onPressed: _showChangePasswordDialog,
+            ),
             IconButton(
               icon: const Icon(Icons.refresh),
               onPressed: _loadData,

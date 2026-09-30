@@ -694,9 +694,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                       onPressed: () => _openPaymentAndVerify(plan),
-                      child: Text(
-                        'Pay ₹${plan.price} via Razorpay',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Pay ₹${plan.price} via Official Razorpay',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(width: 6),
+                          const Text('✅', style: TextStyle(fontSize: 12)),
+                        ],
                       ),
                     ),
                   ],

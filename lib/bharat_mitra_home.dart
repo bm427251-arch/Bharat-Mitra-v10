@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'common_widgets.dart';
 import 'home_ride_page.dart';
 import 'technician_page.dart';
@@ -9,8 +11,9 @@ import 'screens/become_driver_screen.dart';
 import 'screens/become_sebak_screen.dart';
 import 'screens/service_provider_profile_screen.dart';
 import 'screens/owner_add_vehicle_screen.dart';
-import 'screens/my_trips_screen.dart';
 import 'screens/company_post_job_screen.dart';
+import 'screens/my_profiles_overview_screen.dart';
+import 'widgets/admin_login_dialog.dart';
 import 'job_dashboard_page.dart';
 import 'isro_map_page.dart';
 
@@ -23,50 +26,108 @@ class BharatMitraHome extends StatefulWidget {
 
 class _BharatMitraHomeState extends State<BharatMitraHome> {
   int _index = 0;
-
+  late final PageController _pageController;
   late final List<Widget> _pages;
 
   @override
   void initState() {
     super.initState();
+    _pageController = PageController(initialPage: _index);
     _pages = [
-      HomeDashboard(onSelectTab: (i) => setState(() => _index = i)),
+      HomeDashboard(onSelectTab: (i) => _navigateToTab(i)),
       const HomeRidePage(),
       const TechnicianPage(),
       const ProfessionalPage(),
       const OutstationPage(),
       const EliteSOSPage(),
+      const JobDashboardPage(),
+      const MyProfilesOverviewScreen(),
     ];
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _navigateToTab(int i) {
+    final targetIndex = (i % _pages.length);
+    setState(() => _index = targetIndex);
+    _pageController.animateToPage(
+      targetIndex,
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeInOut,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_index],
+      // Point 7: Sequential Left-Right Swipe with PageView
+      body: PageView.builder(
+        controller: _pageController,
+        onPageChanged: (i) {
+          setState(() => _index = i % _pages.length);
+        },
+        itemBuilder: (context, index) {
+          return _pages[index % _pages.length];
+        },
+      ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        currentIndex: _index,
+        currentIndex: _index % _pages.length,
         backgroundColor: Colors.black,
         selectedItemColor: const Color(0xFFFF9933),
         unselectedItemColor: Colors.grey,
-        onTap: (i) => setState(() => _index = i),
+        selectedFontSize: 11,
+        unselectedFontSize: 10,
+        onTap: (i) => _navigateToTab(i),
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.two_wheeler), label: 'Ride'),
-          BottomNavigationBarItem(icon: Icon(Icons.handyman), label: 'Technician'),
+          BottomNavigationBarItem(icon: Icon(Icons.handyman), label: 'Tech'),
           BottomNavigationBarItem(icon: Icon(Icons.work), label: 'Pro'),
           BottomNavigationBarItem(icon: Icon(Icons.directions_car), label: 'Outstation'),
           BottomNavigationBarItem(icon: Icon(Icons.shield), label: 'Elite'),
+          BottomNavigationBarItem(icon: Icon(Icons.business_center), label: 'Jobs'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
     );
   }
 }
 
-class HomeDashboard extends StatelessWidget {
+class HomeDashboard extends StatefulWidget {
   final Function(int)? onSelectTab;
 
   const HomeDashboard({super.key, this.onSelectTab});
+
+  @override
+  State<HomeDashboard> createState() => _HomeDashboardState();
+}
+
+class _HomeDashboardState extends State<HomeDashboard> {
+  Timer? _silentAdminTimer;
+
+  @override
+  void dispose() {
+    _silentAdminTimer?.cancel();
+    super.dispose();
+  }
+
+  void _startSilentAdminTimer() {
+    _silentAdminTimer?.cancel();
+    // Point 8: Silent Admin: Top logo long press 7 seconds = Admin entry (SILENT, no visual clue)
+    _silentAdminTimer = Timer(const Duration(seconds: 7), () {
+      HapticFeedback.heavyImpact();
+      AdminLoginDialog.show(context);
+    });
+  }
+
+  void _cancelSilentAdminTimer() {
+    _silentAdminTimer?.cancel();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,21 +142,54 @@ class HomeDashboard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Row(
-                  children: [
-                    Icon(Icons.handshake, color: Color(0xFFFF9933)),
-                    SizedBox(width: 8),
-                    Text(
-                      'BHARAT MITRA',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
+                // TOP LOGO ROW WITH 7-SECOND SILENT ADMIN TRIGGER
+                GestureDetector(
+                  onTapDown: (_) => _startSilentAdminTimer(),
+                  onTapUp: (_) => _cancelSilentAdminTimer(),
+                  onTapCancel: () => _cancelSilentAdminTimer(),
+                  onLongPressStart: (_) => _startSilentAdminTimer(),
+                  onLongPressEnd: (_) => _cancelSilentAdminTimer(),
+                  onLongPressCancel: () => _cancelSilentAdminTimer(),
+                  child: Row(
+                    children: [
+                      Image.asset(
+                        'assets/images/logo.png',
+                        height: 38,
+                        errorBuilder: (_, __, ___) => const Icon(
+                          Icons.handshake,
+                          color: Color(0xFFFF9933),
+                          size: 32,
+                        ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 10),
+                      const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'BHARAT MITRA',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              letterSpacing: 1.2,
+                            ),
+                          ),
+                          Text(
+                            'Apno Ka Saath • ISRO NavIC Connected',
+                            style: TextStyle(
+                              color: Color(0xFFFF9933),
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 15),
+
+                // SEARCH BAR
                 TextField(
                   style: const TextStyle(color: Colors.black87),
                   decoration: InputDecoration(
@@ -112,72 +206,74 @@ class HomeDashboard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
+
+                // ALL SERVICES DASHBOARD
                 const Text(
                   'All Services Dashboard',
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
+                    fontSize: 15,
                   ),
                 ),
                 const SizedBox(height: 10),
+
+                // SERVICES GRID (PRICE POLICY GLOBAL: NO PRICE ON CARDS)
                 GridView.count(
+                  crossAxisCount: 2,
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  crossAxisCount: 2,
-                  childAspectRatio: 1.4,
                   crossAxisSpacing: 10,
                   mainAxisSpacing: 10,
+                  childAspectRatio: 1.3,
                   children: [
                     _card(
                       'Ride Booking',
-                      'Bike/Auto/Car - 15% Comm',
+                      '5% Cheaper than Other Apps',
                       Icons.two_wheeler,
-                      const Color(0xFFFF9933),
-                      onTap: () => onSelectTab?.call(1),
+                      Colors.orange,
+                      onTap: () => widget.onSelectTab?.call(1),
                     ),
                     _card(
                       'Technicians',
-                      'Plumber etc - 20% Comm',
+                      'Verified Home Experts',
                       Icons.handyman,
                       Colors.blue,
-                      onTap: () => onSelectTab?.call(2),
+                      onTap: () => widget.onSelectTab?.call(2),
                     ),
                     _card(
                       'Professionals',
-                      'Advocate/CA/Doctor/Photographer - Sub 499',
+                      'Advocate, CA, Doctor, Beautician',
                       Icons.work,
                       Colors.purple,
-                      onTap: () => onSelectTab?.call(3),
+                      onTap: () => widget.onSelectTab?.call(3),
                     ),
                     _card(
                       'Outstation + Rural',
-                      'Bike/Car/Auto/Toto - Tourist+Gram - Sub',
-                      Icons.local_taxi,
+                      'Bike, Car, Auto, Toto',
+                      Icons.directions_car,
                       Colors.green,
-                      onTap: () => onSelectTab?.call(4),
+                      onTap: () => widget.onSelectTab?.call(4),
                     ),
                     _card(
                       'Elite SOS Group',
-                      '29/Member/24H - Live Tracking',
+                      '24H Live NavIC Tracking',
                       Icons.shield,
                       Colors.red,
-                      onTap: () => onSelectTab?.call(5),
+                      onTap: () => widget.onSelectTab?.call(5),
                     ),
                     _card(
-                      'My Dashboard',
-                      'My Bookings, Earnings, Groups',
-                      Icons.dashboard,
-                      Colors.white,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => const MyTripsScreen()),
-                        );
-                      },
+                      'Job Dashboard',
+                      'Double Wall • Candidate & Company',
+                      Icons.business_center,
+                      Colors.teal,
+                      onTap: () => widget.onSelectTab?.call(6),
                     ),
                   ],
                 ),
                 const SizedBox(height: 20),
+
+                // PROVIDER PROFILE SHORTCUTS
                 const Text(
                   'Provider? Create Profile',
                   style: TextStyle(
@@ -275,14 +371,7 @@ class HomeDashboard extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                       side: const BorderSide(color: Colors.redAccent),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const JobDashboardPage(),
-                          ),
-                        );
-                      },
+                      onPressed: () => widget.onSelectTab?.call(6),
                     ),
                     ActionChip(
                       label: const Text('ISRO Mappls + NavIC'),
@@ -303,6 +392,18 @@ class HomeDashboard extends StatelessWidget {
                         );
                       },
                     ),
+                    ActionChip(
+                      label: const Text('My Profiles'),
+                      avatar: const Icon(Icons.account_circle, size: 16, color: Colors.cyanAccent),
+                      backgroundColor: Colors.cyan.withOpacity(0.15),
+                      labelStyle: const TextStyle(
+                        color: Colors.cyanAccent,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      side: const BorderSide(color: Colors.cyanAccent),
+                      onPressed: () => widget.onSelectTab?.call(7),
+                    ),
                   ],
                 ),
               ],
@@ -317,41 +418,35 @@ class HomeDashboard extends StatelessWidget {
       GestureDetector(
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border(left: BorderSide(color: c, width: 4)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.2),
-                blurRadius: 6,
-                offset: const Offset(0, 2),
-              ),
-            ],
+            color: const Color(0xFF1E1E1E),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: c.withOpacity(0.35)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(i, color: c),
+              Icon(i, color: c, size: 28),
               const SizedBox(height: 6),
               Text(
                 t,
                 style: const TextStyle(
+                  color: Colors.white,
                   fontWeight: FontWeight.bold,
-                  fontSize: 12,
-                  color: Colors.black87,
+                  fontSize: 13,
                 ),
               ),
               const SizedBox(height: 2),
               Text(
                 s,
-                style: TextStyle(
-                  fontSize: 9,
-                  color: Colors.grey[700],
-                ),
-                maxLines: 2,
+                maxLines: 1,
                 overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Colors.white60,
+                  fontSize: 10,
+                ),
               ),
             ],
           ),
