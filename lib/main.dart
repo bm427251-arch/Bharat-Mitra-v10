@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'theme/app_theme.dart';
 import 'bharat_mitra_home.dart';
 import 'screens/home_screen.dart';
 import 'screens/admin_screen.dart';
@@ -22,7 +21,6 @@ import 'screens/become_rent_owner_screen.dart';
 import 'screens/company_post_job_screen.dart';
 import 'job_dashboard_page.dart';
 import 'screens/splash_screen.dart';
-import 'splash_screen.dart';
 import 'screens/wallet_screen.dart';
 import 'screens/parcel_screen.dart';
 import 'firebase_options.dart';
@@ -61,7 +59,23 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Bharat Mitra',
-      theme: AppTheme.lightTheme,
+      theme: ThemeData(
+        useMaterial3: true,
+        scaffoldBackgroundColor: const Color(0xFF0A0A0A),
+        primaryColor: const Color(0xFFFF6B00),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF0A0A0A),
+          elevation: 0,
+          iconTheme: IconThemeData(color: Colors.white),
+          titleTextStyle: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+          backgroundColor: Color(0xFF0A0A0A),
+          selectedItemColor: Color(0xFFFF6B00),
+          unselectedItemColor: Colors.white54,
+          type: BottomNavigationBarType.fixed,
+        ),
+      ),
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
       locale: context.locale,
@@ -69,6 +83,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/splash': (_) => const SplashScreen(),
         '/home': (_) => const BharatMitraHome(),
+        '/home-new': (_) => const HomeScreen(),
         '/rent-drive': (_) => const RentDriveScreen(),
         '/driver-home': (_) => const DriverHomeScreen(),
         '/sevak-home': (_) => const SevakHomeScreen(),
@@ -106,14 +121,10 @@ class MyApp extends StatelessWidget {
           );
         }
         if (settings.name == '/driver-register') {
-          return MaterialPageRoute(
-            builder: (_) => const BecomeDriverScreen(),
-          );
+          return MaterialPageRoute(builder: (_) => const BecomeDriverScreen());
         }
         if (settings.name == '/sevak-register') {
-          return MaterialPageRoute(
-            builder: (_) => const BecomeSebakScreen(),
-          );
+          return MaterialPageRoute(builder: (_) => const BecomeSebakScreen());
         }
         return null;
       },
