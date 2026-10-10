@@ -1,21 +1,20 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import '../models/ride_model.dart';
-import 'active_drivers_screen.dart';
+import '../bharat_mitra_home.dart';
+import '../job_dashboard_page.dart';
+import 'rent_drive_screen.dart';
 import 'sebak_list_screen.dart';
-import 'professional_list_screen.dart';
-import 'outstation_screen.dart';
-import 'elite_sos_screen.dart';
-import 'job_dashboard_screen.dart';
-import 'profile_screen.dart';
-import 'ride_booking_screen.dart';
+import 'hire_driver_screen.dart';
 import 'wallet_screen.dart';
 import 'parcel_screen.dart';
 import 'admin_screen.dart';
 import 'become_driver_screen.dart';
-import 'become_technician_screen.dart';
-import 'add_pro_profile_screen.dart';
-import 'add_vehicle_screen.dart';
+import 'become_sebak_screen.dart';
+import 'become_rent_owner_screen.dart';
+import 'owner_add_vehicle_screen.dart';
+import 'tracking_screen.dart';
+import 'profile_screen.dart';
+import 'splash_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -29,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _startAdmin() {
     _adminTimer = Timer(const Duration(seconds: 7), () {
-      Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminScreen()));
+      Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminLoginScreen(adminEmail: 'bm427251@gmail.com')));
     });
   }
   void _cancelAdmin() => _adminTimer?.cancel();
@@ -47,10 +46,10 @@ class _HomeScreenState extends State<HomeScreen> {
           onTapCancel: _cancelAdmin,
           child: Padding(
             padding: const EdgeInsets.all(8),
-            child: ClipOval(child: Image.asset('assets/images/logo.png', errorBuilder: (_,__,___) => const Icon(Icons.handshake, color: Colors.orange))),
+            child: ClipOval(child: Image.asset('assets/images/logo.png', errorBuilder: (_,__,___) => const Icon(Icons.handshake, color: Colors.orange, size: 24))),
           ),
         ),
-        title: const Text('BHARAT MITRA', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18, letterSpacing: 1)),
+        title: const Text('BHARAT MITRA', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 17, letterSpacing: 1)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(12),
@@ -66,13 +65,13 @@ class _HomeScreenState extends State<HomeScreen> {
               childAspectRatio: 1.35,
               children: [
                 _mainCard(Icons.two_wheeler, Colors.orange, 'Ride Booking', '5% Cheaper than Other Apps', () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => ActiveDriversScreen(rideOption: RideOption.availableRides.first, pickupAddress: 'Current', dropAddress: 'Drop')));
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const TrackingScreen(serviceType: 'book_ride', partnerId: 'd1', partnerName: 'Rajesh Das', partnerPhone: '+91 98301 23456', vehicleInfo: 'Bike • WB 02 BB 1024', pickupAddress: 'Howrah', dropAddress: 'Park Street', fare: 45.0)));
                 }),
                 _mainCard(Icons.build, Colors.blue, 'Technicians', 'Verified Home Experts', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SebakListScreen()))),
-                _mainCard(Icons.business_center, Colors.purple, 'Professionals', 'Advocate, CA, Doctor...', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfessionalListScreen()))),
-                _mainCard(Icons.directions_car, Colors.green, 'Outstation + Rural', 'Bike, Car, Auto, Toto', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const OutstationScreen()))),
-                _mainCard(Icons.shield, Colors.red, 'Elite SOS Group', '24H Live NavIC Tracking', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const EliteSosScreen()))),
-                _mainCard(Icons.work, Colors.teal, 'Job Dashboard', 'Double Wall • Candidate', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const JobDashboardScreen()))),
+                _mainCard(Icons.business_center, Colors.purple, 'Professionals', 'Advocate, CA, Doctor...', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SebakListScreen()))),
+                _mainCard(Icons.directions_car, Colors.green, 'Outstation + Rural', 'Bike, Car, Auto, Toto', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HireDriverScreen()))),
+                _mainCard(Icons.shield, Colors.red, 'Elite SOS Group', '24H Live NavIC Tracking', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileScreen()))),
+                _mainCard(Icons.work, Colors.teal, 'Job Dashboard', 'Double Wall • Candidate', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const JobDashboardPage()))),
                 _mainCard(Icons.account_balance_wallet, Colors.greenAccent, 'Wallet', 'Balance & History', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const WalletScreen()))),
                 _mainCard(Icons.local_shipping, Colors.orangeAccent, 'Parcel', 'Courier Delivery', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ParcelScreen()))),
               ],
@@ -81,9 +80,9 @@ class _HomeScreenState extends State<HomeScreen> {
             const Text('Provider? Create Profile', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             _whiteBtn(Icons.directions_car, 'Become Driver', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BecomeDriverScreen()))),
-            _whiteBtn(Icons.build, 'Become Technician', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BecomeTechnicianScreen()))),
-            _whiteBtn(Icons.badge, 'Add Pro Profile', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AddProProfileScreen()))),
-            _whiteBtn(Icons.car_rental, 'Add Vehicle - Toto/Auto/Bike/Car', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AddVehicleScreen()))),
+            _whiteBtn(Icons.build, 'Become Technician', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BecomeSebakScreen()))),
+            _whiteBtn(Icons.badge, 'Add Pro Profile', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BecomeSebakScreen()))),
+            _whiteBtn(Icons.car_rental, 'Add Vehicle - Toto/Auto/Bike/Car', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const OwnerAddVehicleScreen()))),
             const SizedBox(height: 10),
             Row(children: [
               Expanded(child: _colorBtn(Icons.work, '+ Post Job - FREE', const Color(0xFFFFE0B2), Colors.orange)),
@@ -108,7 +107,8 @@ class _HomeScreenState extends State<HomeScreen> {
         currentIndex: _currentIndex,
         onTap: (i) {
           setState(() => _currentIndex = i);
-          if (i == 1) Navigator.push(context, MaterialPageRoute(builder: (_) => const RideBookingScreen()));
+          if (i == 0) return;
+          if (i == 1) Navigator.push(context, MaterialPageRoute(builder: (_) => const TrackingScreen(serviceType: 'book_ride', partnerId: 'd1', partnerName: 'Rajesh Das', partnerPhone: '+91 98301 23456', vehicleInfo: 'Bike', pickupAddress: 'Howrah', dropAddress: 'Park Street', fare: 45.0)));
           if (i == 2) Navigator.push(context, MaterialPageRoute(builder: (_) => const SebakListScreen()));
           if (i == 7) Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileScreen()));
         },
@@ -146,7 +146,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _whiteBtn(IconData ic, String t, VoidCallback tap) {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
-      child: InkWell(onTap: tap, child: Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)), child: Row(children: [Icon(ic, size: 18), const SizedBox(width: 10), Text(t, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600))]))),
+      child: InkWell(onTap: tap, child: Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)), child: Row(children: [Icon(ic, size: 18, color: Colors.black87), const SizedBox(width: 10), Text(t, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black87))]))),
     );
   }
 
