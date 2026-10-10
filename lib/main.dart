@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'theme/app_theme.dart';
+import 'bharat_mitra_home.dart';
 import 'screens/home_screen.dart';
 import 'screens/admin_screen.dart';
 import 'screens/become_driver_screen.dart';
@@ -45,7 +46,7 @@ void main() async {
         Locale('hi'),
       ],
       path: 'assets/translations',
-      fallbackLocale: const Locale('en'), // Default Language English Only
+      fallbackLocale: const Locale('en'),
       startLocale: const Locale('en'),
       child: const MyApp(),
     ),
@@ -63,11 +64,11 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
-      locale: context.locale, // If user selects bn/hi, that language will be active
+      locale: context.locale,
       home: const SplashScreen(),
       routes: {
         '/splash': (_) => const SplashScreen(),
-        '/home': (_) => const HomeScreen(),
+        '/home': (_) => const BharatMitraHome(),
         '/rent-drive': (_) => const RentDriveScreen(),
         '/driver-home': (_) => const DriverHomeScreen(),
         '/sevak-home': (_) => const SevakHomeScreen(),
