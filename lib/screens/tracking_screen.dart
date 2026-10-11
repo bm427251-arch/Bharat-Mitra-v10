@@ -49,6 +49,8 @@ class _TrackingScreenState extends State<TrackingScreen> {
     super.initState();
     MapplsAccountManager.setMapSDKKey("d835a9b71157cf516970e5fbe46597ef");
     MapplsAccountManager.setRestAPIKey("[STRIPPED 88 bytes]");
+    MapplsAccountManager.setAtlasClientId("[STRIPPED 88 bytes]");
+    MapplsAccountManager.setAtlasClientSecret("[STRIPPED 96 bytes]");
   }
 
   void _onMapCreated(MapplsMapController controller) {
@@ -59,9 +61,9 @@ class _TrackingScreenState extends State<TrackingScreen> {
 
   Future<void> _addMarkers() async {
     try {
-      await _mapController?.addSymbol(SymbolOptions(geometry: _pickup, iconSize: 1.2));
-      await _mapController?.addSymbol(SymbolOptions(geometry: _drop, iconSize: 1.2));
-      _driverSymbol = await _mapController?.addSymbol(SymbolOptions(geometry: _driverPos, iconSize: 1.5));
+      await _mapController?.addSymbol(SymbolOptions(geometry: _pickup, iconSize: 1.2, textField: "Pickup"));
+      await _mapController?.addSymbol(SymbolOptions(geometry: _drop, iconSize: 1.2, textField: "Drop"));
+      _driverSymbol = await _mapController?.addSymbol(SymbolOptions(geometry: _driverPos, iconSize: 1.5, textField: "Driver"));
       await _mapController?.addLine(LineOptions(geometry: [_pickup, _drop], lineColor: "#FF6B00", lineWidth: 4));
     } catch (e) {
       debugPrint("Mappls error: $e");
@@ -95,10 +97,7 @@ class _TrackingScreenState extends State<TrackingScreen> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF1A365D),
         title: const Text('Live Tracking - ISRO NavIC', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
+        leading: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.white), onPressed: () => Navigator.pop(context)),
       ),
       body: Stack(
         children: [
@@ -113,10 +112,7 @@ class _TrackingScreenState extends State<TrackingScreen> {
             right: 0,
             child: Container(
               padding: const EdgeInsets.all(16),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
-              ),
+              decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20))),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -124,11 +120,7 @@ class _TrackingScreenState extends State<TrackingScreen> {
                   const SizedBox(height: 10),
                   Row(
                     children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(color: Colors.orange, borderRadius: BorderRadius.circular(20)),
-                        child: const Text('Live • ISRO NavIC', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
-                      ),
+                      Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4), decoration: BoxDecoration(color: Colors.orange, borderRadius: BorderRadius.circular(20)), child: const Text('Live • ISRO NavIC', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12))),
                       const Spacer(),
                       const Icon(Icons.satellite_alt, color: Colors.green, size: 18),
                       const Text(' Mappls', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 11)),
